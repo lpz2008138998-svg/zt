@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>委托出租 · 前端 Demo | 盘古循环资源平台</title>
+<style>
+  :root{
+    --brand:#0A54BA;
+    --brand-2:#0F62D4;
+    --brand-light:#E8F1FE;
+    --danger:#EE0000;
+    --text:#1F2329;
+    --text-2:#7E8693;
+    --border:#E5E8EF;
+    --bg:#F4F5F8;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;
+  }
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ---------- 顶栏 ---------- */
+  .topbar{
+    height:56px;background:linear-gradient(90deg,#0A54BA,#0F62D4);
+    display:flex;align-items:center;padding:0 20px;color:#fff;
+    position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(10,84,186,.25);
+  }
+  .topbar .logo{font-size:18px;font-weight:700;letter-spacing:.5px;}
+  .topbar .logo small{font-weight:400;opacity:.85;font-size:12px;margin-left:8px;}
+  .topbar .badge{
+    margin-left:14px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+    padding:2px 10px;border-radius:11px;font-size:12px;
+  }
+  .topbar .spacer{flex:1;}
+  .topbar .user{font-size:13px;opacity:.95;}
+  .topbar .user b{font-weight:600;}
+
+  /* ---------- 布局 ---------- */
+  .layout{display:flex;height:calc(100% - 56px);}
+  .sidebar{
+    width:210px;background:#fff;border-right:1px solid var(--border);
+    padding:12px 0;overflow-y:auto;flex-shrink:0;
+  }
+  .nav-group{margin-bottom:6px;}
+  .nav-group-title{
+    font-size:12px;color:var(--text-2);padding:10px 18px 6px;letter-spacing:1px;
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:8px;padding:9px 18px;font-size:14px;
+    color:#3D4553;cursor:pointer;border-left:3px solid transparent;user-select:none;
+  }
+  .nav-item:hover{background:#F7F9FC;color:var(--brand);}
+  .nav-item.active{background:var(--brand-light);color:var(--brand);font-weight:600;border-left-color:var(--brand);}
+  .nav-item .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.55;}
+
+  .main{flex:1;overflow-y:auto;padding:18px 22px 40px;}
+
+  /* ---------- 页头 ---------- */
+  .page-head{display:flex;align-items:center;margin-bottom:16px;}
+  .page-head h2{margin:0;font-size:19px;font-weight:600;}
+  .page-head .sub{margin-left:10px;font-size:12px;color:var(--text-2);}
+  .page-head .spacer{flex:1;}
+  .btn{
+    height:34px;padding:0 16px;border-radius:var(--radius);border:1px solid var(--border);
+    background:#fff;color:var(--text);font-size:14px;
+  }
+  .btn.primary{background:linear-gradient(90deg,#0A54BA,#0F62D4);border-color:transparent;color:#fff;font-weight:600;}
+  .btn+.btn{margin-left:10px;}
+
+  /* ---------- 卡片 ---------- */
+  .card{
+    background:#fff;border:1px solid var(--border);border-radius:8px;
+    padding:20px;margin-bottom:16px;
+  }
+  .card h3{margin:0 0 6px;font-size:15px;font-weight:600;}
+  .card p{margin:0;color:var(--text-2);font-size:13px;}
+
+  /* ---------- 状态提示 ---------- */
+  .notice{
+    background:#FFF9E8;border:1px solid #FFE08A;color:#8A6100;
+    border-radius:8px;padding:14px 18px;font-size:13px;margin-bottom:16px;
+  }
+  .notice b{color:#7A5200;}
+
+  /* ---------- 流程步骤 ---------- */
+  .steps{display:flex;gap:0;margin-top:18px;flex-wrap:wrap;}
+  .step{
+    flex:1;min-width:130px;position:relative;padding:0 8px;
+  }
+  .step .idx{
+    width:26px;height:26px;border-radius:50%;background:var(--brand-light);color:var(--brand);
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;
+    margin-bottom:8px;
+  }
+  .step .t{font-size:13px;font-weight:600;margin-bottom:3px;}
+  .step .d{font-size:12px;color:var(--text-2);line-height:1.45;}
+  .step:not(:last-child)::after{
+    content:"";position:absolute;top:13px;right:-1px;width:8px;height:1px;background:var(--border);
+  }
+
+  /* ---------- 占位区 ---------- */
+  .placeholder{
+    border:2px dashed #D3DAE6;border-radius:8px;background:#FBFCFE;
+    padding:44px 20px;text-align:center;color:var(--text-2);
+  }
+  .placeholder .ico{font-size:34px;opacity:.4;margin-bottom:10px;}
+  .placeholder .h{font-size:15px;color:var(--text);font-weight:600;margin-bottom:6px;}
+  .placeholder .s{font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">盘古循环资源平台<small>委托出租</small></div>
+  <div class="badge">前端 Demo · 待开发</div>
+  <div class="spacer"></div>
+  <div class="user">当前用户：<b>张工</b></div>
+</div>
+
+<div class="layout">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main" id="main"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+
+const NAV = [
+  {group:'委托出租', items:[
+    {key:'manage',  label:'出租委托管理'},
+    {key:'publish', label:'发布出租房源'},
+    {key:'query',   label:'出租委托查询'}
+  ]},
+  {group:'运营管理', items:[
+    {key:'audit',     label:'委托审核'},
+    {key:'negotiate', label:'议价审核'}
+  ]},
+  {group:'商城前台', items:[
+    {key:'mall', label:'出租专区'}
+  ]}
+];
+
+const STEPS = [
+  {t:'提交出租委托', d:'填写店铺信息、期望租金、可租周期等'},
+  {t:'平台审核',     d:'核对产权资料与店铺情况'},
+  {t:'挂牌展示',     d:'进入出租专区对外展示'},
+  {t:'意向洽谈',     d:'承租方咨询、在线议价'},
+  {t:'签约成交',     d:'生成租赁合同并归档'}
+];
+
+let currentView = 'manage';
+
+function renderSidebar(){
+  $('#sidebar').innerHTML = NAV.map(g => `
+    <div class="nav-group">
+      <div class="nav-group-title">${g.group}</div>
+      ${g.items.map(it => `
+        <div class="nav-item ${currentView===it.key?'active':''}" onclick="switchView('${it.key}')">
+          <span class="dot"></span>${it.label}
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function stepsHtml(){
+  return `<div class="steps">${STEPS.map((s,i) => `
+    <div class="step">
+      <div class="idx">${i+1}</div>
+      <div class="t">${s.t}</div>
+      <div class="d">${s.d}</div>
+    </div>`).join('')}</div>`;
+}
+
+function viewManage(){
+  return `
+    <div class="page-head">
+      <h2>出租委托管理</h2>
+      <span class="sub">委托出租 · 全流程</span>
+      <div class="spacer"></div>
+      <button class="btn primary">+ 新建出租委托</button>
+    </div>
+    <div class="notice">
+      <b>本页为占位 Demo。</b>「委托出租」的业务页面尚未开发，此处仅展示入口与流程骨架，
+      方便先跑通门户导航。具体表单与列表待需求确认后补齐。
+    </div>
+    <div class="card">
+      <h3>业务流程</h3>
+      <p>委托出租从提交到成交，共 5 个环节：</p>
+      ${stepsHtml()}
+    </div>
+    <div class="card">
+      <h3>委托列表</h3>
+      <p>此处将展示出租委托记录（店铺名称、期望租金、状态、操作）。</p>
+      <div class="placeholder" style="margin-top:14px;">
+        <div class="ico">▤</div>
+        <div class="h">暂无数据</div>
+        <div class="s">点击右上角「新建出租委托」开始录入</div>
+      </div>
+    </div>`;
+}
+
+function viewPlaceholder(title, desc){
+  return `
+    <div class="page-head">
+      <h2>${title}</h2>
+      <span class="sub">委托出租</span>
+    </div>
+    <div class="card">
+      <h3>${title}</h3>
+      <p>${desc}</p>
+      <div class="placeholder" style="margin-top:14px;">
+        <div class="ico">▤</div>
+        <div class="h">功能建设中</div>
+        <div class="s">该模块尚未开发，先占个位置</div>
+      </div>
+    </div>`;
+}
+
+function viewPublish(){ return viewPlaceholder('发布出租房源', '填写店铺信息、期望租金、可租周期、配套说明等，提交后进入审核。'); }
+function viewQuery(){ return viewPlaceholder('出租委托查询', '按店铺名称、委托状态、提交时间等条件检索出租委托记录。'); }
+function viewAudit(){ return viewPlaceholder('委托审核', '审核承租/出租委托的资质与资料，支持通过、驳回与备注。'); }
+function viewNegotiate(){ return viewPlaceholder('议价审核', '对承租方的出价进行审核与批复。'); }
+function viewMall(){ return viewPlaceholder('出租专区', '商城前台的出租店铺专区，面向承租方展示在租店铺。'); }
+
+function switchView(key){
+  currentView = key;
+  renderSidebar();
+  const map = {
+    manage: viewManage, publish: viewPublish, query: viewQuery,
+    audit: viewAudit, negotiate: viewNegotiate, mall: viewMall
+  };
+  $('#main').innerHTML = (map[key] || viewManage)();
+  $('#main').scrollTop = 0;
+}
+
+renderSidebar();
+switchView('manage');
+</script>
+</body>
+</html>

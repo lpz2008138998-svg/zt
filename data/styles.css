@@ -1,0 +1,372 @@
+﻿.ax_default {
+  font-family:"Arial Normal", "Arial", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:13px;
+  letter-spacing:normal;
+  color:#333333;
+  vertical-align:none;
+  text-align:center;
+  line-height:normal;
+  text-transform:none;
+}
+.box_1 {
+}
+.ellipse {
+}
+._图片_ {
+}
+._一级标题 {
+  font-family:"Arial Normal", "Arial", sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:32px;
+  text-align:left;
+}
+._二级标题 {
+  font-family:"Arial Normal", "Arial", sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:24px;
+  text-align:left;
+}
+._三级标题 {
+  font-family:"Arial Normal", "Arial", sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:18px;
+  text-align:left;
+}
+._四级标题 {
+  font-family:"Arial Normal", "Arial", sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:14px;
+  text-align:left;
+}
+._五级标题 {
+  font-family:"Arial Normal", "Arial", sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  text-align:left;
+}
+._六级标题 {
+  font-family:"Arial Normal", "Arial", sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:10px;
+  text-align:left;
+}
+._文本段落 {
+  text-align:left;
+}
+._文本链接 {
+  color:#0000FF;
+}
+.text_link_mouse_over {
+}
+.text_link_mouse_down {
+}
+.text_field {
+  color:#000000;
+  text-align:left;
+}
+.text_area {
+  color:#000000;
+  text-align:left;
+}
+._表单提示 {
+  color:#999999;
+}
+._表单禁用 {
+}
+._流程形状 {
+}
+._形状 {
+}
+.image {
+}
+.placeholder {
+}
+.droplist {
+  color:#000000;
+  text-align:left;
+}
+.list_box {
+  color:#000000;
+  text-align:left;
+}
+.checkbox {
+  text-align:left;
+}
+.radio_button {
+  text-align:left;
+}
+.tree_node {
+  text-align:left;
+}
+.table_cell {
+}
+._线段 {
+}
+._连接 {
+  font-family:"PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:14px;
+  color:#EA0000;
+}
+.form_disabled {
+}
+.button {
+}
+.primary_button {
+  color:#FFFFFF;
+}
+.link_button {
+  color:#1E98D7;
+}
+.table_cell1 {
+}
+.menu_item {
+}
+.form_hint {
+  color:#999999;
+}
+.form_disabled1 {
+}
+.icon {
+}
+.paragraph {
+  text-align:left;
+}
+.flow_shape {
+}
+.box_2 {
+}
+.label {
+  font-size:14px;
+  text-align:left;
+}
+.box_3 {
+}
+._中间内容-背景 {
+  font-family:"Arial Negreta", "Arial Normal", "Arial", sans-serif;
+  font-weight:700;
+  font-style:normal;
+}
+._详情-三级标题-文本 {
+  font-family:"微软雅黑", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:14px;
+  text-align:left;
+  line-height:21px;
+}
+._详情-三级标题-左侧蓝色竖线 {
+}
+.line {
+}
+._默认样式 {
+}
+.text_area1 {
+  color:#000000;
+  text-align:left;
+}
+._铁建-幽灵按钮-主题圆角（中-16） {
+  font-family:"微软雅黑", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:14px;
+  color:#3197FB;
+  text-align:left;
+  line-height:32px;
+}
+._主按钮-主题圆角4（中） {
+  font-family:"微软雅黑", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:12px;
+  color:#FFFFFF;
+  text-align:center;
+  line-height:32px;
+}
+._次按钮-主题直角（中） {
+  font-family:"微软雅黑", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:12px;
+  color:#666666;
+  text-align:center;
+  line-height:32px;
+}
+._页签-背景 {
+  font-family:"微软雅黑", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:14px;
+  text-align:left;
+}
+._页签-关闭按钮 {
+}
+.ellipse1 {
+}
+._布局-手风琴折叠导航-边框_白色 {
+}
+._默认分页-图标翻页 {
+  font-family:"Al Bayan", sans-serif;
+  font-weight:700;
+  font-style:normal;
+  font-size:18px;
+  color:#666666;
+  text-align:center;
+  line-height:28px;
+}
+._默认分页-页码 {
+  font-family:"Arial Normal", "Arial", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:12px;
+  color:#666666;
+  text-align:center;
+  line-height:30px;
+}
+._默认分页-快速跳转 {
+  font-family:"Al Bayan", sans-serif;
+  font-weight:700;
+  font-style:normal;
+  font-size:14px;
+  color:#999999;
+  text-align:center;
+  line-height:30px;
+}
+._组合分页-输入框 {
+}
+._铁建-组合分页-输入项 {
+  font-family:"微软雅黑", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:12px;
+  color:#666666;
+  text-align:left;
+}
+._导航-图片_图标 {
+}
+._默认分页-文本 {
+  font-family:"Microsoft YaHei", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:12px;
+  color:#999999;
+  text-align:left;
+  line-height:32px;
+}
+._组合分页-输入项 {
+  font-family:"Microsoft YaHei", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:14px;
+  color:#666666;
+  text-align:left;
+}
+._侧栏导航菜单-父类目（浅） {
+  font-family:"微软雅黑", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:14px;
+  color:#666666;
+  text-align:left;
+  line-height:48px;
+}
+._时间选择器-时间图标 {
+}
+._自定义折线图-蓝色数值框 {
+  color:#FFFFFF;
+  text-align:center;
+}
+._创建项目-基础信息-当前文字-m {
+  font-family:"PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:12px;
+  color:#E1251B;
+  text-align:center;
+  line-height:24px;
+}
+.heading_3 {
+  font-family:"Arial Normal", "Arial", sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:18px;
+  text-align:left;
+}
+.form_hint1 {
+  color:#999999;
+}
+.text_field1 {
+  color:#000000;
+  text-align:left;
+}
+.arrow {
+}
+.sticky_1 {
+  text-align:left;
+}
+.label1 {
+  font-size:14px;
+  text-align:left;
+}
+._默认样式1 {
+}
+._文本链接1 {
+  color:#409EFF;
+}
+._链接悬停 {
+  color:#66B1FF;
+}
+._链接按下 {
+}
+.box_31 {
+}
+.heading_1 {
+  font-family:"Arial Normal", "Arial", sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:32px;
+  text-align:left;
+}
+.box_21 {
+}
+.form_disabled2 {
+}
+.box_11 {
+}
+.shape {
+}
+.paragraph1 {
+  text-align:left;
+}
+.image1 {
+  color:#000000;
+}
+.line1 {
+}
+.image2 {
+}
+.icon1 {
+}
+.icon2 {
+}
+.box_32 {
+}
+.line2 {
+}
+._图片 {
+}
+.label2 {
+  font-size:14px;
+  text-align:left;
+}
+._链接按下1 {
+}
+textarea, select, input, button, div, svg { outline: none; }

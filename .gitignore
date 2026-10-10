@@ -1,0 +1,22 @@
+# ===== 备份 / 演示副本（不进仓库）=====
+门户_备份_*.html
+门户_demo.html
+index_axure播放器_备份.html
+
+# ===== Axure 播放器附属页（与本原型无关）=====
+start.html
+start_c_1.html
+start_with_pages.html
+
+# ===== 系统 / 编辑器 =====
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# ===== 临时文件 =====
+*.log
+*.tmp
+~$*

@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>委托出售 · 前端 Demo | 盘古循环资源平台</title>
+<style>
+  :root{
+    --brand:#0A54BA;
+    --brand-2:#0F62D4;
+    --brand-light:#E8F1FE;
+    --danger:#EE0000;
+    --text:#1F2329;
+    --text-2:#7E8693;
+    --border:#E5E8EF;
+    --bg:#F4F5F8;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;
+  }
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ---------- 顶栏 ---------- */
+  .topbar{
+    height:56px;background:linear-gradient(90deg,#0A54BA,#0F62D4);
+    display:flex;align-items:center;padding:0 20px;color:#fff;
+    position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(10,84,186,.25);
+  }
+  .topbar .logo{font-size:18px;font-weight:700;letter-spacing:.5px;}
+  .topbar .logo small{font-weight:400;opacity:.85;font-size:12px;margin-left:8px;}
+  .topbar .badge{
+    margin-left:14px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+    padding:2px 10px;border-radius:11px;font-size:12px;
+  }
+  .topbar .spacer{flex:1;}
+  .topbar .user{font-size:13px;opacity:.95;}
+  .topbar .user b{font-weight:600;}
+
+  /* ---------- 布局 ---------- */
+  .layout{display:flex;height:calc(100% - 56px);}
+  .sidebar{
+    width:210px;background:#fff;border-right:1px solid var(--border);
+    padding:12px 0;overflow-y:auto;flex-shrink:0;
+  }
+  .nav-group{margin-bottom:6px;}
+  .nav-group-title{
+    font-size:12px;color:var(--text-2);padding:10px 18px 6px;letter-spacing:1px;
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:8px;padding:9px 18px;font-size:14px;
+    color:#3D4553;cursor:pointer;border-left:3px solid transparent;user-select:none;
+  }
+  .nav-item:hover{background:#F7F9FC;color:var(--brand);}
+  .nav-item.active{background:var(--brand-light);color:var(--brand);font-weight:600;border-left-color:var(--brand);}
+  .nav-item .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.55;}
+
+  .main{flex:1;overflow-y:auto;padding:18px 22px 40px;}
+
+  /* ---------- 通用组件 ---------- */
+  .page-title{font-size:18px;font-weight:700;margin:0 0 4px;}
+  .page-sub{color:var(--text-2);font-size:13px;margin-bottom:16px;}
+
+  .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);}
+  .card+.card{margin-top:16px;}
+  .card-head{
+    padding:12px 16px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:10px;
+  }
+  .card-head h3{margin:0;font-size:15px;}
+  .card-body{padding:16px;}
+
+  .btn{
+    border:1px solid var(--border);background:#fff;color:#3D4553;
+    padding:6px 14px;border-radius:4px;font-size:13px;transition:.15s;
+  }
+  .btn:hover{border-color:var(--brand);color:var(--brand);}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .btn.primary:hover{background:var(--brand-2);border-color:var(--brand-2);color:#fff;}
+  .btn.danger{color:var(--danger);border-color:#F5C2C2;}
+  .btn.danger:hover{background:#FFF1F0;border-color:var(--danger);}
+  .btn.sm{padding:3px 10px;font-size:12px;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+
+  input,select{
+    font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--border);
+    border-radius:4px;outline:none;color:var(--text);background:#fff;
+  }
+  input:focus,select:focus{border-color:var(--brand);box-shadow:0 0 0 2px rgba(10,84,186,.1);}
+  label.field{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#3D4553;}
+  label.field>span i{color:var(--danger);font-style:normal;margin-right:2px;}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+
+  /* ---------- 统计卡 ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
+  .stat{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+  .stat .k{font-size:12px;color:var(--text-2);}
+  .stat .v{font-size:24px;font-weight:700;margin-top:6px;color:var(--brand);}
+  .stat .v small{font-size:13px;font-weight:400;color:var(--text-2);margin-left:4px;}
+
+  /* ---------- 流程条 ---------- */
+  .flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:16px;
+    background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+  .flow .step{display:flex;align-items:center;gap:8px;font-size:13px;color:#3D4553;}
+  .flow .num{width:22px;height:22px;border-radius:50%;background:var(--brand-light);color:var(--brand);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+  .flow .arrow{color:#C4CAD4;font-size:12px;}
+
+  /* ---------- 表格 ---------- */
+  table.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+  table.tbl th{
+    background:#FAFBFC;text-align:left;padding:10px 12px;font-weight:600;color:#4A5262;
+    border-bottom:1px solid var(--border);white-space:nowrap;
+  }
+  table.tbl td{padding:10px 12px;border-bottom:1px solid #F0F2F6;vertical-align:middle;}
+  table.tbl tr:hover td{background:#F9FBFE;}
+  table.tbl td.ops{white-space:nowrap;}
+  table.tbl td.ops .btn{margin-right:6px;}
+  table.tbl td.mono{font-family:Consolas,Monaco,monospace;font-size:12px;color:#4A5262;}
+  .empty{padding:40px;text-align:center;color:var(--text-2);}
+
+  .tag{display:inline-block;padding:1px 9px;border-radius:10px;font-size:12px;line-height:18px;white-space:nowrap;}
+  .tag.consign{background:#FFF3E0;color:#D4680A;border:1px solid #FFE0B2;}
+
+  /* ---------- 弹窗 / 抽屉 ---------- */
+  .mask{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:100;display:flex;
+    align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
+  .modal{background:#fff;border-radius:8px;width:900px;max-width:100%;box-shadow:0 12px 40px rgba(0,0,0,.2);}
+  .modal-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;}
+  .modal-head h3{margin:0;font-size:16px;flex:1;}
+  .modal-head .x{border:none;background:none;font-size:20px;color:var(--text-2);line-height:1;}
+  .modal-body{padding:18px 20px;max-height:62vh;overflow-y:auto;}
+  .modal-foot{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:620px;max-width:100%;background:#fff;z-index:101;
+    box-shadow:-8px 0 30px rgba(0,0,0,.12);display:flex;flex-direction:column;}
+  .drawer-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;}
+  .drawer-head h3{margin:0;font-size:16px;flex:1;}
+  .drawer-body{flex:1;overflow-y:auto;padding:18px 20px;}
+
+  .form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 16px;}
+  .form-grid .col-2{grid-column:span 2;}
+  .form-grid .col-3{grid-column:span 3;}
+  .sec-title{font-size:14px;font-weight:700;margin:18px 0 10px;padding-left:9px;border-left:3px solid var(--brand);}
+
+  table.edit{width:100%;border-collapse:collapse;font-size:13px;}
+  table.edit th{background:#FAFBFC;padding:8px;border:1px solid var(--border);font-weight:600;font-size:12px;white-space:nowrap;}
+  table.edit td{border:1px solid var(--border);padding:4px;}
+  table.edit input{width:100%;border:none;padding:6px 8px;font-size:13px;}
+  table.edit input:focus{box-shadow:none;}
+  table.edit .del{color:var(--danger);border:none;background:none;font-size:12px;}
+
+  .kv{display:grid;grid-template-columns:110px 1fr;gap:8px 12px;font-size:13px;}
+  .kv .k{color:var(--text-2);}
+
+  .toast-wrap{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;}
+  .toast{background:#1F2329;color:#fff;padding:9px 18px;border-radius:4px;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,.25);
+    animation:fade .25s ease;}
+  .toast.ok{background:#1B7A3D;}
+  .toast.err{background:#C31D1D;}
+  @keyframes fade{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}
+
+  /* ---------- 商城前台 ---------- */
+  .mall-top{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:16px;}
+  .mall-top .entry{display:flex;gap:22px;}
+  .mall-top .entry span{font-size:14px;color:#3D4553;cursor:pointer;padding:4px 2px;border-bottom:2px solid transparent;}
+  .mall-top .entry span:hover{color:var(--brand);}
+  .mall-top .entry span.hl{color:var(--brand);font-weight:700;border-bottom-color:var(--brand);}
+  .prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .prod{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:.2s;}
+  .prod:hover{box-shadow:0 8px 22px rgba(10,84,186,.12);transform:translateY(-2px);}
+  .prod .thumb{height:120px;background:linear-gradient(135deg,#EAF1FB,#F4F7FC);display:flex;align-items:center;
+    justify-content:center;color:#B9C6DA;font-size:34px;position:relative;}
+  .prod .thumb .tag{position:absolute;top:8px;right:8px;}
+  .prod .info{padding:12px 14px;}
+  .prod .name{font-size:14px;font-weight:600;margin-bottom:6px;height:40px;overflow:hidden;}
+  .prod .price{color:var(--danger);font-size:17px;font-weight:700;}
+  .prod .price small{font-size:12px;font-weight:400;color:var(--text-2);}
+  .prod .shop{font-size:12px;color:var(--text-2);margin-top:8px;display:flex;justify-content:space-between;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">铁建云链 <small>· 循环物资 · 租售店铺</small></div>
+  <div class="badge">委托出售 · 前端 Demo</div>
+  <div class="spacer"></div>
+  <div class="user">当前用户：<b>张三</b>（平台运营 / 商家后台）</div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main" id="main"></main>
+</div>
+
+<div id="overlay"></div>
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+/* =========================================================
+   委托出售 · 纯前端 Demo
+   数据全部在前端内存中，无后端、无网络请求
+   ========================================================= */
+
+/* ---------- 字典 / 常量 ---------- */
+const SHOPS = [
+  '江苏藤源自营销售店铺',
+  '广州小美新能源自营销售店铺',
+  '铁建华南合作店铺',
+  '中铁物资铁建店铺'
+];
+
+const STATUS_META = {
+  '草稿':    {color:'#7E8693', bg:'#F0F2F5'},
+  '待审':    {color:'#D48806', bg:'#FFF7E6'},
+  '驳回':    {color:'#EE0000', bg:'#FFF1F0'},
+  '委托中':  {color:'#0A54BA', bg:'#E8F1FE'},
+  '部分售出':{color:'#08979C', bg:'#E6FFFB'},
+  '售罄':    {color:'#7B2CBF', bg:'#F9F0FF'},
+  '到期':    {color:'#8C8C8C', bg:'#FAFAFA'},
+  '已结清':  {color:'#389E0D', bg:'#F6FFED'},
+  '已退回':  {color:'#8C8C8C', bg:'#FAFAFA'},
+  /* 履约链路扩展状态（议价 / 接单 / 发货 / 对账 / 退货，对齐 v1.1 §5.5） */
+  '待审核':  {color:'#D48806', bg:'#FFF7E6'},
+  '通过':    {color:'#389E0D', bg:'#F6FFED'},
+  '待接单':  {color:'#D48806', bg:'#FFF7E6'},
+  '已接单':  {color:'#08979C', bg:'#E6FFFB'},
+  '执行中':  {color:'#0A54BA', bg:'#E8F1FE'},
+  '待发货':  {color:'#D48806', bg:'#FFF7E6'},
+  '已发货':  {color:'#0A54BA', bg:'#E8F1FE'},
+  '已签收':  {color:'#389E0D', bg:'#F6FFED'},
+  '待创建':  {color:'#7E8693', bg:'#F0F2F5'},
+  '已创建':  {color:'#D48806', bg:'#FFF7E6'},
+  '已复核':  {color:'#08979C', bg:'#E6FFFB'},
+  '已付款':  {color:'#0A54BA', bg:'#E8F1FE'},
+  '已到账':  {color:'#389E0D', bg:'#F6FFED'},
+  '退货中':  {color:'#D4680A', bg:'#FFF3E0'},
+  '已退货':  {color:'#389E0D', bg:'#F6FFED'},
+  '已拒绝':  {color:'#EE0000', bg:'#FFF1F0'}
+};
+
+/* 委托单自身状态（供查询筛选使用，避免被履约扩展状态污染） */
+const ORDER_STATUSES = ['草稿','待审','驳回','委托中','部分售出','售罄','到期','已结清','已退回'];
+
+/* ---------- 种子数据（前端内存，可增删改） ---------- */
+let seq = 24;
+const genNo = () => 'CN' + '2026' + '1101' + String(++seq).padStart(6,'0');
+
+let orders = [
+  {
+    no:'CN20261101000023', title:'广州某项目周转材料委托出售',
+    consignorType:'外部企业', consignorName:'广州某某再生资源有限公司',
+    sourceType:'外部委托资源', consigneeShop:'江苏藤源自营销售店铺',
+    tradeType:'出售', start:'2026-11-01', end:'2027-01-31', status:'委托中',
+    items:[
+      {name:'支撑架螺栓', spec:'M16×80mm', unit:'吨', qty:90, floor:80, list:100, tax:3, newDegree:'9成新'}
+    ]
+  },
+  {
+    no:'CN20261101000015', title:'周转钢管内部单位委托',
+    consignorType:'内部单位', consignorName:'中铁十一局某项目部',
+    sourceType:'内部委托资源', consigneeShop:'广州小美新能源自营销售店铺',
+    tradeType:'出售', start:'2026-10-20', end:'2026-12-31', status:'部分售出',
+    items:[
+      {name:'脚手架钢管', spec:'Φ48×3.0', unit:'吨', qty:200, floor:3200, list:3600, tax:13, newDegree:'8成新'}
+    ]
+  },
+  {
+    no:'CN20261101000009', title:'废旧模板处置委托',
+    consignorType:'外部企业', consignorName:'河北某某建筑劳务有限公司',
+    sourceType:'外部委托资源', consigneeShop:'铁建华南合作店铺',
+    tradeType:'出售', start:'2026-10-25', end:'2027-02-28', status:'待审',
+    items:[
+      {name:'建筑木模板', spec:'1830×915×15', unit:'张', qty:5000, floor:38, list:45, tax:3, newDegree:'7成新'},
+      {name:'钢模板', spec:'P1015', unit:'块', qty:800, floor:120, list:150, tax:13, newDegree:'8成新'}
+    ]
+  },
+  {
+    no:'CN20261101000004', title:'电缆盘具委托出售',
+    consignorType:'内部单位', consignorName:'中铁物资某仓储中心',
+    sourceType:'内部委托资源', consigneeShop:'中铁物资铁建店铺',
+    tradeType:'出售', start:'2026-09-15', end:'2026-11-15', status:'到期',
+    items:[
+      {name:'电缆盘具', spec:'PN2000', unit:'个', qty:60, floor:260, list:300, tax:13, newDegree:'9成新'}
+    ]
+  },
+  {
+    no:'CN20261101000001', title:'安全防护网委托出售',
+    consignorType:'外部企业', consignorName:'江苏某某安全设施有限公司',
+    sourceType:'外部委托资源', consigneeShop:'江苏藤源自营销售店铺',
+    tradeType:'出售', start:'2026-08-01', end:'2026-10-01', status:'已结清',
+    items:[
+      {name:'密目式安全立网', spec:'1.8×6m', unit:'张', qty:2000, floor:22, list:28, tax:13, newDegree:'全新'}
+    ]
+  }
+];
+
+/* =========================================================
+   履约链路种子数据（内存，可点可流转，对齐 v1.1 §3.7~§3.10）
+   ========================================================= */
+
+/* 店铺分组（接单池维度，BR-08） */
+const SHOP_GROUPS = [
+  {code:'SE',  name:'东南组',       shop:'江苏藤源自营销售店铺'},
+  {code:'SW',  name:'西部组',       shop:'西部组店铺'},
+  {code:'N',   name:'北部组',       shop:'北部组店铺'},
+  {code:'EXT', name:'系统外组',     shop:'系统外店铺'},
+  {code:'HN',  name:'华南公司店铺', shop:'广州小美新能源自营销售店铺'}
+];
+
+/* 统一单号生成器（CTR 为各业务序列游标） */
+const CTR = {NG:2, SH:2, RC:4, RT:1, ORD:305};
+function nextNo(pfx, mid){
+  CTR[pfx] = (CTR[pfx]||0) + 1;
+  return pfx + (mid||'20261101') + String(CTR[pfx]).padStart(4,'0');
+}
+function nextOrderNo(){
+  CTR.ORD = (CTR.ORD||305) + 1;
+  return 'ORD20261101' + String(CTR.ORD).padStart(5,'0');
+}
+
+/* 议价单 status: 待审核 / 通过 / 驳回（BR-07） */
+let negotiations = [
+  {no:'NG202611010002', sku:'CSKU000023', product:'支撑架螺栓 M16×80mm', shop:'江苏藤源自营销售店铺',
+   listPrice:100, offerPrice:88, qty:20, floor:80, buyer:'某某采购商', status:'待审核'},
+  {no:'NG202611010001', sku:'CSKU000015', product:'脚手架钢管 Φ48×3.0', shop:'广州小美新能源自营销售店铺',
+   listPrice:3600, offerPrice:3300, qty:50, floor:3200, buyer:'某某施工单位', status:'通过'}
+];
+
+/* 接单池（店铺分组）status: 待接单 / 已接单（BR-08） */
+let acceptPool = [
+  {no:'ORD20261101000301', orderNo:'CN20261101000023', product:'支撑架螺栓 M16×80mm', qty:30,
+   groupCode:'SE',  groupName:'东南组',       shop:'江苏藤源自营销售店铺',       status:'待接单'},
+  {no:'ORD20261101000302', orderNo:'CN20261101000015', product:'脚手架钢管 Φ48×3.0', qty:50,
+   groupCode:'SW',  groupName:'西部组',       shop:'西部组店铺',                 status:'待接单'},
+  {no:'ORD20261101000303', orderNo:'CN20261101000009', product:'建筑木模板 1830×915×15', qty:1000,
+   groupCode:'N',   groupName:'北部组',       shop:'北部组店铺',                 status:'待接单'},
+  {no:'ORD20261101000304', orderNo:'CN20261101000023', product:'支撑架螺栓 M16×80mm', qty:10,
+   groupCode:'EXT', groupName:'系统外组',     shop:'系统外店铺',                 status:'待接单'},
+  {no:'ORD20261101000305', orderNo:'CN20261101000015', product:'脚手架钢管 Φ48×3.0', qty:20,
+   groupCode:'HN',  groupName:'华南公司店铺', shop:'广州小美新能源自营销售店铺', status:'已接单'}
+];
+
+/* 发货单 status: 待发货 / 已发货 / 已签收（建单方=服务方，实际发货方=委托方） */
+let shippings = [
+  {no:'SH202611010002', orderNo:'ORD20261101000299', product:'电缆盘具 PN2000', qty:5, status:'已发货',
+   createdBy:'服务方（华南公司）', shipBy:'委托方（卖方）', shipTime:'2026-11-03 09:20', signTime:''},
+  {no:'SH202611010001', orderNo:'ORD20261101000305', product:'脚手架钢管 Φ48×3.0', qty:20, status:'待发货',
+   createdBy:'服务方（华南公司）', shipBy:'委托方（卖方）', shipTime:'', signTime:''}
+];
+
+/* 销售对账单（双腿）leg: 1买方↔服务方 2服务方↔委托方；status: 待创建/已创建/已复核/已付款/已到账 */
+let reconciles = [
+  {no:'RC2026110004', leg:2, orderNo:'ORD20261101000299', amount:1425, status:'待创建'},
+  {no:'RC2026110003', leg:1, orderNo:'ORD20261101000299', amount:1500, status:'已创建'},
+  {no:'RC2026110002', leg:2, orderNo:'ORD20261101000305', amount:836,  status:'已复核'},
+  {no:'RC2026110001', leg:1, orderNo:'ORD20261101000305', amount:880,  status:'已付款'}
+];
+
+/* 退货单 status: 待审核 / 退货中 / 已退货 / 已拒绝（BR-12） */
+let returns = [
+  {no:'RT202611010001', orderNo:'ORD20261101000299', product:'电缆盘具 PN2000', qty:1,
+   reason:'到货外观破损', refund:300, status:'待审核'}
+];
+
+/* ---------- 工具函数 ---------- */
+const $ = s => document.querySelector(s);
+const fmt = n => (Number(n)||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const intFmt = n => (Number(n)||0).toLocaleString('zh-CN');
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function toast(msg, type){
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type||'');
+  el.textContent = msg;
+  $('#toast-wrap').appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='.4s'; setTimeout(()=>el.remove(),400); }, 2200);
+}
+function closeOverlay(){ $('#overlay').innerHTML=''; }
+
+/* 计算某委托单的汇总 */
+function calc(o){
+  let totalQty=0, floorAmt=0, listAmt=0;
+  o.items.forEach(it=>{
+    totalQty += Number(it.qty)||0;
+    floorAmt += (Number(it.qty)||0)*(Number(it.floor)||0);
+    listAmt  += (Number(it.qty)||0)*(Number(it.list)||0);
+  });
+  // 已售/余量按状态模拟
+  const ratio = o.status==='已结清'||o.status==='售罄' ? 1
+              : o.status==='部分售出' ? 0.35
+              : o.status==='委托中' ? 0.12 : 0;
+  const soldQty = Math.round(totalQty*ratio*100)/100;
+  const remainQty = Math.round((totalQty-soldQty)*100)/100;
+  const goodsAmount = soldQty * (o.items[0] ? (Number(o.items[0].list)||0) : 0);
+  const commissionRate = 3;                       // 平台佣金费率 %（对齐「委托买卖」）
+  const shopShareRate  = 1.5;                     // 受托店铺分成 %
+  const commission = Math.max(goodsAmount*commissionRate/100, soldQty>0?50:0);
+  const shopShare  = goodsAmount*shopShareRate/100;
+  const settleAmount = Math.max(goodsAmount - commission - shopShare, 0);
+  return {totalQty, floorAmt, listAmt, soldQty, remainQty, goodsAmount, commissionRate, shopShareRate, commission, shopShare, settleAmount};
+}
+
+/* =========================================================
+   视图路由
+   ========================================================= */
+let currentView = 'manage';
+
+const NAV = [
+  {group:'销售系统', items:[
+    {key:'manage', label:'委托商品管理'},
+    {key:'query',  label:'委托商品查询'}
+  ]},
+  {group:'履约管理', items:[
+    {key:'accept',    label:'接单管理'},
+    {key:'shipping',  label:'发货单管理'},
+    {key:'reconcile', label:'销售对账'},
+    {key:'returns',   label:'退货管理'}
+  ]},
+  {group:'运营管理', items:[
+    {key:'audit',     label:'委托审核'},
+    {key:'negotiate', label:'议价审核'}
+  ]},
+  {group:'商城前台', items:[
+    {key:'mall', label:'委托专区'}
+  ]}
+];
+
+function renderSidebar(){
+  const html = NAV.map(g => `
+    <div class="nav-group">
+      <div class="nav-group-title">${g.group}</div>
+      ${g.items.map(it => `
+        <div class="nav-item ${currentView===it.key?'active':''}" onclick="switchView('${it.key}')">
+          <span class="dot"></span>${it.label}
+        </div>`).join('')}
+    </div>`).join('');
+  $('#sidebar').innerHTML = html;
+}
+
+function switchView(key){
+  currentView = key;
+  renderSidebar();
+  const map = {manage:viewManage, query:viewQuery, audit:viewAudit, mall:viewMall,
+               negotiate:viewNegotiate, accept:viewAccept, shipping:viewShipping,
+               reconcile:viewReconcile, returns:viewReturns};
+  $('#main').innerHTML = map[key]();
+  $('#main').scrollTop = 0;
+}
+
+/* ---------- 状态标签 ---------- */
+function statusTag(s){
+  const m = STATUS_META[s] || {color:'#7E8693', bg:'#F0F2F5'};
+  return `<span class="tag" style="color:${m.color};background:${m.bg};border:1px solid ${m.color}22">${esc(s)}</span>`;
+}
+function consignTag(){
+  return `<span class="tag consign">委托</span>`;
+}
+
+/* =========================================================
+   视图 1：委托商品管理
+   ========================================================= */
+function viewManage(){
+  const total = orders.length;
+  const pending = orders.filter(o=>o.status==='待审').length;
+  const consigning = orders.filter(o=>o.status==='委托中'||o.status==='部分售出').length;
+  const gmv = orders.reduce((s,o)=> s + calc(o).goodsAmount, 0);
+
+  const rows = orders.map(o=>{
+    const c = calc(o);
+    return `
+      <tr>
+        <td class="mono">${o.no}</td>
+        <td>${esc(o.title)}</td>
+        <td>${esc(o.consignorName)}<br><span style="color:var(--text-2);font-size:12px">${esc(o.consignorType)} · ${esc(o.sourceType)}</span></td>
+        <td>${esc(o.consigneeShop)}</td>
+        <td>${esc(o.start)} ~ ${esc(o.end)}</td>
+        <td>${intFmt(c.totalQty)} / <b style="color:var(--brand)">${intFmt(c.soldQty)}</b> / ${intFmt(c.remainQty)}</td>
+        <td>${statusTag(o.status)}</td>
+        <td class="ops">${manageOps(o)}</td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <h2 class="page-title">委托商品管理</h2>
+    <div class="page-sub">委托方发起委托 → 平台/受托店铺审核 → 生成委托 SKU 上架销售 → 成交后按「委托买卖」费率结算</div>
+
+    <div class="flow">
+      <div class="step"><span class="num">1</span>提交委托单</div><span class="arrow">→</span>
+      <div class="step"><span class="num">2</span>审核</div><span class="arrow">→</span>
+      <div class="step"><span class="num">3</span>生成 SKU · 上架</div><span class="arrow">→</span>
+      <div class="step"><span class="num">4</span>买家下单成交</div><span class="arrow">→</span>
+      <div class="step"><span class="num">5</span>按费率扣佣 · 结算到账</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">委托单总数</div><div class="v">${total}<small>单</small></div></div>
+      <div class="stat"><div class="k">待审核</div><div class="v" style="color:#D48806">${pending}<small>单</small></div></div>
+      <div class="stat"><div class="k">委托中 / 部分售出</div><div class="v" style="color:#08979C">${consigning}<small>单</small></div></div>
+      <div class="stat"><div class="k">累计成交额（估）</div><div class="v" style="color:#EE0000">¥${fmt(gmv)}</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>委托单列表</h3>
+        <div style="flex:1"></div>
+        <button class="btn primary" onclick="openCreate()">+ 新建委托单</button>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr>
+            <th>委托单号</th><th>委托标题</th><th>委托方 / 来源</th><th>受托店铺</th>
+            <th>委托期限</th><th>委托/已售/余量</th><th>状态</th><th>操作</th>
+          </tr></thead>
+          <tbody>${rows || '<tr><td colspan="8" class="empty">暂无委托单</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function manageOps(o){
+  const b = [];
+  b.push(`<button class="btn sm" onclick="openDetail('${o.no}')">详情</button>`);
+  if(o.status==='草稿')      b.push(`<button class="btn sm primary" onclick="submitAudit('${o.no}')">提交审核</button>`);
+  if(o.status==='驳回')      b.push(`<button class="btn sm primary" onclick="submitAudit('${o.no}')">修改重提</button>`);
+  if(o.status==='委托中'||o.status==='部分售出') b.push(`<button class="btn sm" onclick="cancelOrder('${o.no}')">撤销</button>`);
+  if(o.status==='到期'){
+    b.push(`<button class="btn sm primary" onclick="renewOrder('${o.no}')">续期</button>`);
+    b.push(`<button class="btn sm" onclick="returnOrder('${o.no}')">退回</button>`);
+    b.push(`<button class="btn sm danger" onclick="cancelConsign('${o.no}')">取消委托</button>`);
+  }
+  return b.join('');
+}
+
+/* =========================================================
+   视图 2：委托商品查询
+   ========================================================= */
+let queryFilter = {kw:'', status:'', shop:''};
+
+function viewQuery(){
+  let list = orders.slice();
+  if(queryFilter.kw){
+    const k = queryFilter.kw.toLowerCase();
+    list = list.filter(o => o.no.toLowerCase().includes(k) || o.title.toLowerCase().includes(k));
+  }
+  if(queryFilter.status) list = list.filter(o=>o.status===queryFilter.status);
+  if(queryFilter.shop)   list = list.filter(o=>o.consigneeShop===queryFilter.shop);
+
+  const statusOpts = ['', ...ORDER_STATUSES].map(s =>
+    `<option value="${s}" ${queryFilter.status===s?'selected':''}>${s||'全部状态'}</option>`).join('');
+  const shopOpts = ['', ...SHOPS].map(s =>
+    `<option value="${s}" ${queryFilter.shop===s?'selected':''}>${s||'全部受托店铺'}</option>`).join('');
+
+  const rows = list.map(o=>{
+    const c = calc(o);
+    return `
+      <tr>
+        <td class="mono">${o.no}</td>
+        <td>${esc(o.title)}</td>
+        <td>${esc(o.consigneeShop)}</td>
+        <td>${esc(o.sourceType)}</td>
+        <td>${esc(o.end)}</td>
+        <td class="mono">¥${fmt(c.listAmt)}</td>
+        <td>${statusTag(o.status)}</td>
+        <td class="ops"><button class="btn sm" onclick="openDetail('${o.no}')">查看详情</button></td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <h2 class="page-title">委托商品查询</h2>
+    <div class="page-sub">多条件查询委托单，查看物资明细、SKU 售出情况与结算概览</div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="toolbar">
+          <input id="q-kw" placeholder="委托单号 / 标题" value="${esc(queryFilter.kw)}" style="width:200px">
+          <select id="q-status">${statusOpts}</select>
+          <select id="q-shop">${shopOpts}</select>
+          <button class="btn primary" onclick="doQuery()">查询</button>
+          <button class="btn" onclick="resetQuery()">重置</button>
+        </div>
+        <table class="tbl">
+          <thead><tr>
+            <th>委托单号</th><th>委托标题</th><th>受托店铺</th><th>资源来源</th>
+            <th>截止日期</th><th>委托总额（挂牌）</th><th>状态</th><th>操作</th>
+          </tr></thead>
+          <tbody>${rows || '<tr><td colspan="8" class="empty">未查询到符合条件的委托单</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+function doQuery(){
+  queryFilter.kw = ($('#q-kw').value||'').trim();
+  queryFilter.status = $('#q-status').value;
+  queryFilter.shop = $('#q-shop').value;
+  $('#main').innerHTML = viewQuery();
+}
+function resetQuery(){
+  queryFilter = {kw:'', status:'', shop:''};
+  $('#main').innerHTML = viewQuery();
+}
+
+/* =========================================================
+   视图 3：委托审核（运营侧）
+   ========================================================= */
+function viewAudit(){
+  const list = orders.filter(o=>o.status==='待审');
+  const rows = list.map(o=>{
+    const c = calc(o);
+    return `
+      <tr>
+        <td class="mono">${o.no}</td>
+        <td>${esc(o.title)}</td>
+        <td>${esc(o.consignorName)}<br><span style="color:var(--text-2);font-size:12px">${esc(o.consignorType)}</span></td>
+        <td>${esc(o.sourceType)}</td>
+        <td>${esc(o.consigneeShop)}</td>
+        <td>${intFmt(c.totalQty)}</td>
+        <td class="mono">¥${fmt(c.floorAmt)}</td>
+        <td class="ops">
+          <button class="btn sm primary" onclick="approve('${o.no}')">通过</button>
+          <button class="btn sm danger" onclick="openReject('${o.no}')">驳回</button>
+          <button class="btn sm" onclick="openDetail('${o.no}')">详情</button>
+        </td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <h2 class="page-title">委托审核</h2>
+    <div class="page-sub">内部委托资源走工作流审批｜外部委托资源走运营资质 + 物资合规审核；通过后自动生成委托 SKU</div>
+    <div class="stats">
+      <div class="stat"><div class="k">待审核</div><div class="v" style="color:#D48806">${list.length}<small>单</small></div></div>
+      <div class="stat"><div class="k">内部委托资源</div><div class="v">${list.filter(o=>o.sourceType==='内部委托资源').length}<small>单</small></div></div>
+      <div class="stat"><div class="k">外部委托资源</div><div class="v">${list.filter(o=>o.sourceType==='外部委托资源').length}<small>单</small></div></div>
+      <div class="stat"><div class="k">审核节点</div><div class="v" style="font-size:16px">工作流 / 资质</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>待审列表</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr>
+            <th>委托单号</th><th>委托标题</th><th>委托方</th><th>资源来源</th>
+            <th>受托店铺</th><th>委托数量</th><th>底价合计（内部）</th><th>操作</th>
+          </tr></thead>
+          <tbody>${rows || '<tr><td colspan="8" class="empty">暂无待审核委托单</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function approve(no){
+  const o = orders.find(x=>x.no===no); if(!o) return;
+  o.status = '委托中';
+  toast('审核通过：'+no+' 已生成委托 SKU 并进入「委托中」','ok');
+  switchView('audit');
+}
+function openReject(no){
+  openModal(`
+    <div class="modal-head"><h3>驳回委托单 ${esc(no)}</h3><button class="x" onclick="closeOverlay()">×</button></div>
+    <div class="modal-body">
+      <label class="field"><span><i>*</i>驳回意见</span>
+        <textarea id="reject-opinion" rows="4" style="padding:8px;border:1px solid var(--border);border-radius:4px;font-family:inherit;resize:vertical"
+          placeholder="请填写驳回原因，将同步给委托方"></textarea>
+      </label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeOverlay()">取消</button>
+      <button class="btn danger" onclick="doReject('${no}')">确认驳回</button>
+    </div>`, 460);
+}
+function doReject(no){
+  const v = ($('#reject-opinion').value||'').trim();
+  if(!v){ toast('请填写驳回意见','err'); return; }
+  const o = orders.find(x=>x.no===no);
+  if(o) o.status = '驳回';
+  closeOverlay();
+  toast('已驳回：'+no,'ok');
+  switchView('audit');
+}
+
+/* =========================================================
+   新建委托单
+   ========================================================= */
+function itemRow(it){
+  it = it || {name:'',spec:'',unit:'吨',qty:1,floor:0,list:0,tax:13,newDegree:'9成新'};
+  return `
+    <tr>
+      <td><input class="i-name" value="${esc(it.name)}" placeholder="物资名称"></td>
+      <td><input class="i-spec" value="${esc(it.spec)}" placeholder="规格型号"></td>
+      <td><input class="i-unit" value="${esc(it.unit)}" placeholder="单位" style="width:60px"></td>
+      <td><input class="i-qty" type="number" min="0" value="${it.qty}" style="width:70px"></td>
+      <td><input class="i-deg" value="${esc(it.newDegree)}" placeholder="新旧" style="width:70px"></td>
+      <td><input class="i-floor" type="number" min="0" value="${it.floor}" style="width:80px"></td>
+      <td><input class="i-list" type="number" min="0" value="${it.list}" style="width:80px"></td>
+      <td><input class="i-tax" type="number" min="0" value="${it.tax}" style="width:60px"></td>
+      <td style="text-align:center"><button class="del" onclick="this.closest('tr').remove()">删除</button></td>
+    </tr>`;
+}
+
+function openCreate(){
+  const shopOpts = SHOPS.map(s=>`<option>${esc(s)}</option>`).join('');
+  openModal(`
+    <div class="modal-head"><h3>新建委托单</h3><button class="x" onclick="closeOverlay()">×</button></div>
+    <div class="modal-body">
+      <div class="sec-title">委托基本信息</div>
+      <div class="form-grid">
+        <label class="field"><span><i>*</i>委托方类型</span>
+          <select id="c-ctype"><option>内部单位</option><option>外部企业</option><option>外部个人</option></select></label>
+        <label class="field"><span><i>*</i>资源来源</span>
+          <select id="c-source"><option>内部委托资源</option><option>外部委托资源</option></select></label>
+        <label class="field"><span><i>*</i>交易类型</span>
+          <select id="c-trade"><option>出售</option><option>出租</option></select></label>
+
+        <label class="field col-2"><span><i>*</i>委托方名称</span>
+          <input id="c-cname" placeholder="如：广州某某再生资源有限公司"></label>
+        <label class="field"><span><i>*</i>受托店铺</span>
+          <select id="c-shop">${shopOpts}</select></label>
+
+        <label class="field col-3"><span><i>*</i>委托标题</span>
+          <input id="c-title" placeholder="如：广州某项目周转材料委托出售"></label>
+
+        <label class="field"><span><i>*</i>委托开始日期</span><input id="c-start" type="date" value="2026-11-01"></label>
+        <label class="field"><span><i>*</i>委托结束日期</span><input id="c-end" type="date" value="2027-01-31"></label>
+        <label class="field"><span>委托协议附件</span><input type="file"></label>
+      </div>
+
+      <div class="sec-title">委托物资明细</div>
+      <table class="edit">
+        <thead><tr>
+          <th>物资名称</th><th>规格型号</th><th>单位</th><th>数量</th><th>新旧</th>
+          <th>底价(元)</th><th>挂牌价(元)</th><th>税率(%)</th><th>操作</th>
+        </tr></thead>
+        <tbody id="item-body">${itemRow()}</tbody>
+      </table>
+      <button class="btn sm" style="margin-top:10px" onclick="addItem()">+ 增加明细行</button>
+      <p style="color:var(--text-2);font-size:12px;margin:10px 0 0">
+        * 底价仅委托方与平台内部可见，前台不外露；挂牌价须 ≥ 底价。
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeOverlay()">取消</button>
+      <button class="btn" onclick="saveOrder(false)">存为草稿</button>
+      <button class="btn primary" onclick="saveOrder(true)">提交审核</button>
+    </div>`);
+}
+function addItem(){ $('#item-body').insertAdjacentHTML('beforeend', itemRow()); }
+
+function saveOrder(submit){
+  const title = ($('#c-title').value||'').trim();
+  const cname = ($('#c-cname').value||'').trim();
+  if(!title){ toast('请填写委托标题','err'); return; }
+  if(!cname){ toast('请填写委托方名称','err'); return; }
+
+  const rows = [...document.querySelectorAll('#item-body tr')];
+  const items = [];
+  for(const r of rows){
+    const name = r.querySelector('.i-name').value.trim();
+    if(!name) continue;
+    const floor = Number(r.querySelector('.i-floor').value)||0;
+    const list  = Number(r.querySelector('.i-list').value)||0;
+    if(list > 0 && list < floor){
+      toast('挂牌价不得低于底价（'+name+'）','err'); return;
+    }
+    items.push({
+      name, spec:r.querySelector('.i-spec').value.trim(),
+      unit:r.querySelector('.i-unit').value.trim(),
+      qty:Number(r.querySelector('.i-qty').value)||0,
+      newDegree:r.querySelector('.i-deg').value.trim(),
+      floor, list, tax:Number(r.querySelector('.i-tax').value)||0
+    });
+  }
+  if(!items.length){ toast('请至少填写一条物资明细','err'); return; }
+
+  const o = {
+    no: genNo(), title,
+    consignorType:$('#c-ctype').value, consignorName:cname,
+    sourceType:$('#c-source').value, consigneeShop:$('#c-shop').value,
+    tradeType:$('#c-trade').value,
+    start:$('#c-start').value, end:$('#c-end').value,
+    status: submit ? '待审' : '草稿',
+    items
+  };
+  orders.unshift(o);
+  closeOverlay();
+  toast(submit ? ('已提交审核：'+o.no) : ('已存为草稿：'+o.no), 'ok');
+  switchView('manage');
+}
+
+/* =========================================================
+   委托单操作
+   ========================================================= */
+function submitAudit(no){
+  const o = orders.find(x=>x.no===no); if(!o) return;
+  o.status = '待审';
+  toast('已提交审核：'+no,'ok');
+  switchView(currentView);
+}
+function cancelOrder(no){
+  const o = orders.find(x=>x.no===no); if(!o) return;
+  o.status = '已退回';
+  toast('已撤销委托单：'+no,'ok');
+  switchView(currentView);
+}
+function renewOrder(no){
+  const o = orders.find(x=>x.no===no); if(!o) return;
+  o.end = '2027-04-30';
+  o.status = '委托中';
+  toast('已续期至 2027-04-30','ok');
+  switchView(currentView);
+}
+function returnOrder(no){
+  const o = orders.find(x=>x.no===no); if(!o) return;
+  o.status = '已退回';
+  toast('已发起退回：'+no,'ok');
+  switchView(currentView);
+}
+/* 取消委托（BR-13）：依据已售数量完成委托结算，且服务商下架商品、不再接单后方可取消 */
+function cancelConsign(no){
+  const o = orders.find(x=>x.no===no); if(!o) return;
+  if(o.status!=='到期'){ toast('仅当已下架且不再接单时可取消委托（BR-13）','err'); return; }
+  o.status = '已退回';
+  toast('已下架且不再接单，委托已取消：'+no+'（依据已售数量完成委托结算，BR-13）','ok');
+  switchView(currentView);
+}
+
+/* =========================================================
+   详情抽屉
+   ========================================================= */
+function openDetail(no){
+  const o = orders.find(x=>x.no===no); if(!o) return;
+  const c = calc(o);
+
+  const itemRows = o.items.map((it,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td>${esc(it.name)}</td>
+      <td>${esc(it.spec)}</td>
+      <td>${esc(it.unit)}</td>
+      <td>${intFmt(it.qty)}</td>
+      <td>${esc(it.newDegree)}</td>
+      <td class="mono">¥${fmt(it.floor)}</td>
+      <td class="mono">¥${fmt(it.list)}</td>
+      <td>${it.tax}%</td>
+    </tr>`).join('');
+
+  const skuRows = o.items.map((it,i)=>`
+    <tr>
+      <td class="mono">CSKU${String(20261101).slice(0,8)}${String(i+1).padStart(3,'0')}</td>
+      <td>${esc(it.name)}</td>
+      <td class="mono">¥${fmt(it.list)}</td>
+      <td>${intFmt(it.qty)}</td>
+      <td>${intFmt(c.soldQty)}</td>
+      <td>${intFmt(c.remainQty)}</td>
+      <td>${o.status==='已结清'?'售罄':(o.status==='委托中'||o.status==='部分售出'?'在售':'待上架')}</td>
+    </tr>`).join('');
+
+  const settleBlock = `
+    <div class="kv">
+      <div class="k">成交总额</div><div>¥${fmt(c.goodsAmount)}</div>
+      <div class="k">平台佣金（${c.commissionRate}%）</div><div style="color:var(--danger)">− ¥${fmt(c.commission)}</div>
+      <div class="k">受托店铺分成（${c.shopShareRate}%）</div><div style="color:var(--danger)">− ¥${fmt(c.shopShare)}</div>
+      <div class="k">应结委托方</div><div style="color:#389E0D;font-weight:700">¥${fmt(c.settleAmount)}</div>
+    </div>`;
+
+  $('#overlay').innerHTML = `
+    <div class="mask" onclick="if(event.target===this)closeOverlay()">
+      <div class="drawer">
+        <div class="drawer-head">
+          <h3>委托单详情　${statusTag(o.status)}</h3>
+          <button class="x" style="border:none;background:none;font-size:20px;color:var(--text-2)" onclick="closeOverlay()">×</button>
+        </div>
+        <div class="drawer-body">
+          <div class="sec-title" style="margin-top:0">基本信息</div>
+          <div class="kv">
+            <div class="k">委托单号</div><div class="mono">${o.no}</div>
+            <div class="k">委托标题</div><div>${esc(o.title)}</div>
+            <div class="k">委托方</div><div>${esc(o.consignorName)}（${esc(o.consignorType)}）</div>
+            <div class="k">资源来源</div><div>${esc(o.sourceType)}</div>
+            <div class="k">受托店铺</div><div>${esc(o.consigneeShop)}</div>
+            <div class="k">交易类型</div><div>${esc(o.tradeType)}</div>
+            <div class="k">委托期限</div><div>${esc(o.start)} ~ ${esc(o.end)}</div>
+            <div class="k">委托总量</div><div>${intFmt(c.totalQty)}</div>
+          </div>
+
+          <div class="sec-title">委托物资明细</div>
+          <table class="tbl">
+            <thead><tr><th>#</th><th>名称</th><th>规格</th><th>单位</th><th>数量</th><th>新旧</th><th>底价</th><th>挂牌价</th><th>税率</th></tr></thead>
+            <tbody>${itemRows}</tbody>
+          </table>
+
+          <div class="sec-title">委托 SKU · 售出情况</div>
+          <table class="tbl">
+            <thead><tr><th>委托SKU编码</th><th>商品</th><th>挂牌价</th><th>委托量</th><th>已售</th><th>余量</th><th>SKU状态</th></tr></thead>
+            <tbody>${skuRows}</tbody>
+          </table>
+
+          <div class="sec-title">结算概览（按「委托买卖」费率测算）</div>
+          ${settleBlock}
+          <p style="color:var(--text-2);font-size:12px;margin-top:10px">
+            结算对象为<b>委托方</b>；以订单完成为触发条件，余额打款至委托方结算账户。
+          </p>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* =========================================================
+   视图 4：商城前台 · 委托专区
+   ========================================================= */
+function viewMall(){
+  const goods = [];
+  orders.filter(o=>o.status==='委托中'||o.status==='部分售出'||o.status==='售罄'||o.status==='已结清')
+    .forEach(o => o.items.forEach((it, idx) => goods.push({it, shop:o.consigneeShop, orderNo:o.no, idx})));
+
+  const cards = goods.map(g=>`
+    <div class="prod">
+      <div class="thumb">⬡ ${consignTag()}</div>
+      <div class="info">
+        <div class="name">${esc(g.it.name)} ${esc(g.it.spec)}</div>
+        <div class="price">¥${fmt(g.it.list)}<small> /${esc(g.it.unit)}</small></div>
+        <div class="shop"><span>${esc(g.shop)}</span><span>${esc(g.it.newDegree)}</span></div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn sm primary" onclick="openNegotiation('${g.orderNo}', ${g.idx})">议价</button>
+          <button class="btn sm" onclick="placeOrder('${g.orderNo}', ${g.idx})">立即下单</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  return `
+    <h2 class="page-title">商城前台 · 委托专区</h2>
+    <div class="page-sub">委托商品在前台打「委托」来源标签，与自营/合作/铁建店铺商品并列展示</div>
+
+    <div class="mall-top">
+      <b>操作入口：</b>
+      <div class="entry">
+        <span>我要出售</span>
+        <span>我要出租</span>
+        <span class="hl" onclick="openCreate()">我要委托出售</span>
+        <span>我要采购</span>
+      </div>
+      <div style="flex:1"></div>
+      <select>
+        <option>全部</option><option>出售</option><option>出租</option><option selected>委托</option>
+      </select>
+    </div>
+
+    <div class="prod-grid">
+      ${cards || '<div class="empty" style="grid-column:span 4">暂无可展示的委托商品</div>'}
+    </div>
+    <p style="color:var(--text-2);font-size:12px;margin-top:16px">
+      * 商品详情页仅展示「委托代售」来源与受托店铺（委托方名称脱敏），<b>底价前台不可见</b>。
+    </p>
+  `;
+}
+
+/* =========================================================
+   幂等块：买方下单 / 议价（商城前台）
+   ========================================================= */
+/* 立即下单（不议价）→ 直接按店铺分组进入接单池 */
+function placeOrder(orderNo, idx){
+  const o = orders.find(x=>x.no===orderNo); if(!o) return;
+  const it = o.items[idx]; if(!it) return;
+  const g = SHOP_GROUPS[acceptPool.length % SHOP_GROUPS.length];
+  const no = nextOrderNo();
+  acceptPool.unshift({no, orderNo, product:it.name+' '+it.spec, qty:Number(it.qty)||1,
+    groupCode:g.code, groupName:g.name, shop:g.shop, status:'待接单'});
+  toast('下单成功（不议价）：'+no+'，已按分组「'+g.name+'」进入接单池（BR-08）','ok');
+}
+
+/* 议价弹窗（出价 + 数量，出价须 ≥ 底价，底价仅弹窗内内部提示） */
+function openNegotiation(orderNo, idx){
+  const o = orders.find(x=>x.no===orderNo); if(!o) return;
+  const it = o.items[idx]; if(!it) return;
+  openModal(`
+    <div class="modal-head"><h3>发起议价 · ${esc(it.name)}</h3><button class="x" onclick="closeOverlay()">×</button></div>
+    <div class="modal-body">
+      <div class="kv">
+        <div class="k">挂牌价</div><div class="mono">¥${fmt(it.list)} / ${esc(it.unit)}</div>
+        <div class="k">底价（内部）</div><div class="mono" style="color:#D4680A">¥${fmt(it.floor)} / ${esc(it.unit)}</div>
+        <div class="k">受托店铺</div><div>${esc(o.consigneeShop)}</div>
+      </div>
+      <div class="form-grid" style="margin-top:14px">
+        <label class="field"><span><i>*</i>议价出价(元)</span>
+          <input id="ng-offer" type="number" min="0" value="${it.list}" placeholder="不得低于底价"></label>
+        <label class="field"><span><i>*</i>数量</span>
+          <input id="ng-qty" type="number" min="1" value="1"></label>
+      </div>
+      <p style="color:var(--text-2);font-size:12px;margin:12px 0 0">
+        * 议价结果不得低于底价（BR-07）；底价仅委托方与平台内部可见，前台不下发。议价须服务方审核通过后方可接单。
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeOverlay()">取消</button>
+      <button class="btn primary" onclick="submitNegotiation('${orderNo}', ${idx})">提交议价</button>
+    </div>`, 520);
+}
+function submitNegotiation(orderNo, idx){
+  const o = orders.find(x=>x.no===orderNo); if(!o) return;
+  const it = o.items[idx]; if(!it) return;
+  const offer = Number($('#ng-offer').value)||0;
+  const qty = Number($('#ng-qty').value)||0;
+  if(qty<=0){ toast('请填写议价数量','err'); return; }
+  if(offer < (Number(it.floor)||0)){ toast('议价出价不得低于底价（BR-07）','err'); return; }
+  const no = nextNo('NG');
+  negotiations.unshift({no, sku:'CSKU'+String(orderNo).slice(-6), product:it.name+' '+it.spec,
+    shop:o.consigneeShop, listPrice:Number(it.list), offerPrice:offer, qty,
+    floor:Number(it.floor), buyer:'某某采购商', status:'待审核'});
+  closeOverlay();
+  toast('议价单已提交：'+no+'，待服务方审核','ok');
+}
+
+/* =========================================================
+   视图 5：议价审核（服务方）
+   ========================================================= */
+function viewNegotiate(){
+  const rows = negotiations.map(n=>`
+      <tr>
+        <td class="mono">${esc(n.no)}</td>
+        <td>${esc(n.product)}<br><span style="color:var(--text-2);font-size:12px">${esc(n.sku)} · ${esc(n.shop)}</span></td>
+        <td class="mono">¥${fmt(n.listPrice)}</td>
+        <td class="mono" style="color:#D4680A">¥${fmt(n.offerPrice)}</td>
+        <td class="mono">¥${fmt(n.floor)}<br><span style="color:var(--text-2);font-size:12px">仅内部可见</span></td>
+        <td>${intFmt(n.qty)}</td>
+        <td>${esc(n.buyer)}</td>
+        <td>${statusTag(n.status)}</td>
+        <td class="ops">${negotiateOps(n)}</td>
+      </tr>`).join('');
+
+  return `
+    <h2 class="page-title">议价审核</h2>
+    <div class="page-sub">买方就挂牌价发起议价 → 服务方审核；<b>议价结果不得低于底价</b>（BR-07），通过后进入店铺分组接单</div>
+    <div class="stats">
+      <div class="stat"><div class="k">待审核议价</div><div class="v" style="color:#D48806">${negotiations.filter(n=>n.status==='待审核').length}<small>单</small></div></div>
+      <div class="stat"><div class="k">已通过</div><div class="v" style="color:#389E0D">${negotiations.filter(n=>n.status==='通过').length}<small>单</small></div></div>
+      <div class="stat"><div class="k">已驳回</div><div class="v" style="color:#EE0000">${negotiations.filter(n=>n.status==='驳回').length}<small>单</small></div></div>
+      <div class="stat"><div class="k">议价规则</div><div class="v" style="font-size:16px">出价 ≥ 底价</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>议价单列表</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr>
+            <th>议价单号</th><th>商品 / SKU</th><th>挂牌价</th><th>买方出价</th>
+            <th>底价（内部）</th><th>数量</th><th>买方</th><th>状态</th><th>操作</th>
+          </tr></thead>
+          <tbody>${rows || '<tr><td colspan="9" class="empty">暂无议价单</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+function negotiateOps(n){
+  if(n.status!=='待审核') return '<span style="color:var(--text-2);font-size:12px">已处理</span>';
+  return `<button class="btn sm primary" onclick="approveNegotiation('${n.no}')">通过</button>
+          <button class="btn sm danger" onclick="openNegoReject('${n.no}')">驳回</button>`;
+}
+function approveNegotiation(no){
+  const n = negotiations.find(x=>x.no===no); if(!n) return;
+  if(n.status!=='待审核'){ toast('该议价单已处理（CONSIGN_0002）','err'); return; }
+  if(Number(n.offerPrice) < Number(n.floor)){ toast('议价出价低于底价，不可通过（BR-07）','err'); return; }
+  n.status = '通过';
+  const g = SHOP_GROUPS[acceptPool.length % SHOP_GROUPS.length];
+  const ono = nextOrderNo();
+  acceptPool.unshift({no:ono, orderNo:n.sku, product:n.product, qty:n.qty,
+    groupCode:g.code, groupName:g.name, shop:g.shop, status:'待接单'});
+  toast('议价通过：'+no+'，已完成接单分派「'+g.name+'」→ 接单池 '+ono,'ok');
+  switchView('negotiate');
+}
+function openNegoReject(no){
+  openModal(`
+    <div class="modal-head"><h3>驳回议价单 ${esc(no)}</h3><button class="x" onclick="closeOverlay()">×</button></div>
+    <div class="modal-body">
+      <label class="field"><span><i>*</i>驳回意见</span>
+        <textarea id="ngo-opinion" rows="4" style="padding:8px;border:1px solid var(--border);border-radius:4px;font-family:inherit;resize:vertical"
+          placeholder="请填写驳回原因，将同步给买方，买方可重新议价 / 下单"></textarea>
+      </label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeOverlay()">取消</button>
+      <button class="btn danger" onclick="rejectNegotiation('${no}')">确认驳回</button>
+    </div>`, 460);
+}
+function rejectNegotiation(no){
+  const v = ($('#ngo-opinion').value||'').trim();
+  if(!v){ toast('请填写驳回意见','err'); return; }
+  const n = negotiations.find(x=>x.no===no);
+  if(n) n.status = '驳回';
+  closeOverlay();
+  toast('已驳回议价：'+no,'ok');
+  switchView('negotiate');
+}
+
+/* =========================================================
+   视图 6：接单管理（店铺分组接单池）
+   ========================================================= */
+function viewAccept(){
+  const pool = acceptPool;
+  const groupStats = SHOP_GROUPS.map(g=>{
+    const wait = pool.filter(p=>p.groupCode===g.code && p.status==='待接单').length;
+    const done = pool.filter(p=>p.groupCode===g.code && p.status==='已接单').length;
+    return `<div class="stat"><div class="k">${esc(g.name)}</div>
+      <div class="v">${wait}<small>待接单</small></div>
+      <div style="font-size:12px;color:var(--text-2);margin-top:4px">已接单 ${done} · ${esc(g.shop)}</div></div>`;
+  }).join('');
+
+  const rows = pool.map(p=>`
+      <tr>
+        <td class="mono">${esc(p.no)}</td>
+        <td>${esc(p.product)}</td>
+        <td>${intFmt(p.qty)}</td>
+        <td>${esc(p.groupName)}<br><span style="color:var(--text-2);font-size:12px">${esc(p.groupCode)}</span></td>
+        <td>${esc(p.shop)}</td>
+        <td>${statusTag(p.status)}</td>
+        <td class="ops">${acceptOps(p)}</td>
+      </tr>`).join('');
+
+  return `
+    <h2 class="page-title">接单管理 · 店铺分组接单池</h2>
+    <div class="page-sub">接单主体为店铺分组：东南组 / 西部组 / 北部组 / 系统外组 / 华南公司店铺；接单后服务方新增发货单，订单置「执行中」并锁定委托库存（BR-08 / BR-09）</div>
+    <div class="stats" style="grid-template-columns:repeat(5,1fr)">${groupStats}</div>
+    <div class="card">
+      <div class="card-head"><h3>接单池</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr>
+            <th>订单号</th><th>商品</th><th>数量</th><th>店铺分组</th><th>受理店铺</th><th>状态</th><th>操作</th>
+          </tr></thead>
+          <tbody>${rows || '<tr><td colspan="7" class="empty">暂无待接单订单</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+function acceptOps(p){
+  if(p.status==='待接单') return `<button class="btn sm primary" onclick="acceptOrder('${p.no}')">接单</button>`;
+  return '<span style="color:var(--text-2);font-size:12px">已接单 · 执行中</span>';
+}
+function acceptOrder(no){
+  const p = acceptPool.find(x=>x.no===no); if(!p) return;
+  if(p.status!=='待接单'){ toast('该订单已被接单（CONSIGN_0002）','err'); return; }
+  p.status = '已接单';
+  const shNo = nextNo('SH');
+  shippings.unshift({no:shNo, orderNo:p.no, product:p.product, qty:p.qty, status:'待发货',
+    createdBy:'服务方（华南公司）', shipBy:'委托方（卖方）', shipTime:'', signTime:''});
+  toast('已接单（'+p.groupName+'）→ 生成发货单 '+shNo+'，订单置「执行中」并锁定委托库存（BR-09）','ok');
+  switchView('accept');
+}
+
+/* =========================================================
+   视图 7：发货单管理（服务方建单 · 委托方实际发货 · 买方签收）
+   ========================================================= */
+function viewShipping(){
+  const rows = shippings.map(s=>`
+      <tr>
+        <td class="mono">${esc(s.no)}</td>
+        <td class="mono">${esc(s.orderNo)}</td>
+        <td>${esc(s.product)}</td>
+        <td>${intFmt(s.qty)}</td>
+        <td>${esc(s.createdBy)}</td>
+        <td>${esc(s.shipBy||'委托方（卖方）')}</td>
+        <td>${statusTag(s.status)}</td>
+        <td class="ops">${shippingOps(s)}</td>
+      </tr>`).join('');
+
+  return `
+    <h2 class="page-title">发货单管理</h2>
+    <div class="page-sub">发货单由<b>服务方（华南公司）新增建单</b>并锁定库存；<b>实际发货由委托方（卖方）按发货单详情执行</b>，买方签收（BR-09）</div>
+    <div class="stats">
+      <div class="stat"><div class="k">待发货</div><div class="v" style="color:#D48806">${shippings.filter(s=>s.status==='待发货').length}<small>单</small></div></div>
+      <div class="stat"><div class="k">已发货</div><div class="v" style="color:#0A54BA">${shippings.filter(s=>s.status==='已发货').length}<small>单</small></div></div>
+      <div class="stat"><div class="k">已签收</div><div class="v" style="color:#389E0D">${shippings.filter(s=>s.status==='已签收').length}<small>单</small></div></div>
+      <div class="stat"><div class="k">建单 / 发货方</div><div class="v" style="font-size:16px">服务方 / 委托方</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h3>发货单列表</h3>
+        <div style="flex:1"></div>
+        <button class="btn primary" onclick="openCreateShipping()">+ 新增发货单（服务方）</button>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr>
+            <th>发货单号</th><th>订单号</th><th>商品</th><th>数量</th><th>建单方</th><th>实际发货方</th><th>状态</th><th>操作</th>
+          </tr></thead>
+          <tbody>${rows || '<tr><td colspan="8" class="empty">暂无发货单</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+function shippingOps(s){
+  if(s.status==='待发货') return `<button class="btn sm primary" onclick="shipOrder('${s.no}')">委托方按单发货</button>`;
+  if(s.status==='已发货') return `<button class="btn sm primary" onclick="signOrder('${s.no}')">买方签收</button>`;
+  return '<span style="color:var(--text-2);font-size:12px">已签收 · 可发起退货</span>';
+}
+function shipOrder(no){
+  const s = shippings.find(x=>x.no===no); if(!s) return;
+  if(s.status!=='待发货'){ toast('当前状态不允许发货（CONSIGN_0002）','err'); return; }
+  s.status = '已发货';
+  s.shipTime = '2026-11-05 10:00';
+  toast('委托方（卖方）已按发货单详情发货：'+no,'ok');
+  switchView('shipping');
+}
+function signOrder(no){
+  const s = shippings.find(x=>x.no===no); if(!s) return;
+  if(s.status!=='已发货'){ toast('当前状态不允许签收（CONSIGN_0002）','err'); return; }
+  s.status = '已签收';
+  s.signTime = '2026-11-06 15:30';
+  toast('买方已签收：'+no+'，可发起退货单','ok');
+  switchView('shipping');
+}
+function openCreateShipping(){
+  openModal(`
+    <div class="modal-head"><h3>新增发货单（服务方建单）</h3><button class="x" onclick="closeOverlay()">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field"><span><i>*</i>订单号</span><input id="sh-order" placeholder="如：ORD20261101000306"></label>
+        <label class="field col-2"><span><i>*</i>商品</span><input id="sh-product" placeholder="如：支撑架螺栓 M16×80mm"></label>
+        <label class="field"><span><i>*</i>发货数量</span><input id="sh-qty" type="number" min="1" value="1"></label>
+      </div>
+      <p style="color:var(--text-2);font-size:12px;margin:12px 0 0">
+        * 建单方为服务方（华南公司），建单后订单置「执行中」并锁定委托库存；实际发货由委托方（卖方）按本单详情执行。
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeOverlay()">取消</button>
+      <button class="btn primary" onclick="saveShipping()">创建发货单</button>
+    </div>`, 620);
+}
+function saveShipping(){
+  const orderNo = ($('#sh-order').value||'').trim();
+  const product = ($('#sh-product').value||'').trim();
+  const qty = Number($('#sh-qty').value)||0;
+  if(!orderNo){ toast('请填写订单号','err'); return; }
+  if(!product){ toast('请填写商品','err'); return; }
+  if(qty<=0){ toast('请填写发货数量','err'); return; }
+  const no = nextNo('SH');
+  shippings.unshift({no, orderNo, product, qty, status:'待发货',
+    createdBy:'服务方（华南公司）', shipBy:'委托方（卖方）', shipTime:'', signTime:''});
+  closeOverlay();
+  toast('发货单已创建：'+no+'（待委托方按单发货）','ok');
+  switchView('shipping');
+}
+
+/* =========================================================
+   视图 8：销售对账（双腿）
+   ========================================================= */
+function legTag(leg){
+  if(leg===2) return '<span class="tag" style="color:#08979C;background:#E6FFFB;border:1px solid #08979C22">腿二 · 服务方↔委托方</span>';
+  return '<span class="tag" style="color:#0A54BA;background:#E8F1FE;border:1px solid #0A54BA22">腿一 · 买方↔服务方</span>';
+}
+function legName(leg){ return leg===2 ? '服务方↔委托方' : '买方↔服务方'; }
+
+function viewReconcile(){
+  const rows = reconciles.map(r=>`
+      <tr>
+        <td class="mono">${esc(r.no)}</td>
+        <td>${legTag(r.leg)}</td>
+        <td class="mono">${esc(r.orderNo)}</td>
+        <td class="mono">¥${fmt(r.amount)}</td>
+        <td>${statusTag(r.status)}</td>
+        <td class="ops">${reconcileOps(r)}</td>
+      </tr>`).join('');
+
+  return `
+    <h2 class="page-title">销售对账 · 双腿对账</h2>
+    <div class="page-sub">腿一「买方↔服务方」、腿二「服务方↔委托方」分别「创建 → 复核 → 付款 → 到账」；委托结算在腿二扣佣后结算给委托方（BR-11 / §3.9）</div>
+    <div class="stats">
+      <div class="stat"><div class="k">对账单总数</div><div class="v">${reconciles.length}<small>单</small></div></div>
+      <div class="stat"><div class="k">腿一（买方↔服务方）</div><div class="v">${reconciles.filter(r=>r.leg===1).length}<small>单</small></div></div>
+      <div class="stat"><div class="k">腿二（服务方↔委托方）</div><div class="v">${reconciles.filter(r=>r.leg===2).length}<small>单</small></div></div>
+      <div class="stat"><div class="k">已到账</div><div class="v" style="color:#389E0D">${reconciles.filter(r=>r.status==='已到账').length}<small>单</small></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h3>对账单列表</h3>
+        <div style="flex:1"></div>
+        <button class="btn primary" onclick="openCreateReconcile()">+ 创建对账单</button>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr>
+            <th>对账单号</th><th>对账腿</th><th>订单号</th><th>对账金额</th><th>状态</th><th>操作</th>
+          </tr></thead>
+          <tbody>${rows || '<tr><td colspan="6" class="empty">暂无对账单</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+function reconcileOps(r){
+  if(r.status==='待创建') return `<button class="btn sm primary" onclick="reconcileStep('${r.no}','create')">创建对账单</button>`;
+  if(r.status==='已创建') return `<button class="btn sm primary" onclick="reconcileStep('${r.no}','review')">复核</button>`;
+  if(r.status==='已复核') return `<button class="btn sm primary" onclick="reconcileStep('${r.no}','pay')">付款</button>`;
+  if(r.status==='已付款') return `<button class="btn sm primary" onclick="reconcileStep('${r.no}','arrive')">到账确认</button>`;
+  return '<span style="color:var(--text-2);font-size:12px">已到账 · 完成</span>';
+}
+function reconcileStep(no, step){
+  const r = reconciles.find(x=>x.no===no); if(!r) return;
+  const map = {
+    create:{from:'待创建', to:'已创建', msg:'已创建对账单（'+legName(r.leg)+'）'},
+    review:{from:'已创建', to:'已复核', msg:'对账单复核通过'},
+    pay:   {from:'已复核', to:'已付款', msg:'对账单已付款'},
+    arrive:{from:'已付款', to:'已到账', msg:'到账确认完成'}
+  };
+  const m = map[step];
+  if(!m || r.status!==m.from){ toast('当前状态不允许该操作（CONSIGN_0002）','err'); return; }
+  r.status = m.to;
+  toast(m.msg+'：'+no,'ok');
+  switchView('reconcile');
+}
+function openCreateReconcile(){
+  openModal(`
+    <div class="modal-head"><h3>创建销售对账单</h3><button class="x" onclick="closeOverlay()">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field"><span><i>*</i>对账腿</span>
+          <select id="rc-leg"><option value="1">腿一 · 买方↔服务方</option><option value="2">腿二 · 服务方↔委托方</option></select></label>
+        <label class="field"><span><i>*</i>订单号</span><input id="rc-order" placeholder="如：ORD20261101000306"></label>
+        <label class="field"><span><i>*</i>对账金额(元)</span><input id="rc-amount" type="number" min="0" value="0"></label>
+      </div>
+      <p style="color:var(--text-2);font-size:12px;margin:12px 0 0">
+        * 创建后进入「待创建」状态，依次流转：创建 → 复核 → 付款 → 到账。
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeOverlay()">取消</button>
+      <button class="btn primary" onclick="saveReconcile()">创建</button>
+    </div>`, 620);
+}
+function saveReconcile(){
+  const leg = Number($('#rc-leg').value)||1;
+  const orderNo = ($('#rc-order').value||'').trim();
+  const amount = Number($('#rc-amount').value)||0;
+  if(!orderNo){ toast('请填写订单号','err'); return; }
+  const no = nextNo('RC','202611');
+  reconciles.unshift({no, leg, orderNo, amount, status:'待创建'});
+  closeOverlay();
+  toast('对账单已创建：'+no+'（'+legName(leg)+'）','ok');
+  switchView('reconcile');
+}
+
+/* =========================================================
+   视图 9：退货管理（买方发起 · 服务方审核 · 冲正对账/结算）
+   ========================================================= */
+function viewReturns(){
+  const rows = returns.map(r=>`
+      <tr>
+        <td class="mono">${esc(r.no)}</td>
+        <td class="mono">${esc(r.orderNo)}</td>
+        <td>${esc(r.product)}</td>
+        <td>${intFmt(r.qty)}</td>
+        <td>${esc(r.reason)}</td>
+        <td class="mono" style="color:var(--danger)">¥${fmt(r.refund)}</td>
+        <td>${statusTag(r.status)}</td>
+        <td class="ops">${returnOps(r)}</td>
+      </tr>`).join('');
+
+  return `
+    <h2 class="page-title">退货管理</h2>
+    <div class="page-sub">买方签收后可新增退货单 → 服务方审核；通过后退货，并冲正对应对账 / 结算（refund_amount，BR-12）</div>
+    <div class="stats">
+      <div class="stat"><div class="k">待审核</div><div class="v" style="color:#D48806">${returns.filter(r=>r.status==='待审核').length}<small>单</small></div></div>
+      <div class="stat"><div class="k">退货中</div><div class="v" style="color:#D4680A">${returns.filter(r=>r.status==='退货中').length}<small>单</small></div></div>
+      <div class="stat"><div class="k">已退货</div><div class="v" style="color:#389E0D">${returns.filter(r=>r.status==='已退货').length}<small>单</small></div></div>
+      <div class="stat"><div class="k">退款金额合计</div><div class="v" style="color:#EE0000">¥${fmt(returns.reduce((s,r)=>s+(Number(r.refund)||0),0))}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h3>退货单列表</h3>
+        <div style="flex:1"></div>
+        <button class="btn primary" onclick="openCreateReturn()">+ 新增退货单（买方）</button>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr>
+            <th>退货单号</th><th>订单号</th><th>商品</th><th>退货数量</th><th>退货原因</th><th>退款金额</th><th>状态</th><th>操作</th>
+          </tr></thead>
+          <tbody>${rows || '<tr><td colspan="8" class="empty">暂无退货单</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+function returnOps(r){
+  if(r.status==='待审核') return `<button class="btn sm primary" onclick="auditReturn('${r.no}',true)">审核通过</button>
+          <button class="btn sm danger" onclick="auditReturn('${r.no}',false)">拒绝</button>`;
+  if(r.status==='退货中') return `<button class="btn sm primary" onclick="finishReturn('${r.no}')">确认退货完成</button>`;
+  return '<span style="color:var(--text-2);font-size:12px">已处理</span>';
+}
+function auditReturn(no, pass){
+  const r = returns.find(x=>x.no===no); if(!r) return;
+  if(r.status!=='待审核'){ toast('该退货单已处理（CONSIGN_0002）','err'); return; }
+  r.status = pass ? '退货中' : '已拒绝';
+  toast(pass ? ('退货审核通过：'+no+'，进入退货中，将冲正对账/结算（BR-12）') : ('已拒绝退货：'+no), pass?'ok':'err');
+  switchView('returns');
+}
+function finishReturn(no){
+  const r = returns.find(x=>x.no===no); if(!r) return;
+  if(r.status!=='退货中'){ toast('当前状态不允许该操作','err'); return; }
+  r.status = '已退货';
+  toast('退货完成：'+no+'，退款冲正 ¥'+fmt(r.refund)+' 已回填对账/结算（BR-12）','ok');
+  switchView('returns');
+}
+function openCreateReturn(){
+  openModal(`
+    <div class="modal-head"><h3>新增退货单（买方发起）</h3><button class="x" onclick="closeOverlay()">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <label class="field"><span><i>*</i>订单号</span><input id="rt-order" placeholder="如：ORD20261101000305"></label>
+        <label class="field col-2"><span><i>*</i>商品</span><input id="rt-product" placeholder="如：脚手架钢管 Φ48×3.0"></label>
+        <label class="field"><span><i>*</i>退货数量</span><input id="rt-qty" type="number" min="1" value="1"></label>
+        <label class="field"><span><i>*</i>退款金额(元)</span><input id="rt-refund" type="number" min="0" value="0"></label>
+        <label class="field col-3"><span><i>*</i>退货原因</span><input id="rt-reason" placeholder="如：到货外观破损 / 规格不符"></label>
+      </div>
+      <p style="color:var(--text-2);font-size:12px;margin:12px 0 0">
+        * 退货单由买方在签收后发起，服务方审核通过后退货，并冲正对应对账 / 结算（refund_amount）。
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeOverlay()">取消</button>
+      <button class="btn primary" onclick="saveReturn()">提交退货单</button>
+    </div>`, 620);
+}
+function saveReturn(){
+  const orderNo = ($('#rt-order').value||'').trim();
+  const product = ($('#rt-product').value||'').trim();
+  const qty = Number($('#rt-qty').value)||0;
+  const refund = Number($('#rt-refund').value)||0;
+  const reason = ($('#rt-reason').value||'').trim();
+  if(!orderNo){ toast('请填写订单号','err'); return; }
+  if(!product){ toast('请填写商品','err'); return; }
+  if(qty<=0){ toast('请填写退货数量','err'); return; }
+  if(!reason){ toast('请填写退货原因','err'); return; }
+  const no = nextNo('RT');
+  returns.unshift({no, orderNo, product, qty, reason, refund, status:'待审核'});
+  closeOverlay();
+  toast('退货单已提交：'+no+'，待服务方审核','ok');
+  switchView('returns');
+}
+
+/* ---------- 弹窗容器 ---------- */
+function openModal(inner, width){
+  $('#overlay').innerHTML =
+    `<div class="mask" onclick="if(event.target===this)closeOverlay()">
+       <div class="modal" style="${width?'width:'+width+'px':''}">${inner}</div>
+     </div>`;
+}
+
+/* ---------- 启动 ---------- */
+renderSidebar();
+switchView('manage');
+</script>
+</body>
+</html>
