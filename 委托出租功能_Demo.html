@@ -111,6 +111,36 @@
   .placeholder .ico{font-size:34px;opacity:.4;margin-bottom:10px;}
   .placeholder .h{font-size:15px;color:var(--text);font-weight:600;margin-bottom:6px;}
   .placeholder .s{font-size:13px;}
+
+  /* ===== 新增：嵌入式原型容器 + 快捷入口 ===== */
+  .topbar .jump{
+    margin-left:16px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);
+    color:#fff;text-decoration:none;padding:4px 12px;border-radius:13px;font-size:12px;
+  }
+  .topbar .jump:hover{background:rgba(255,255,255,.28);}
+  .main{overflow:hidden;position:relative;}
+  .embed-wrap{position:absolute;inset:0;display:flex;flex-direction:column;}
+  .embed-bar{
+    flex:0 0 auto;display:flex;align-items:center;gap:10px;
+    padding:7px 14px;background:#fff;border-bottom:1px solid var(--border);
+    font-size:12px;color:var(--text-2);
+  }
+  .embed-bar .path{color:var(--brand);font-weight:600;}
+  .embed-bar .spacer{flex:1;}
+  .embed-bar a{
+    color:var(--brand);text-decoration:none;border:1px solid #BFDDF5;background:#F5F9FF;
+    padding:3px 10px;border-radius:12px;
+  }
+  .embed-bar a:hover{background:#E8F1FE;}
+  .embed-wrap iframe{flex:1;width:100%;border:0;background:#fff;display:block;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:12px;}
+  .entry{
+    display:block;border:1px solid var(--border);border-radius:4px;padding:11px 13px;
+    text-decoration:none;color:var(--text);background:#fff;
+  }
+  .entry:hover{border-color:var(--brand);background:var(--brand-light);}
+  .entry .t{color:var(--brand);font-weight:600;font-size:13px;margin-bottom:3px;}
+  .entry .d{font-size:12px;color:var(--text-2);line-height:1.5;}
 </style>
 </head>
 <body>
@@ -119,7 +149,8 @@
   <div class="logo">盘古循环资源平台<small>委托出租</small></div>
   <div class="badge">前端 Demo · 待开发</div>
   <div class="spacer"></div>
-  <div class="user">当前用户：<b>张工</b></div>
+  <div class="user">当前用户：<b>演示用户</b></div>
+  <a class="jump" href="委托出租原型/index.html" target="_blank" rel="noopener">打开完整原型 ↗</a>
 </div>
 
 <div class="layout">
@@ -130,27 +161,42 @@
 <script>
 const $ = s => document.querySelector(s);
 
+/* =====================================================================
+   菜单 → 委托出租原型页面 映射
+   url = 要嵌入的原型页面；点击菜单在右侧 iframe 打开。
+   ===================================================================== */
 const NAV = [
   {group:'委托出租', items:[
-    {key:'manage',  label:'出租委托管理'},
-    {key:'publish', label:'发布出租房源'},
-    {key:'query',   label:'出租委托查询'}
+    {key:'manage',  label:'出租委托管理', url:'委托出租原型/index.html', note:'原型总览'},
+    {key:'publish', label:'发布出租房源', url:'委托出租原型/a01.html',   note:'委托方 · 新增出租商品'},
+    {key:'query',   label:'出租委托查询', url:'委托出租原型/a02.html',   note:'委托方 · 委托商品管理'}
   ]},
   {group:'运营管理', items:[
-    {key:'audit',     label:'委托审核'},
-    {key:'negotiate', label:'议价审核'}
+    {key:'audit',     label:'委托审核', url:'委托出租原型/s02.html',     note:'服务方 · 订单审核'},
+    {key:'negotiate', label:'议价审核', url:'委托出租原型/s03.html',     note:'服务方 · 接单（含议价出口）'}
   ]},
   {group:'商城前台', items:[
-    {key:'mall', label:'出租专区'}
+    {key:'mall', label:'出租专区', url:'委托出租原型/b01.html',          note:'承租方 · 委托商品列表'}
   ]}
 ];
 
+/* 保留原 Demo 的 5 环节骨架，用于首屏说明 */
 const STEPS = [
   {t:'提交出租委托', d:'填写店铺信息、期望租金、可租周期等'},
   {t:'平台审核',     d:'核对产权资料与店铺情况'},
   {t:'挂牌展示',     d:'进入出租专区对外展示'},
   {t:'意向洽谈',     d:'承租方咨询、在线议价'},
   {t:'签约成交',     d:'生成租赁合同并归档'}
+];
+
+/* 快捷入口 */
+const ENTRIES = [
+  ['原型的全流程（推荐）','委托出租原型/index.html','37 个页面：承租方 → 服务方 → 委托方'],
+  ['页面级需求说明',      '委托出租原型/spec.html', '每页字段、关键规则、出口跳转'],
+  ['承租方侧 15 页',      '委托出租原型/b01.html',  '下单 → 审核 → 押金 → 签收 → 对账 → 归还 → 押金退还 → 开票'],
+  ['服务方侧 11 页',      '委托出租原型/s01.html',  '接单工作台 → 审核 → 接单 → 发货 → 对账 → 委托结算 → 开票'],
+  ['委托方侧 11 页',      '委托出租原型/a01.html',  '新增出租商品 → 自动委托 → 上架 → 发货 → 结算 → 开票'],
+  ['门户页入口',          '租售店铺（lxj0530）.html','「出租业务」页签右侧已新增「委托出租」']
 ];
 
 let currentView = 'manage';
@@ -175,70 +221,69 @@ function stepsHtml(){
     </div>`).join('')}</div>`;
 }
 
+/* ---------- 首屏 ---------- */
 function viewManage(){
   return `
     <div class="page-head">
       <h2>出租委托管理</h2>
       <span class="sub">委托出租 · 全流程</span>
       <div class="spacer"></div>
-      <button class="btn primary">+ 新建出租委托</button>
+      <button class="btn primary" onclick="switchView('publish')">+ 新建出租委托</button>
     </div>
     <div class="notice">
-      <b>本页为占位 Demo。</b>「委托出租」的业务页面尚未开发，此处仅展示入口与流程骨架，
-      方便先跑通门户导航。具体表单与列表待需求确认后补齐。
+      <b>本 Demo 已接入「委托出租原型」。</b>点击左侧菜单，即可在右侧打开对应的业务页面。
+      请注意：本页的 5 环节是<b>店铺出租</b>的简化骨架，而「委托出租原型」实现的是
+      <b>委托出租全流程</b>（提交订单 → 审核 → 押金付款 → 接单 → 发货 → 签收 → 对账付款 →
+      商品归还 → 押金退还 → 开票 → 结束订单），两者口径不同，按需取用。
     </div>
     <div class="card">
-      <h3>业务流程</h3>
-      <p>委托出租从提交到成交，共 5 个环节：</p>
+      <h3>快捷入口</h3>
+      <p>直接进入原型的关键页面（新标签页打开）：</p>
+      <div class="grid">
+        ${ENTRIES.map(e => `
+          <a class="entry" href="${e[1]}" target="_blank" rel="noopener">
+            <div class="t">${e[0]} ↗</div>
+            <div class="d">${e[2]}</div>
+          </a>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <h3>业务流程（本 Demo 骨架，仅作参考）</h3>
+      <p>店铺出租从提交到成交，共 5 个环节：</p>
       ${stepsHtml()}
-    </div>
-    <div class="card">
-      <h3>委托列表</h3>
-      <p>此处将展示出租委托记录（店铺名称、期望租金、状态、操作）。</p>
-      <div class="placeholder" style="margin-top:14px;">
-        <div class="ico">▤</div>
-        <div class="h">暂无数据</div>
-        <div class="s">点击右上角「新建出租委托」开始录入</div>
-      </div>
     </div>`;
 }
 
-function viewPlaceholder(title, desc){
+/* ---------- 嵌入式原型页 ---------- */
+function viewEmbed(item){
   return `
-    <div class="page-head">
-      <h2>${title}</h2>
-      <span class="sub">委托出租</span>
-    </div>
-    <div class="card">
-      <h3>${title}</h3>
-      <p>${desc}</p>
-      <div class="placeholder" style="margin-top:14px;">
-        <div class="ico">▤</div>
-        <div class="h">功能建设中</div>
-        <div class="s">该模块尚未开发，先占个位置</div>
+    <div class="embed-wrap">
+      <div class="embed-bar">
+        <span class="path">${item.label}</span>
+        <span>· ${item.note}</span>
+        <span class="spacer"></span>
+        <a href="${item.url}" target="_blank" rel="noopener">新标签页打开 ↗</a>
       </div>
+      <iframe src="${item.url}" title="${item.label}" loading="lazy"></iframe>
     </div>`;
 }
-
-function viewPublish(){ return viewPlaceholder('发布出租房源', '填写店铺信息、期望租金、可租周期、配套说明等，提交后进入审核。'); }
-function viewQuery(){ return viewPlaceholder('出租委托查询', '按店铺名称、委托状态、提交时间等条件检索出租委托记录。'); }
-function viewAudit(){ return viewPlaceholder('委托审核', '审核承租/出租委托的资质与资料，支持通过、驳回与备注。'); }
-function viewNegotiate(){ return viewPlaceholder('议价审核', '对承租方的出价进行审核与批复。'); }
-function viewMall(){ return viewPlaceholder('出租专区', '商城前台的出租店铺专区，面向承租方展示在租店铺。'); }
 
 function switchView(key){
   currentView = key;
   renderSidebar();
-  const map = {
-    manage: viewManage, publish: viewPublish, query: viewQuery,
-    audit: viewAudit, negotiate: viewNegotiate, mall: viewMall
-  };
-  $('#main').innerHTML = (map[key] || viewManage)();
+  const item = NAV.reduce((a,g)=>a.concat(g.items),[]).find(i => i.key === key);
+  $('#main').innerHTML = (item && item.url) ? viewEmbed(item) : viewManage();
   $('#main').scrollTop = 0;
 }
 
-renderSidebar();
-switchView('manage');
+/* 支持 URL hash 直接定位，如 委托出租功能_Demo.html#audit */
+(function init(){
+  const h = (location.hash || '').replace('#','');
+  const hit = NAV.reduce((a,g)=>a.concat(g.items),[]).some(i => i.key === h);
+  switchView(hit ? h : 'manage');
+})();
 </script>
 </body>
+</html>
+
 </html>
