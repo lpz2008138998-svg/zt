@@ -281,6 +281,137 @@
   height:982px;
   overflow:auto;
 }
+/* ---- 委托销售相关 state（DEMO 新增） ---- */
+#u1943_state6 {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1920px;
+  height:823px;
+  -ms-overflow-x:hidden;
+  overflow-x:hidden;
+  -ms-overflow-y:hidden;
+  overflow-y:hidden;
+  background-image:none;
+  border-radius:0px;
+  -moz-box-shadow:none;
+  -webkit-box-shadow:none;
+  box-shadow:none;
+  visibility:hidden;
+}
+#u1943_state6_content {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1px;
+  height:1px;
+}
+#u1994 {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1934px;
+  height:982px;
+}
+#u1994_input {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1934px;
+  height:982px;
+  overflow:auto;
+}
+#u1943_state7 {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1920px;
+  height:823px;
+  -ms-overflow-x:hidden;
+  overflow-x:hidden;
+  -ms-overflow-y:hidden;
+  overflow-y:hidden;
+  background-image:none;
+  border-radius:0px;
+  -moz-box-shadow:none;
+  -webkit-box-shadow:none;
+  box-shadow:none;
+  visibility:hidden;
+}
+#u1943_state7_content {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1px;
+  height:1px;
+}
+#u1995 {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1934px;
+  height:982px;
+}
+#u1995_input {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1934px;
+  height:982px;
+  overflow:auto;
+}
+#u1943_state8 {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1920px;
+  height:823px;
+  -ms-overflow-x:hidden;
+  overflow-x:hidden;
+  -ms-overflow-y:hidden;
+  overflow-y:hidden;
+  background-image:none;
+  border-radius:0px;
+  -moz-box-shadow:none;
+  -webkit-box-shadow:none;
+  box-shadow:none;
+  visibility:hidden;
+}
+#u1943_state8_content {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1px;
+  height:1px;
+}
+#u1996 {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1934px;
+  height:982px;
+}
+#u1996_input {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:1934px;
+  height:982px;
+  overflow:auto;
+}
+/* ---- 委托销售相关 state（DEMO 新增）结束 ---- */
 #u1950 {
   position:absolute;
   left:0px;
@@ -1776,6 +1907,182 @@
   white-space:nowrap;
   text-transform:none;
 }
+/* ================= 委托销售（DEMO 新增） ================= */
+#u1993_div {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:72px;
+  height:38px;
+  background:inherit;
+  background-color:rgba(255, 255, 255, 0);
+  border-left:0px;
+  border-top:0px;
+  border-right:0px;
+  border-radius:0px;
+  border-bottom-right-radius:0px;
+  border-bottom-left-radius:0px;
+  filter:drop-shadow(none);
+  transition:none;
+  font-family:'PingFangSC-Regular', 'PingFang SC', sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:18px;
+}
+#u1993 {
+  border-width:0px;
+  position:absolute;
+  left:1736px;
+  top:99px;
+  width:72px;
+  height:38px;
+  display:flex;
+  transition:none;
+  transform-origin:50% 50%;
+  font-family:'PingFangSC-Regular', 'PingFang SC', sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:18px;
+}
+#u1993 .text {
+  position:absolute;
+  align-self:flex-start;
+  padding:0px 0px 0px 0px;
+  box-sizing:border-box;
+  width:100%;
+}
+#u1993_div.mouseOver {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:72px;
+  height:38px;
+  background:inherit;
+  background-color:rgba(255, 255, 255, 0);
+  box-sizing:border-box;
+  border-width:4px;
+  border-style:solid;
+  border-color:rgba(11, 87, 190, 1);
+  border-left:0px;
+  border-top:0px;
+  border-right:0px;
+  border-radius:0px;
+  border-bottom-right-radius:0px;
+  border-bottom-left-radius:0px;
+  filter:drop-shadow(none);
+  transition:none;
+  font-family:'PingFangSC-Semibold', 'PingFang SC Semibold', 'PingFang SC', sans-serif;
+  font-weight:650;
+  font-style:normal;
+  font-size:18px;
+}
+#u1993.mouseOver {
+}
+#u1993_div.selected {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:72px;
+  height:38px;
+  background:inherit;
+  background-color:rgba(255, 255, 255, 0);
+  box-sizing:border-box;
+  border-width:4px;
+  border-style:solid;
+  border-color:rgba(11, 87, 190, 1);
+  border-left:0px;
+  border-top:0px;
+  border-right:0px;
+  border-radius:0px;
+  border-bottom-right-radius:0px;
+  border-bottom-left-radius:0px;
+  filter:drop-shadow(none);
+  transition:none;
+  font-family:'PingFangSC-Semibold', 'PingFang SC Semibold', 'PingFang SC', sans-serif;
+  font-weight:650;
+  font-style:normal;
+  font-size:18px;
+}
+#u1993.selected {
+}
+#u1993_div.mouseOver.selected {
+  border-width:0px;
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:72px;
+  height:38px;
+  background:inherit;
+  background-color:rgba(255, 255, 255, 0);
+  box-sizing:border-box;
+  border-width:4px;
+  border-style:solid;
+  border-color:rgba(11, 87, 190, 1);
+  border-left:0px;
+  border-top:0px;
+  border-right:0px;
+  border-radius:0px;
+  border-bottom-right-radius:0px;
+  border-bottom-left-radius:0px;
+  filter:drop-shadow(none);
+  transition:none;
+  font-family:'PingFangSC-Semibold', 'PingFang SC Semibold', 'PingFang SC', sans-serif;
+  font-weight:650;
+  font-style:normal;
+  font-size:18px;
+}
+#u1993.mouseOver.selected {
+}
+#u1993_text {
+  border-width:0px;
+  white-space:nowrap;
+  text-transform:none;
+}
+/* ---- 委托销售：悬停下拉面板 ---- */
+#u1993 {
+  cursor:pointer;
+}
+/* 用 fixed 定位，避免被门户容器的 overflow 裁剪 */
+#u1993_dropdown {
+  display:none;
+  position:fixed;
+  min-width:96px;
+  padding:6px 0px;
+  background-color:#ffffff;
+  border:1px solid rgba(221, 223, 231, 1);
+  border-radius:6px;
+  box-shadow:0px 6px 16px rgba(0, 0, 0, 0.12);
+  z-index:99999;
+  white-space:nowrap;
+}
+#u1993.demo-dropdown-open #u1993_dropdown {
+  display:block;
+}
+.demo-dropdown-item {
+  padding:9px 20px;
+  font-family:'PingFangSC-Regular', 'PingFang SC', sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:16px;
+  line-height:22px;
+  color:#333333;
+  cursor:pointer;
+  transition:background-color 0.15s, color 0.15s;
+}
+.demo-dropdown-item:hover {
+  background-color:#F2F6FF;
+  color:#0B57BE;
+}
+.demo-dropdown-item.active {
+  color:#0B57BE;
+  font-family:'PingFangSC-Semibold', 'PingFang SC Semibold', 'PingFang SC', sans-serif;
+  font-weight:650;
+  background-color:#F2F6FF;
+}
+/* ================= 委托销售（DEMO 新增）结束 ================= */
 #u1969 {
   border-width:0px;
   position:absolute;
@@ -2675,4 +2982,22 @@
   border-width:0px;
   word-wrap:break-word;
   text-transform:none;
+}
+
+/* ================= 导航栏等距重排（DEMO 覆盖层 v3） ================= */
+/* left 由 门户_demo.html 里的 layoutNav() 按视口宽度实时计算，此处只统一尺寸与居中 */
+/* 目的：整排导航随窗口自适应铺开，避免固定 1920 画布下被挤出可视区、点不到 */
+#u1963, #u1964, #u1965, #u1966, #u1967, #u1968, #u1993 {
+  width: 100px !important;
+  top: 99px !important;
+  height: 38px !important;
+}
+
+/* 文字水平居中、垂直居中 */
+#u1963 .text, #u1964 .text, #u1965 .text,
+#u1966 .text, #u1967 .text, #u1968 .text, #u1993 .text {
+  text-align: center !important;
+  justify-content: center !important;
+  align-items: center !important;
+  display: flex !important;
 }
