@@ -1,0 +1,327 @@
+/* 委托出租原型 · 样式表（颜色字面值，无 CSS 变量依赖）
+   主色/链接 #1E98D7  深蓝按钮 #0A54BA  浅蓝底 #EBF2FB
+   文字 #333333/#666666/#999999  金额 #E1251B  成功 #52C41A  警告 #FAAD14
+   边框 #E5E6EB  表头底 #F7F8FA  页面底 #F2F2F2  字体 微软雅黑  圆角 2px */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"微软雅黑","Microsoft YaHei","PingFang SC",sans-serif;
+  font-size:14px;
+  line-height:1.6;
+  color:#333333;
+  background:#F2F2F2;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:#1E98D7;text-decoration:none}
+a:hover{color:#40A9E0}
+h1,h2,h3,h4,p{margin:0}
+
+/* ---------------- 顶部栏（白底 + LOGO + 搜索） ---------------- */
+.app-top{
+  min-height:64px;background:#FFFFFF;border-bottom:1px solid #E5E6EB;
+  display:flex;align-items:center;gap:20px;padding:0 24px;
+  position:sticky;top:0;z-index:20;
+}
+.app-top .logo{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.app-top .logo .mark{
+  width:44px;height:44px;border:1px solid #D9D9D9;border-radius:2px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:#999999;letter-spacing:.5px;background:#FFFFFF;
+}
+.app-top .logo .t{font-size:20px;font-weight:700;color:#333333;line-height:1.2}
+.app-top .logo .t small{display:block;font-size:11px;color:#999999;font-weight:400;letter-spacing:.5px}
+.app-top .sys{display:flex;gap:4px;margin-left:12px}
+.app-top .sys span{
+  padding:6px 14px;font-size:14px;color:#666666;border-radius:2px;white-space:nowrap;
+}
+.app-top .sys span.on{color:#1E98D7;font-weight:600;background:#EBF2FB}
+.app-top .spacer{flex:1}
+.app-top .user{display:flex;align-items:center;gap:10px;font-size:13px;color:#666666;white-space:nowrap}
+.app-top .avatar{
+  width:28px;height:28px;border-radius:50%;background:#EBF2FB;color:#1E98D7;
+  display:flex;align-items:center;justify-content:center;font-size:12px;
+}
+.app-top .search{display:flex;flex:0 1 420px}
+.app-top .search input{border-radius:2px 0 0 2px;min-width:0;flex:1}
+.app-top .search .go{
+  height:32px;padding:0 20px;background:#0A54BA;color:#fff;border:0;border-radius:0 2px 2px 0;
+  font-size:14px;font-family:inherit;cursor:pointer;
+}
+
+/* ---------------- 布局 ---------------- */
+.app-body{display:flex;min-height:calc(100vh - 64px)}
+.sidebar{
+  width:208px;flex:0 0 208px;background:#FFFFFF;border-right:1px solid #E5E6EB;
+  padding:10px 0 48px;overflow-y:auto;
+}
+.sidebar .grp{margin-bottom:4px}
+.sidebar .grp>.hd{
+  padding:12px 18px 6px;font-size:12px;color:#999999;letter-spacing:.5px;
+}
+.sidebar a.item{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 18px 10px 22px;font-size:14px;color:#666666;
+  border-left:3px solid transparent;
+}
+.sidebar a.item:hover{background:#F5F9FF;color:#1E98D7}
+.sidebar a.item.on{
+  background:#EBF2FB;color:#1E98D7;font-weight:600;border-left-color:#1E98D7;
+}
+.sidebar a.item .role{
+  margin-left:auto;font-size:11px;padding:0 5px;border-radius:2px;
+  background:#F2F2F2;color:#999999;font-weight:400;flex:0 0 auto;
+}
+.sidebar a.item.on .role{background:#FFFFFF;color:#1E98D7}
+
+.main{flex:1;min-width:0;padding:16px 20px 64px}
+
+/* ---------------- 面包屑 / 步骤条 ---------------- */
+.crumb{font-size:12px;color:#999999;margin-bottom:12px}
+.crumb .sep{margin:0 6px;color:#D9D9D9}
+.crumb b{color:#666666;font-weight:400}
+
+.steps{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 14px}
+.steps .st{
+  display:flex;align-items:center;gap:6px;padding:5px 12px;
+  background:#FFFFFF;border:1px solid #E5E6EB;border-radius:2px;
+  font-size:12px;color:#999999;
+}
+.steps .st .n{
+  width:16px;height:16px;border-radius:50%;background:#D9D9D9;color:#fff;
+  font-size:10px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+}
+.steps .st.done{color:#1E98D7;border-color:#BFDDF5;background:#F5F9FF}
+.steps .st.done .n{background:#1E98D7}
+.steps .st.now{color:#FFFFFF;background:#1E98D7;border-color:#1E98D7;font-weight:600}
+.steps .st.now .n{background:#FFFFFF;color:#1E98D7}
+.steps .arrow{color:#D9D9D9;font-size:12px}
+
+/* ---------------- 卡片 ---------------- */
+.card{
+  background:#FFFFFF;border:1px solid #E5E6EB;border-radius:3px;
+  padding:18px 20px;margin-bottom:14px;
+}
+.card.tight{padding:14px 16px}
+.card-hd{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+  padding-left:10px;border-left:3px solid #1E98D7;
+  font-size:16px;font-weight:700;color:#333333;line-height:1.3;
+}
+.card-hd .sub{font-size:12px;color:#999999;font-weight:400}
+.card-hd .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+/* ---------------- 查询条件 ---------------- */
+.filters{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center}
+.filters .f{display:flex;align-items:center;gap:8px}
+.filters .f>label{font-size:13px;color:#666666;white-space:nowrap}
+.filters .acts{margin-left:auto;display:flex;gap:8px}
+
+/* ---------------- 表单控件 ---------------- */
+input[type=text],input[type=number],input[type=date],input[type=password],select,textarea{
+  height:32px;padding:0 10px;font-size:13px;color:#333333;
+  border:1px solid #D9D9D9;border-radius:2px;background:#FFFFFF;
+  font-family:inherit;outline:none;min-width:150px;
+}
+textarea{height:auto;padding:6px 10px;min-height:64px;line-height:1.6;resize:vertical;width:100%}
+input:focus,select:focus,textarea:focus{border-color:#1E98D7;box-shadow:0 0 0 2px rgba(30,152,215,.12)}
+input:disabled,select:disabled,textarea:disabled{background:#F5F5F5;color:#999999;cursor:not-allowed}
+input[readonly]{background:#FAFAFA;color:#666666}
+select{cursor:pointer}
+input.w-sm{min-width:88px;width:88px}
+input.w-md{min-width:168px;width:168px}
+input.w-lg{min-width:252px;width:252px}
+input.full,select.full{min-width:0;width:100%}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#666666;cursor:pointer}
+.chk input{height:auto;min-width:0;margin:0}
+.radios{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+
+/* ---------------- 按钮 ---------------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  height:32px;padding:0 16px;font-size:13px;font-family:inherit;
+  border:1px solid #D9D9D9;border-radius:2px;background:#FFFFFF;color:#666666;
+  cursor:pointer;white-space:nowrap;transition:all .12s;
+}
+.btn:hover{border-color:#1E98D7;color:#1E98D7}
+.btn.primary{background:#0A54BA;border-color:#0A54BA;color:#FFFFFF}
+.btn.primary:hover{background:#1E6FD9;border-color:#1E6FD9;color:#FFFFFF}
+.btn.ghost{background:#FFFFFF;border-color:#1E98D7;color:#1E98D7}
+.btn.ghost:hover{background:#F5F9FF}
+.btn.danger{border-color:#F5222D;color:#F5222D;background:#FFFFFF}
+.btn.danger:hover{background:#F5222D;color:#FFFFFF}
+.btn.solid-danger{background:#F5222D;border-color:#F5222D;color:#FFFFFF}
+.btn.sm{height:26px;padding:0 10px;font-size:12px}
+.btn.lg{height:38px;padding:0 24px;font-size:14px}
+.btn[disabled]{background:#F5F5F5;border-color:#E5E6EB;color:#BFBFBF;cursor:not-allowed}
+.btn[disabled]:hover{background:#F5F5F5;border-color:#E5E6EB;color:#BFBFBF}
+.btn-row{display:flex;gap:10px;align-items:center}
+.btn-row.center{justify-content:center}
+.btn-row.right{justify-content:flex-end}
+.btn-row.pad{padding:16px 0 2px}
+
+/* ---------------- 表格（带边框，原型的物资信息表样式） ---------------- */
+.tbl-wrap{overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:13px;border:1px solid #E5E6EB}
+table.tbl th{
+  background:#F7F8FA;color:#666666;font-weight:400;text-align:center;
+  padding:10px 12px;border:1px solid #E5E6EB;white-space:nowrap;font-size:13px;
+}
+table.tbl td{
+  padding:10px 12px;border:1px solid #E5E6EB;color:#333333;vertical-align:middle;background:#FFFFFF;
+}
+table.tbl tbody tr:hover td{background:#FAFCFF}
+table.tbl td.num,table.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
+table.tbl td.ctr,table.tbl th.ctr{text-align:center}
+table.tbl .ops a{margin-right:10px}
+table.tbl .ops a:last-child{margin-right:0}
+table.tbl .ops a.danger{color:#F5222D}
+table.tbl.compact td,table.tbl.compact th{padding:7px 10px;font-size:12px}
+table.tbl .sum-row td{background:#F7F8FA;font-weight:700}
+.empty{padding:40px;text-align:center;color:#999999;font-size:13px}
+
+/* ---------------- 合计条 ---------------- */
+.sum-bar{
+  display:flex;align-items:center;gap:32px;flex-wrap:wrap;
+  margin-top:12px;padding:12px 16px;background:#F7F8FA;border:1px solid #E5E6EB;border-radius:2px;
+  font-size:13px;color:#666666;
+}
+.sum-bar b{color:#333333;font-size:15px;font-variant-numeric:tabular-nums}
+.sum-bar .amt b{color:#E1251B}
+
+/* ---------------- 状态标签 ---------------- */
+.tag{
+  display:inline-block;padding:0 8px;border-radius:2px;font-size:12px;line-height:20px;
+  background:#F2F2F2;color:#666666;white-space:nowrap;border:1px solid transparent;
+}
+.tag.blue{background:#EBF2FB;color:#1E98D7;border-color:#BFDDF5}
+.tag.green{background:#F0FBEC;color:#52C41A;border-color:#C6EFB4}
+.tag.orange{background:#FFF8E8;color:#FAAD14;border-color:#FCE3AE}
+.tag.red{background:#FFF1F0;color:#E1251B;border-color:#FFCCC7}
+.tag.grey{background:#F5F5F5;color:#999999;border-color:#E5E6EB}
+.tag.dark{background:#EEEEEE;color:#333333;border-color:#E0E0E0}
+
+/* ---------------- 说明 / 提示 ---------------- */
+.note{
+  font-size:12px;color:#666666;line-height:1.8;
+  background:#FAFAFA;border:1px solid #E5E6EB;border-left:3px solid #BFBFBF;
+  padding:10px 14px;border-radius:2px;margin-top:12px;
+}
+.note b{color:#333333;font-weight:700}
+.note.blue{background:#F5F9FF;border-color:#BFDDF5;border-left-color:#1E98D7}
+.note.warn{background:#FFFBF0;border-color:#FCE3AE;border-left-color:#FAAD14}
+.note.red{background:#FFF5F5;border-color:#FFCCC7;border-left-color:#F5222D}
+.note ul{margin:6px 0 0;padding-left:18px}
+.note li{margin:2px 0}
+
+/* ---------------- 详情键值 ---------------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0 32px}
+.grid.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kv{display:flex;gap:8px;padding:9px 0;font-size:13px;border-bottom:1px dashed #EBEBEB;min-width:0}
+.kv .k{color:#999999;flex:0 0 104px;text-align:right}
+.kv .v{color:#333333;flex:1;min-width:0;word-break:break-all}
+.kv .v.strong{font-weight:700}
+.kv .v.money{color:#E1251B;font-weight:700;font-variant-numeric:tabular-nums}
+.kv.full{grid-column:1/-1}
+
+/* ---------------- 表单行 ---------------- */
+.form-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
+.form-row>label{
+  flex:0 0 124px;text-align:right;font-size:13px;color:#666666;padding-top:7px;line-height:18px;
+}
+.form-row>label .req{color:#F5222D;margin-right:2px}
+.form-row .ctl{flex:1;min-width:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.form-row .ctl .hint{font-size:12px;color:#999999}
+.form-row.inline{margin-bottom:0}
+.form-sec{
+  font-size:14px;color:#333333;font-weight:700;
+  padding:0 0 10px;margin-bottom:14px;border-bottom:1px solid #E5E6EB;
+}
+.form-sec .tip{font-weight:400;font-size:12px;color:#999999;margin-left:10px}
+
+/* 上传占位 */
+.upload{
+  width:92px;height:92px;border:1px dashed #D9D9D9;border-radius:2px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  color:#999999;font-size:12px;background:#FAFAFA;cursor:pointer;
+}
+.upload:hover{border-color:#1E98D7;color:#1E98D7}
+.upload .plus{font-size:20px;line-height:1}
+
+/* ---------------- 分页 ---------------- */
+.pager{display:flex;align-items:center;gap:6px;justify-content:flex-end;padding:14px 2px 2px;font-size:12px;color:#999999}
+.pager .pg{
+  min-width:28px;height:28px;padding:0 6px;border:1px solid #D9D9D9;border-radius:2px;
+  display:flex;align-items:center;justify-content:center;color:#666666;background:#FFFFFF;
+}
+.pager .pg.on{background:#1E98D7;border-color:#1E98D7;color:#FFFFFF}
+.pager .pg:hover{border-color:#1E98D7;color:#1E98D7}
+.pager .pg.on:hover{color:#FFFFFF}
+.pager .total{margin-right:auto}
+
+/* ---------------- 页签 ---------------- */
+.tabs{display:flex;gap:24px;border-bottom:1px solid #E5E6EB;margin-bottom:16px}
+.tabs a{padding:10px 2px;font-size:14px;color:#666666;position:relative}
+.tabs a.on{color:#1E98D7;font-weight:600}
+.tabs a.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#1E98D7}
+
+/* ---------------- 店铺组选择卡 ---------------- */
+.pick-grid{display:flex;flex-wrap:wrap;gap:12px;width:100%}
+.pick-grid .pick{flex:1 1 240px;min-width:240px;max-width:100%}
+.pick{
+  border:1px solid #E5E6EB;border-radius:2px;padding:14px 16px;
+  font-size:13px;color:#333333;cursor:pointer;background:#FFFFFF;position:relative;
+}
+.pick:hover{border-color:#1E98D7;color:#1E98D7;background:#F5F9FF}
+.pick .d{font-size:12px;color:#999999;margin-top:4px}
+.pick.on{border-color:#1E98D7;background:#EBF2FB;color:#1E98D7;font-weight:700}
+.pick.on .d{color:#1E98D7}
+.pick.on::after{content:"✓";position:absolute;right:8px;top:6px;color:#1E98D7;font-size:12px}
+
+/* ---------------- 角色标识条 ---------------- */
+.party-bar{
+  display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:2px;
+  font-size:12px;margin-bottom:14px;border:1px solid transparent;
+}
+.party-bar.a{background:#F5F9FF;color:#1E98D7;border-color:#BFDDF5}
+.party-bar.b{background:#FFFBF0;color:#B7791F;border-color:#FCE3AE}
+.party-bar.c{background:#F0FBEC;color:#3F9E1E;border-color:#C6EFB4}
+.party-bar b{font-weight:700}
+
+/* ---------------- 总览页 ---------------- */
+.hero{
+  background:#FFFFFF;border:1px solid #E5E6EB;border-radius:3px;
+  padding:26px 30px;margin-bottom:14px;border-top:3px solid #1E98D7;
+}
+.hero h1{font-size:24px;font-weight:700;color:#333333;margin-bottom:8px}
+.hero p{font-size:13px;color:#666666;line-height:1.9}
+.hero .meta{display:flex;gap:36px;margin-top:18px;font-size:12px;color:#999999}
+.hero .meta b{display:block;font-size:22px;color:#1E98D7;font-weight:700;line-height:1.2}
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.cols .card{margin-bottom:0}
+.col-hd{
+  font-size:15px;font-weight:700;color:#333333;padding:0 0 12px;margin-bottom:10px;
+  border-bottom:1px solid #E5E6EB;display:flex;align-items:center;gap:8px;
+}
+.col-hd .dot{width:8px;height:8px;border-radius:50%;background:#1E98D7;flex:0 0 auto}
+.col-hd .dot.b{background:#FAAD14}
+.col-hd .dot.c{background:#52C41A}
+.col-hd .n{margin-left:auto;font-size:12px;color:#999999;font-weight:400}
+.flow-list{list-style:none;margin:0;padding:0}
+.flow-list li{border-bottom:1px dashed #EBEBEB}
+.flow-list li:last-child{border-bottom:0}
+.flow-list a{display:flex;gap:8px;padding:9px 4px;font-size:13px;color:#333333;align-items:baseline}
+.flow-list a:hover{background:#F5F9FF;color:#1E98D7}
+.flow-list .no{
+  flex:0 0 20px;height:20px;border-radius:50%;background:#F2F2F2;color:#999999;
+  font-size:11px;display:flex;align-items:center;justify-content:center;line-height:1;
+}
+.flow-list a:hover .no{background:#1E98D7;color:#FFFFFF}
+
+/* 打印 */
+@media print{
+  .sidebar,.app-top{display:none}
+  .main{padding:0;background:#fff}
+  .card{break-inside:avoid;border-color:#CCC}
+}
