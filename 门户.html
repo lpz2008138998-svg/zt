@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
   <head>
-    <title>门户</title>
+    <title>门户新</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <link href="resources/css/axure_rp_page.css" type="text/css" rel="stylesheet"/>
@@ -59,6 +59,33 @@
             <!-- Unnamed (Inline frame) -->
             <div id="u1944" class="ax_default">
               <iframe id="u1944_input" scrolling="auto" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+        <div id="u1943_state6" class="panel_state" data-label="委托销售" style="visibility: hidden;">
+          <div id="u1943_state6_content" class="panel_state_content">
+
+            <!-- 委托销售 (Inline frame) -->
+            <div id="u1994" class="ax_default" data-label="委托销售">
+              <iframe id="u1994_input" data-label="委托销售" scrolling="auto" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+        <div id="u1943_state7" class="panel_state" data-label="委托出租" style="visibility: hidden;">
+          <div id="u1943_state7_content" class="panel_state_content">
+
+            <!-- 委托出租 (Inline frame) -->
+            <div id="u1995" class="ax_default" data-label="委托出租">
+              <iframe id="u1995_input" data-label="委托出租" scrolling="auto" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+        <div id="u1943_state8" class="panel_state" data-label="委托出售" style="visibility: hidden;">
+          <div id="u1943_state8_content" class="panel_state_content">
+
+            <!-- 委托出售 (Inline frame) -->
+            <div id="u1996" class="ax_default" data-label="委托出售">
+              <iframe id="u1996_input" data-label="委托出售" scrolling="auto" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
             </div>
           </div>
         </div>
@@ -312,6 +339,20 @@
                   <p><span>租售店铺</span></p>
                 </div>
               </div>
+
+              <!-- 委托销售 (下拉菜单) --><!--DEMO-ADD-START-->
+              <div id="u1993" class="ax_default _文本段落 transition notrs" data-label="委托销售">
+                <div id="u1993_div" class=""></div>
+                <div id="u1993_text" class="text ">
+                  <p><span>委托业务</span></p>
+                </div>
+                <!-- 悬停下拉面板 -->
+                <div id="u1993_dropdown" class="demo-dropdown">
+                  <div class="demo-dropdown-item" data-name="委托出租">委托出租</div>
+                  <div class="demo-dropdown-item" data-name="委托出售">委托出售</div>
+                </div>
+              </div>
+              <!--DEMO-ADD-END-->
 
               <!-- Unnamed (组合) -->
               <div id="u1969" class="ax_default" data-left="1069" data-top="35" data-width="127" data-height="44" layer-opacity="1">
@@ -577,5 +618,321 @@
       </div>
     </div>
     <script src="resources/scripts/axure/ios.js"></script>
+
+    <!-- ================= DEMO 新增：委托销售导航交互 v3 ================= -->
+    <script type="text/javascript">
+      (function () {
+        // 导航项（外层 div id）；点击目标也绑定到外层，避免只点到窄小的 _div 区域
+        var NAV_IDS = ['u1963', 'u1964', 'u1965', 'u1966', 'u1967', 'u1968', 'u1993'];
+
+        // label : 内容动态面板中该页 state 的 data-label（用标签匹配，绕开 Axure 序号不确定性）
+        // frame : 该菜单对应 iframe 的 id
+        // src   : 需要载入的 iframe 地址（null 表示沿用原有内容，不覆盖）
+        var NAV_MAP = {
+          u1963: { label: '门户-首页', frame: 'u1945_input', src: 'index.html' },
+          u1964: { label: '物资租赁', frame: 'u1946_input', src: null },
+          u1965: { label: '物资处置', frame: 'u1947_input', src: null },
+          u1966: { label: '仓储共享', frame: 'u1949_input', src: null },
+          u1967: { label: '闲置周转', frame: 'u1948_input', src: null },
+          u1968: { label: '门户-租售店铺', frame: 'u1944_input', src: '租售店铺（lxj0530）.html' }
+        };
+
+        // 「委托销售」下挂的两个子菜单
+        var SUB_MAP = {
+          '委托出租': { label: '委托出租', frame: 'u1995_input', src: '委托出租原型/index.html' },
+          '委托出售': { label: '委托出售', frame: 'u1996_input', src: '委托出售功能_Demo.html' }
+        };
+
+        // 每个 iframe 的待执行定时器句柄：切换目标时先取消旧的，避免连点后「点了A却加载B」
+        var pendingTimers = {};
+        var pollTimers = {};
+
+        function ensureLoaded(frameId, src) {
+          if (!src) return;
+
+          // 取消这个 frame 上尚未执行的延迟复核，防止旧的 src 覆盖新点击
+          if (pendingTimers[frameId]) { clearTimeout(pendingTimers[frameId]); pendingTimers[frameId] = null; }
+          if (pollTimers[frameId]) { clearTimeout(pollTimers[frameId]); pollTimers[frameId] = null; }
+
+          var tries = 0;
+          (function attempt() {
+            var frame = document.getElementById(frameId);
+            if (frame) {
+              // 强制恢复 iframe 尺寸与定位，避免 Axure 重置成 0
+              frame.style.position = 'absolute';
+              frame.style.left = '0px';
+              frame.style.top = '0px';
+              frame.style.width = '1934px';
+              frame.style.height = '982px';
+              frame.style.overflow = 'auto';
+
+              if (frame.getAttribute('data-demo-src') !== src) {
+                frame.setAttribute('data-demo-src', src);
+                frame.src = src;
+              }
+              // Axure 可能在稍后再次重置 iframe，延迟复核（句柄可取消）
+              pendingTimers[frameId] = setTimeout(function () {
+                pendingTimers[frameId] = null;
+                var f = document.getElementById(frameId);
+                if (!f) return;
+                // 只有当这个 frame 仍然是「本次点击想加载的目标」时才纠正
+                if (f.getAttribute('data-demo-src') !== src) return;
+                if (f.getAttribute('src') !== src) f.src = src;
+              }, 500);
+              return;
+            }
+            // Axure 可能在切面板后重建 iframe，短暂轮询等它出现（句柄可取消）
+            if (++tries < 40) pollTimers[frameId] = setTimeout(attempt, 50);
+          })();
+        }
+
+        // 直接用 DOM 切换面板 state（按 data-label 精确匹配），不依赖 Axure 内部 API
+        function switchPanel(label) {
+          var panel = document.getElementById('u1943');
+          if (!panel) return;
+
+          // Axure 会把容器内联样式裁成只剩 width，导致高度塌陷，这里强制补全
+          panel.style.position = 'absolute';
+          panel.style.left = '0px';
+          panel.style.top = '137px';
+          panel.style.width = '1920px';
+          panel.style.height = '823px';
+
+          var states = panel.querySelectorAll(':scope > .panel_state');
+          if (!states.length) states = panel.querySelectorAll('.panel_state');
+          for (var i = 0; i < states.length; i++) {
+            var st = states[i];
+            if (st.getAttribute('data-label') === label) {
+              // 注意：CSS 里 .panel_state 默认是 visibility:hidden，
+              // 所以显示时必须显式设成 visible，清空内联会回落到 CSS 的 hidden
+              st.style.position = 'absolute';
+              st.style.left = '0px';
+              st.style.top = '0px';
+              st.style.width = '1920px';
+              st.style.height = '823px';
+              st.style.overflow = 'hidden';
+              st.style.visibility = 'visible';
+              st.style.display = 'block';
+              st.style.zIndex = '10';
+            } else {
+              st.style.visibility = 'hidden';
+              st.style.display = 'none';
+              st.style.zIndex = '1';
+            }
+          }
+        }
+
+        // 打开某个子菜单（委托出租 / 委托出售）
+        function activateSub(name) {
+          var item = SUB_MAP[name];
+          if (!item) return;
+
+          clearHighlight();
+          markActive('u1993');
+          markSubActive(name);
+
+          switchPanel(item.label);
+          ensureLoaded(item.frame, item.src);
+        }
+
+        function clearHighlight() {
+          for (var i = 0; i < NAV_IDS.length; i++) {
+            var d = document.getElementById(NAV_IDS[i] + '_div');
+            if (d) d.classList.remove('selected');
+          }
+          var subs = document.querySelectorAll('#u1993_dropdown .demo-dropdown-item');
+          for (var k = 0; k < subs.length; k++) subs[k].classList.remove('active');
+        }
+
+        function markActive(divId) {
+          var cur = document.getElementById(divId + '_div');
+          if (cur) cur.classList.add('selected');
+        }
+
+        function markSubActive(name) {
+          var subs = document.querySelectorAll('#u1993_dropdown .demo-dropdown-item');
+          for (var i = 0; i < subs.length; i++) {
+            if (subs[i].getAttribute('data-name') === name) subs[i].classList.add('active');
+          }
+        }
+
+        function activate(divId) {
+          var item = NAV_MAP[divId];
+
+          // 「委托销售」是下拉菜单：点击后默认打开「委托出售」
+          if (divId === 'u1993' || !item) {
+            activateSub('委托出售');
+            return;
+          }
+
+          clearHighlight();
+          markActive(divId);
+
+          switchPanel(item.label);
+          ensureLoaded(item.frame, item.src);
+        }
+
+        // 下拉面板定位：跟随「委托销售」菜单，用 fixed 避免被 overflow 裁剪
+        function positionDropdown() {
+          var nav = document.getElementById('u1993');
+          var dd = document.getElementById('u1993_dropdown');
+          if (!nav || !dd) return;
+          var r = nav.getBoundingClientRect();
+          dd.style.left = (r.left + (r.width - dd.offsetWidth) / 2) + 'px';
+          dd.style.top = (r.bottom + 4) + 'px';
+        }
+
+        // 下拉菜单延迟关闭句柄：鼠标移回时取消，避免快速划过导致菜单闪退
+        var dropdownCloseTimer = null;
+
+        function openDropdown() {
+          var nav = document.getElementById('u1993');
+          if (!nav) return;
+          if (dropdownCloseTimer) { clearTimeout(dropdownCloseTimer); dropdownCloseTimer = null; }
+          if (!nav.classList.contains('demo-dropdown-open')) {
+            nav.classList.add('demo-dropdown-open');
+          }
+          positionDropdown();
+        }
+
+        function closeDropdown() {
+          if (dropdownCloseTimer) { clearTimeout(dropdownCloseTimer); dropdownCloseTimer = null; }
+          var nav = document.getElementById('u1993');
+          if (nav) nav.classList.remove('demo-dropdown-open');
+        }
+
+        // 离开菜单后延迟关闭（留出移回的时间），移回时会被 openDropdown 取消
+        function closeDropdownDelayed() {
+          if (dropdownCloseTimer) clearTimeout(dropdownCloseTimer);
+          dropdownCloseTimer = setTimeout(function () {
+            dropdownCloseTimer = null;
+            closeDropdown();
+          }, 120);
+        }
+
+        // 用原生事件委托，绑到每个导航项外层容器，点击区域更大、更稳
+        function bindNav() {
+          for (var i = 0; i < NAV_IDS.length; i++) {
+            (function (id) {
+              var el = document.getElementById(id);
+              if (!el || el.getAttribute('data-nav-bound') === '1') return;
+              el.setAttribute('data-nav-bound', '1');
+              el.style.cursor = 'pointer';
+              el.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                activate(id);
+              }, false);
+            })(NAV_IDS[i]);
+          }
+
+          // 「委托销售」的悬停展开 / 收起
+          var nav = document.getElementById('u1993');
+          if (nav && nav.getAttribute('data-dropdown-bound') !== '1') {
+            nav.setAttribute('data-dropdown-bound', '1');
+            nav.addEventListener('mouseenter', openDropdown, false);
+            // 延迟关闭：鼠标在 120ms 内移回菜单会被 openDropdown 取消，避免快速划过时闪退
+            nav.addEventListener('mouseleave', closeDropdownDelayed, false);
+          }
+
+          var dd = document.getElementById('u1993_dropdown');
+          if (dd && dd.getAttribute('data-dropdown-bound') !== '1') {
+            dd.setAttribute('data-dropdown-bound', '1');
+            dd.addEventListener('mouseenter', openDropdown, false);
+            dd.addEventListener('mouseleave', closeDropdownDelayed, false);
+          }
+
+          // 全局监听器只注册一次（bindNav 可能被 Axure 重建 DOM 后再次调用）
+          if (document.documentElement.getAttribute('data-demo-global-bound') !== '1') {
+            document.documentElement.setAttribute('data-demo-global-bound', '1');
+
+            window.addEventListener('resize', function () {
+              if (document.getElementById('u1993') &&
+                  document.getElementById('u1993').classList.contains('demo-dropdown-open')) {
+                positionDropdown();
+              }
+            }, false);
+
+            // 点击空白处收起
+            document.addEventListener('click', function (e) {
+              var nav = document.getElementById('u1993');
+              if (!nav) return;
+              if (nav.contains(e.target)) return;
+              closeDropdown();
+            }, false);
+          }
+
+          // 下拉子项
+          var subs = document.querySelectorAll('#u1993_dropdown .demo-dropdown-item');
+          for (var k = 0; k < subs.length; k++) {
+            (function (el) {
+              if (el.getAttribute('data-sub-bound') === '1') return;
+              el.setAttribute('data-sub-bound', '1');
+              el.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                activateSub(el.getAttribute('data-name'));
+                closeDropdown();
+              }, false);
+            })(subs[k]);
+          }
+        }
+
+        // ===== 自适应横向布局：把 7 个导航项在「分类右边界 ~ 窗口右边界」之间等距铺开 =====
+        // Axure 画布固定 1920px，窗口窄时右侧导航会被挤出可视区、点不到。
+        // 这里改为按当前视口宽度实时计算 left，窗口多宽都排得下。
+        function layoutNav() {
+          var ids = NAV_IDS;                       // 7 项
+          var first = document.getElementById(ids[0]);
+          if (!first) return;
+
+          // 每一项的宽度（从 CSS 拿，默认 100）
+          var itemW = first.getBoundingClientRect().width || 100;
+
+          // 左边界：分类下拉(u1961)右缘 + 间距；取不到就用固定值
+          var leftBound = 580;
+          var cat = document.getElementById('u1961') || document.getElementById('u1955');
+          if (cat) {
+            var cr = cat.getBoundingClientRect();
+            // getBoundingClientRect 是视口坐标，换算回文档坐标
+            leftBound = cr.right + window.pageXOffset + 16;
+          }
+
+          // 右边界：视口右缘 - 一点留白（相对于画布文档坐标）
+          var viewportRight = window.pageXOffset + window.innerWidth;
+          var rightBound = viewportRight - 20;
+
+          var n = ids.length;
+          var avail = rightBound - leftBound;
+          if (avail <= 0) return;
+
+          // 间距 = 可用宽度中，去掉 n 个项宽后，平分 n-1 个缝隙
+          var gap = (avail - itemW * n) / (n - 1);
+          if (gap < 8) gap = 8;               // 间距下限，太挤就允许溢出（用户可横向滚动）
+          if (gap > 60) gap = 60;             // 间距上限，太宽也不好看
+
+          for (var i = 0; i < n; i++) {
+            var el = document.getElementById(ids[i]);
+            if (el) el.style.setProperty('left', (leftBound + i * (itemW + gap)) + 'px', 'important');
+          }
+        }
+
+        function boot() {
+          bindNav();
+          layoutNav();
+          var t;
+          window.addEventListener('resize', function () {
+            clearTimeout(t);
+            t = setTimeout(layoutNav, 120);
+          }, false);
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', boot);
+        } else {
+          boot();
+        }
+      })();
+    </script>
   </body>
 </html>

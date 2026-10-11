@@ -13,7 +13,10 @@
 """
 import io, os, re, shutil, sys
 
-ROOT = r"C:\Users\ASUS\Desktop\中铁项目\租售店铺询价原型10.5.原"
+# 按脚本位置自动定位：_build -> 委托出租原型 -> 项目根目录
+HERE = os.path.dirname(os.path.abspath(__file__))
+PROTO = os.path.dirname(HERE)
+ROOT = os.path.dirname(PROTO)
 PAGE = os.path.join(ROOT, "租售店铺（lxj0530）.html")
 CSS = os.path.join(ROOT, "files", "租售店铺（lxj0530）", "styles.css")
 

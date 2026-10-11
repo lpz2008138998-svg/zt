@@ -2,13 +2,20 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>盘古循环资源平台 · 原型导航</title>
-<script type="text/javascript">
-    location.href = '原型导航.html';
+<title>盘古循环资源平台 · 门户</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>
+  // 默认入口：直接进入门户页（门户真身只有一份，避免维护两份内容）
+  location.replace('门户.html' + location.search + location.hash);
 </script>
-<meta http-equiv="refresh" content="0; url=原型导航.html">
+<style>
+  html,body{height:100%;margin:0;background:#F4F5F8;
+    font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;}
+  .tip{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:#7E8693;font-size:14px;}
+</style>
 </head>
 <body>
-<p>正在打开原型导航… 如果没有自动跳转，请点击 <a href="原型导航.html">原型导航</a>。</p>
+  <div class="tip">正在进入门户…</div>
 </body>
 </html>

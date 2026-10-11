@@ -21,3 +21,7 @@ desktop.ini
 *.tmp
 ~$*
 *.bak
+
+# ===== 从线上同步时的本地备份 / 打包产物（不进仓库）=====
+*.before-live
+上线包.zip
