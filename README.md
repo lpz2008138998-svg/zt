@@ -37,8 +37,9 @@ npx serve .
 
 | 入口文件 | 说明 |
 | --- | --- |
-| `index.html` | 默认入口，自动跳转到 `门户.html` |
-| `门户.html` | **主门户页**（含全部导航） |
+| `index.html` | 默认入口，自动跳转到 `原型导航.html` |
+| `原型导航.html` | **原型导航页**：按分组列出全部页面入口（含委托出租原型） |
+| `门户.html` | 主门户页（含全部导航） |
 
 ### 门户页导航
 
@@ -153,3 +154,24 @@ npx serve .
 
 委托出租原型内的**单号、公司名、人名、物料、价格均为演示用编造数据**，
 业务口径（对账单 / 结算单 / 押金退还单等术语）需与业务方确认后再替换。
+
+---
+
+## 八、上线到 GitHub Pages
+
+仓库：<https://github.com/lpz2008138998-svg/zt>
+
+**当前状态：Pages 尚未启用**（访问 `https://lpz2008138998-svg.github.io/zt/` 返回 404）。
+
+启用步骤（需要仓库**所有者**账号 `lpz2008138998-svg` 操作，协作者无权限开启）：
+
+1. 打开 <https://github.com/lpz2008138998-svg/zt/settings/pages>
+2. **Source** 选 `Deploy from a branch`
+3. **Branch** 选 `main`，目录选 `/ (root)`，点 **Save**
+4. 等 1～2 分钟，访问 <https://lpz2008138998-svg.github.io/zt/>
+
+> 为什么协作者开不了：当前机器缓存的 GitHub 账号是 `hahhahaha-gif`，
+> 对该仓库只有 `push` 权限、没有 `admin`，调 API 创建 Pages 会返回 404。
+
+启用后，站点根地址会打开 `index.html` → 自动跳转到 `原型导航.html`，
+可直接从导航页进入 **委托出租原型** 的全部 37 个页面。

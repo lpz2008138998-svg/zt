@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>盘古循环资源平台 · 原型导航</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:"微软雅黑","Microsoft YaHei","PingFang SC",sans-serif;
+  font-size:14px;line-height:1.7;color:#333333;background:#F2F2F2;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 24px 64px}
+.head{
+  background:#FFFFFF;border:1px solid #E5E6EB;border-top:3px solid #1E98D7;
+  border-radius:3px;padding:26px 30px;margin-bottom:16px;
+}
+.head h1{margin:0 0 8px;font-size:26px;font-weight:700}
+.head p{margin:0;color:#666666;font-size:13px}
+.head .tip{
+  margin-top:14px;padding:10px 14px;background:#F5F9FF;border:1px solid #BFDDF5;
+  border-left:3px solid #1E98D7;border-radius:2px;font-size:12px;color:#666666;
+}
+.card{
+  background:#FFFFFF;border:1px solid #E5E6EB;border-radius:3px;
+  padding:18px 22px;margin-bottom:16px;
+}
+.card h2{
+  margin:0 0 6px;padding-left:10px;border-left:3px solid #1E98D7;
+  font-size:16px;font-weight:700;
+}
+.card .sub{font-size:12px;color:#999999;margin:0 0 14px 13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:12px}
+a.item{
+  display:block;border:1px solid #E5E6EB;border-radius:2px;padding:13px 16px;
+  text-decoration:none;color:#333333;background:#FFFFFF;
+}
+a.item:hover{border-color:#1E98D7;background:#F5F9FF}
+a.item .t{font-size:14px;font-weight:600;color:#1E98D7;margin-bottom:3px}
+a.item .d{font-size:12px;color:#999999;line-height:1.5}
+a.item.key{border-color:#BFDDF5;background:#F5F9FF}
+.tag{
+  display:inline-block;padding:0 7px;border-radius:2px;font-size:12px;line-height:19px;
+  border:1px solid transparent;vertical-align:middle;margin-left:6px;
+}
+.tag.new{background:#FFF1F0;color:#E1251B;border-color:#FFCCC7}
+.foot{font-size:12px;color:#999999;text-align:center;padding:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <h1>盘古循环资源平台 · 原型导航</h1>
+    <p>「店铺模块 / 租售店铺」交互原型，基于 Axure RP 生成，用于业务评审与需求确认。</p>
+    <div class="tip">
+      原型按 <b>1920px</b> 宽设计，建议用<b>电脑横屏</b>查看。
+      若要浏览完整的 Axure 播放器（含左侧页面树、支持 ←/→ 翻页），请进
+      <a href="start.html">Axure 播放器入口</a>。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>委托出租原型<span class="tag new">新增</span></h2>
+    <p class="sub">依据《委托出租业务流程》流程图制作，覆盖 委托方（出租方）/ 服务方（华南公司）/ 承租方 三方，共 37 个页面</p>
+    <div class="grid">
+      <a class="item key" href="委托出租原型/index.html">
+        <div class="t">原型总览</div>
+        <div class="d">三方页面清单 + 流程图到页面的对照表</div>
+      </a>
+      <a class="item key" href="委托出租原型/spec.html">
+        <div class="t">页面级需求 / 交互说明</div>
+        <div class="d">每页字段、关键规则、出口跳转</div>
+      </a>
+      <a class="item" href="委托出租原型/b01.html">
+        <div class="t">承租方侧 · 15 页</div>
+        <div class="d">下单 → 审核 → 押金 → 签收 → 对账 → 归还 → 押金退还 → 开票</div>
+      </a>
+      <a class="item" href="委托出租原型/s01.html">
+        <div class="t">服务方侧（华南公司）· 11 页</div>
+        <div class="d">接单工作台 → 审核 → 接单 → 发货 → 对账 → 委托结算 → 开票</div>
+      </a>
+      <a class="item" href="委托出租原型/a01.html">
+        <div class="t">委托方侧（出租方）· 11 页</div>
+        <div class="d">新增出租商品 → 自动委托 → 上架 → 发货 → 结算 → 开票</div>
+      </a>
+      <a class="item" href="租售店铺（lxj0530）.html">
+        <div class="t">门户页入口</div>
+        <div class="d">在「出租业务」页签右侧新增「委托出租」，点击进入</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>委托业务演示</h2>
+    <p class="sub">早先版本的委托功能 Demo</p>
+    <div class="grid">
+      <a class="item" href="委托出租功能_Demo.html">
+        <div class="t">委托出租 · 功能演示</div>
+        <div class="d">委托出租功能 Demo 页</div>
+      </a>
+      <a class="item" href="委托出售功能_Demo.html">
+        <div class="t">委托出售 · 完整功能</div>
+        <div class="d">管理 / 查询 / 审核 / 议价 / 接单 / 发货 / 对账 / 退货</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>租售店铺与门户</h2>
+    <p class="sub">原有业务页面</p>
+    <div class="grid">
+      <a class="item" href="门户.html"><div class="t">门户页</div><div class="d">聚合入口，含全部导航</div></a>
+      <a class="item" href="租售店铺（lxj0530）.html"><div class="t">租售店铺主页</div><div class="d">业务介绍，销售/采购/出租业务页签</div></a>
+      <a class="item" href="租售店铺-列表页（lxj0530）.html"><div class="t">店铺列表</div><div class="d">自营 / 合作 / 铁建店铺</div></a>
+      <a class="item" href="租售店铺列表内容.html"><div class="t">店铺列表内容</div><div class="d">店铺卡片流</div></a>
+      <a class="item" href="租售店铺.html"><div class="t">租售店铺系统外壳</div><div class="d">后台导航 + 内容区</div></a>
+      <a class="item" href="商机运营管理（新）.html"><div class="t">商机运营管理</div><div class="d">内部 / 外部委托资源</div></a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>交易与配置</h2>
+    <p class="sub">询价、下单、订单、费率</p>
+    <div class="grid">
+      <a class="item" href="询价报价页面（lxj0530）.html"><div class="t">询价报价</div><div class="d">供求信息、物资信息</div></a>
+      <a class="item" href="询价搜索结果（lxj0530）.html"><div class="t">询价搜索结果</div><div class="d">搜索与筛选</div></a>
+      <a class="item" href="店铺商品购买页面.html"><div class="t">商品购买</div><div class="d">商品详情与购买</div></a>
+      <a class="item" href="创建订单页面.html"><div class="t">订单创建</div><div class="d">押金、租期、租金</div></a>
+      <a class="item" href="确认订单页面.html"><div class="t">订单确认</div><div class="d">地址、承租单位、商品明细</div></a>
+      <a class="item" href="费率设置（新0313）.html"><div class="t">费率设置</div><div class="d">委托租赁 / 委托处置 / 委托买卖</div></a>
+    </div>
+  </div>
+
+  <div class="foot">
+    说明：原型内所有列表、金额、状态、单号均为演示用静态数据，未接后端接口。
+  </div>
+
+</div>
+</body>
+</html>
