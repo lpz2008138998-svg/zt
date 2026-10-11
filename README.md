@@ -2,7 +2,7 @@
 
 盘古循环资源平台「店铺模块」的交互原型，基于 **Axure RP** 生成，用于业务评审与需求确认。
 
-线上演示：<https://consignment-sale-demo.app.workbuddy.host/>
+
 
 ---
 
