@@ -6,46 +6,35 @@
 html,body{margin:0;padding:0}
 body{
   font-family:"微软雅黑","Microsoft YaHei","PingFang SC",sans-serif;
-  font-size:14px;
-  line-height:1.6;
-  color:#333333;
-  background:#F2F2F2;
+  font-size:14px;line-height:1.6;color:#333333;background:#F2F2F2;
   -webkit-font-smoothing:antialiased;
 }
 a{color:#1E98D7;text-decoration:none}
 a:hover{color:#40A9E0}
 h1,h2,h3,h4,p{margin:0}
 
-/* ---------------- 顶部栏（白底 + LOGO + 搜索） ---------------- */
+/* ---------------- 顶栏 ---------------- */
 .app-top{
   min-height:64px;background:#FFFFFF;border-bottom:1px solid #E5E6EB;
   display:flex;align-items:center;gap:20px;padding:0 24px;
   position:sticky;top:0;z-index:20;
 }
-.app-top .logo{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.app-top .logo{
+  display:flex;align-items:center;gap:10px;flex:0 0 auto;
+  background:#1E98D7;color:#FFFFFF;padding:8px 16px;border-radius:4px;
+}
 .app-top .logo .mark{
   width:44px;height:44px;border:1px solid #D9D9D9;border-radius:2px;
   display:flex;align-items:center;justify-content:center;
   font-size:11px;color:#999999;letter-spacing:.5px;background:#FFFFFF;
 }
-.app-top .logo .t{font-size:20px;font-weight:700;color:#333333;line-height:1.2}
-.app-top .logo .t small{display:block;font-size:11px;color:#999999;font-weight:400;letter-spacing:.5px}
-.app-top .sys{display:flex;gap:4px;margin-left:12px}
-.app-top .sys span{
-  padding:6px 14px;font-size:14px;color:#666666;border-radius:2px;white-space:nowrap;
-}
-.app-top .sys span.on{color:#1E98D7;font-weight:600;background:#EBF2FB}
+.app-top .logo .t{font-size:20px;font-weight:700;color:#FFFFFF;line-height:1.2}
+.app-top .logo .t small{display:block;font-size:11px;color:rgba(255,255,255,.88);font-weight:400}
 .app-top .spacer{flex:1}
 .app-top .user{display:flex;align-items:center;gap:10px;font-size:13px;color:#666666;white-space:nowrap}
 .app-top .avatar{
   width:28px;height:28px;border-radius:50%;background:#EBF2FB;color:#1E98D7;
   display:flex;align-items:center;justify-content:center;font-size:12px;
-}
-.app-top .search{display:flex;flex:0 1 420px}
-.app-top .search input{border-radius:2px 0 0 2px;min-width:0;flex:1}
-.app-top .search .go{
-  height:32px;padding:0 20px;background:#0A54BA;color:#fff;border:0;border-radius:0 2px 2px 0;
-  font-size:14px;font-family:inherit;cursor:pointer;
 }
 
 /* ---------------- 布局 ---------------- */
@@ -55,39 +44,31 @@ h1,h2,h3,h4,p{margin:0}
   padding:10px 0 48px;overflow-y:auto;
 }
 .sidebar .grp{margin-bottom:4px}
-.sidebar .grp>.hd{
-  padding:12px 18px 6px;font-size:12px;color:#999999;letter-spacing:.5px;
-}
+.sidebar .grp>.hd{padding:12px 18px 6px;font-size:12px;color:#999999;letter-spacing:.5px}
 .sidebar a.item{
-  display:flex;align-items:center;gap:8px;
-  padding:10px 18px 10px 22px;font-size:14px;color:#666666;
-  border-left:3px solid transparent;
+  display:flex;align-items:center;gap:8px;padding:10px 18px 10px 22px;
+  font-size:14px;color:#666666;border-left:3px solid transparent;
 }
 .sidebar a.item:hover{background:#F5F9FF;color:#1E98D7}
-.sidebar a.item.on{
-  background:#EBF2FB;color:#1E98D7;font-weight:600;border-left-color:#1E98D7;
-}
+.sidebar a.item.on{background:#EBF2FB;color:#1E98D7;font-weight:600;border-left-color:#1E98D7}
 .sidebar a.item .role{
   margin-left:auto;font-size:11px;padding:0 5px;border-radius:2px;
   background:#F2F2F2;color:#999999;font-weight:400;flex:0 0 auto;
 }
 .sidebar a.item.on .role{background:#FFFFFF;color:#1E98D7}
-
 .main{flex:1;min-width:0;padding:16px 20px 64px}
 
 /* ---------------- 面包屑 / 步骤条 ---------------- */
 .crumb{font-size:12px;color:#999999;margin-bottom:12px}
 .crumb .sep{margin:0 6px;color:#D9D9D9}
 .crumb b{color:#666666;font-weight:400}
-
 .steps{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 14px}
 .steps .st{
-  display:flex;align-items:center;gap:6px;padding:5px 12px;
-  background:#FFFFFF;border:1px solid #E5E6EB;border-radius:2px;
-  font-size:12px;color:#999999;
+  display:flex;align-items:center;gap:6px;padding:5px 12px;background:#FFFFFF;
+  border:1px solid #E5E6EB;border-radius:2px;font-size:12px;color:#999999;
 }
 .steps .st .n{
-  width:16px;height:16px;border-radius:50%;background:#D9D9D9;color:#fff;
+  width:16px;height:16px;border-radius:50%;background:#D9D9D9;color:#FFFFFF;
   font-size:10px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
 }
 .steps .st.done{color:#1E98D7;border-color:#BFDDF5;background:#F5F9FF}
@@ -97,15 +78,11 @@ h1,h2,h3,h4,p{margin:0}
 .steps .arrow{color:#D9D9D9;font-size:12px}
 
 /* ---------------- 卡片 ---------------- */
-.card{
-  background:#FFFFFF;border:1px solid #E5E6EB;border-radius:3px;
-  padding:18px 20px;margin-bottom:14px;
-}
+.card{background:#FFFFFF;border:1px solid #E5E6EB;border-radius:3px;padding:18px 20px;margin-bottom:14px}
 .card.tight{padding:14px 16px}
 .card-hd{
-  display:flex;align-items:center;gap:10px;margin-bottom:16px;
-  padding-left:10px;border-left:3px solid #1E98D7;
-  font-size:16px;font-weight:700;color:#333333;line-height:1.3;
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-left:10px;
+  border-left:3px solid #1E98D7;font-size:16px;font-weight:700;color:#333333;line-height:1.3;
 }
 .card-hd .sub{font-size:12px;color:#999999;font-weight:400}
 .card-hd .right{margin-left:auto;display:flex;gap:8px;align-items:center}
@@ -118,9 +95,8 @@ h1,h2,h3,h4,p{margin:0}
 
 /* ---------------- 表单控件 ---------------- */
 input[type=text],input[type=number],input[type=date],input[type=password],select,textarea{
-  height:32px;padding:0 10px;font-size:13px;color:#333333;
-  border:1px solid #D9D9D9;border-radius:2px;background:#FFFFFF;
-  font-family:inherit;outline:none;min-width:150px;
+  height:32px;padding:0 10px;font-size:13px;color:#333333;border:1px solid #D9D9D9;
+  border-radius:2px;background:#FFFFFF;font-family:inherit;outline:none;min-width:150px;
 }
 textarea{height:auto;padding:6px 10px;min-height:64px;line-height:1.6;resize:vertical;width:100%}
 input:focus,select:focus,textarea:focus{border-color:#1E98D7;box-shadow:0 0 0 2px rgba(30,152,215,.12)}
@@ -137,10 +113,9 @@ input.full,select.full{min-width:0;width:100%}
 
 /* ---------------- 按钮 ---------------- */
 .btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  height:32px;padding:0 16px;font-size:13px;font-family:inherit;
-  border:1px solid #D9D9D9;border-radius:2px;background:#FFFFFF;color:#666666;
-  cursor:pointer;white-space:nowrap;transition:all .12s;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;
+  padding:0 16px;font-size:13px;font-family:inherit;border:1px solid #D9D9D9;
+  border-radius:2px;background:#FFFFFF;color:#666666;cursor:pointer;white-space:nowrap;transition:all .12s;
 }
 .btn:hover{border-color:#1E98D7;color:#1E98D7}
 .btn.primary{background:#0A54BA;border-color:#0A54BA;color:#FFFFFF}
@@ -159,16 +134,14 @@ input.full,select.full{min-width:0;width:100%}
 .btn-row.right{justify-content:flex-end}
 .btn-row.pad{padding:16px 0 2px}
 
-/* ---------------- 表格（带边框，原型的物资信息表样式） ---------------- */
+/* ---------------- 表格 ---------------- */
 .tbl-wrap{overflow-x:auto}
 table.tbl{width:100%;border-collapse:collapse;font-size:13px;border:1px solid #E5E6EB}
 table.tbl th{
-  background:#F7F8FA;color:#666666;font-weight:400;text-align:center;
-  padding:10px 12px;border:1px solid #E5E6EB;white-space:nowrap;font-size:13px;
+  background:#F7F8FA;color:#666666;font-weight:400;text-align:center;padding:10px 12px;
+  border:1px solid #E5E6EB;white-space:nowrap;font-size:13px;
 }
-table.tbl td{
-  padding:10px 12px;border:1px solid #E5E6EB;color:#333333;vertical-align:middle;background:#FFFFFF;
-}
+table.tbl td{padding:10px 12px;border:1px solid #E5E6EB;color:#333333;vertical-align:middle;background:#FFFFFF}
 table.tbl tbody tr:hover td{background:#FAFCFF}
 table.tbl td.num,table.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
 table.tbl td.ctr,table.tbl th.ctr{text-align:center}
@@ -181,9 +154,8 @@ table.tbl .sum-row td{background:#F7F8FA;font-weight:700}
 
 /* ---------------- 合计条 ---------------- */
 .sum-bar{
-  display:flex;align-items:center;gap:32px;flex-wrap:wrap;
-  margin-top:12px;padding:12px 16px;background:#F7F8FA;border:1px solid #E5E6EB;border-radius:2px;
-  font-size:13px;color:#666666;
+  display:flex;align-items:center;gap:32px;flex-wrap:wrap;margin-top:12px;padding:12px 16px;
+  background:#F7F8FA;border:1px solid #E5E6EB;border-radius:2px;font-size:13px;color:#666666;
 }
 .sum-bar b{color:#333333;font-size:15px;font-variant-numeric:tabular-nums}
 .sum-bar .amt b{color:#E1251B}
@@ -200,11 +172,10 @@ table.tbl .sum-row td{background:#F7F8FA;font-weight:700}
 .tag.grey{background:#F5F5F5;color:#999999;border-color:#E5E6EB}
 .tag.dark{background:#EEEEEE;color:#333333;border-color:#E0E0E0}
 
-/* ---------------- 说明 / 提示 ---------------- */
+/* ---------------- 说明 ---------------- */
 .note{
-  font-size:12px;color:#666666;line-height:1.8;
-  background:#FAFAFA;border:1px solid #E5E6EB;border-left:3px solid #BFBFBF;
-  padding:10px 14px;border-radius:2px;margin-top:12px;
+  font-size:12px;color:#666666;line-height:1.8;background:#FAFAFA;border:1px solid #E5E6EB;
+  border-left:3px solid #BFBFBF;padding:10px 14px;border-radius:2px;margin-top:12px;
 }
 .note b{color:#333333;font-weight:700}
 .note.blue{background:#F5F9FF;border-color:#BFDDF5;border-left-color:#1E98D7}
@@ -227,23 +198,16 @@ table.tbl .sum-row td{background:#F7F8FA;font-weight:700}
 
 /* ---------------- 表单行 ---------------- */
 .form-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
-.form-row>label{
-  flex:0 0 124px;text-align:right;font-size:13px;color:#666666;padding-top:7px;line-height:18px;
-}
+.form-row>label{flex:0 0 124px;text-align:right;font-size:13px;color:#666666;padding-top:7px;line-height:18px}
 .form-row>label .req{color:#F5222D;margin-right:2px}
 .form-row .ctl{flex:1;min-width:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .form-row .ctl .hint{font-size:12px;color:#999999}
 .form-row.inline{margin-bottom:0}
-.form-sec{
-  font-size:14px;color:#333333;font-weight:700;
-  padding:0 0 10px;margin-bottom:14px;border-bottom:1px solid #E5E6EB;
-}
+.form-sec{font-size:14px;color:#333333;font-weight:700;padding:0 0 10px;margin-bottom:14px;border-bottom:1px solid #E5E6EB}
 .form-sec .tip{font-weight:400;font-size:12px;color:#999999;margin-left:10px}
-
-/* 上传占位 */
 .upload{
-  width:92px;height:92px;border:1px dashed #D9D9D9;border-radius:2px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  width:92px;height:92px;border:1px dashed #D9D9D9;border-radius:2px;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:4px;
   color:#999999;font-size:12px;background:#FAFAFA;cursor:pointer;
 }
 .upload:hover{border-color:#1E98D7;color:#1E98D7}
@@ -270,8 +234,8 @@ table.tbl .sum-row td{background:#F7F8FA;font-weight:700}
 .pick-grid{display:flex;flex-wrap:wrap;gap:12px;width:100%}
 .pick-grid .pick{flex:1 1 240px;min-width:240px;max-width:100%}
 .pick{
-  border:1px solid #E5E6EB;border-radius:2px;padding:14px 16px;
-  font-size:13px;color:#333333;cursor:pointer;background:#FFFFFF;position:relative;
+  border:1px solid #E5E6EB;border-radius:2px;padding:14px 16px;font-size:13px;color:#333333;
+  cursor:pointer;background:#FFFFFF;position:relative;
 }
 .pick:hover{border-color:#1E98D7;color:#1E98D7;background:#F5F9FF}
 .pick .d{font-size:12px;color:#999999;margin-top:4px}
@@ -291,8 +255,8 @@ table.tbl .sum-row td{background:#F7F8FA;font-weight:700}
 
 /* ---------------- 总览页 ---------------- */
 .hero{
-  background:#FFFFFF;border:1px solid #E5E6EB;border-radius:3px;
-  padding:26px 30px;margin-bottom:14px;border-top:3px solid #1E98D7;
+  background:#FFFFFF;border:1px solid #E5E6EB;border-radius:3px;padding:26px 30px;
+  margin-bottom:14px;border-top:3px solid #1E98D7;
 }
 .hero h1{font-size:24px;font-weight:700;color:#333333;margin-bottom:8px}
 .hero p{font-size:13px;color:#666666;line-height:1.9}
@@ -319,9 +283,9 @@ table.tbl .sum-row td{background:#F7F8FA;font-weight:700}
 }
 .flow-list a:hover .no{background:#1E98D7;color:#FFFFFF}
 
-/* 打印 */
+/* ---------------- 打印 ---------------- */
 @media print{
   .sidebar,.app-top{display:none}
-  .main{padding:0;background:#fff}
-  .card{break-inside:avoid;border-color:#CCC}
+  .main{padding:0;background:#FFFFFF}
+  .card{break-inside:avoid;border-color:#CCCCCC}
 }

@@ -52,13 +52,6 @@ def topbar(sub_extra=""):
     <div class="mark">LOGO</div>
     <div class="t">循环物资<small>租售店铺 · 委托出租</small></div>
   </div>
-  <div class="sys">
-    <span>销售系统</span>
-    <span class="on">出租系统</span>
-    <span>信息中心</span>
-    <span>店铺管理</span>
-    <span>佣金管理</span>
-  </div>
   <div class="spacer"></div>
   <div class="user"><span>{NAV["org"]}</span><span class="avatar">{NAV["user"][0]}</span><span>{NAV["user"]}</span></div>
 </header>'''
@@ -1429,16 +1422,45 @@ def index_body():
 P["index"] = dict(title="原型总览", crumbs=["原型总览"], body=index_body, is_index=True)
 
 # ================================================================ 输出
+# 颜色变量表：写出根目录 app.css 时把 var(--x) 全部替换为字面值
+CSS_VARS = {
+    "brand": "#1E98D7", "brand-dark": "#0A54BA", "brand-hover": "#40A9E0",
+    "brand-tint": "#EBF2FB", "brand-tint2": "#F5F9FF", "brand-edge": "#BFDDF5",
+    "text": "#333333", "text-sub": "#666666", "text-weak": "#999999",
+    "line": "#E5E6EB", "line-soft": "#D9D9D9", "line-hard": "#BFBFBF",
+    "danger": "#F5222D", "danger2": "#E1251B", "success": "#52C41A", "warn": "#FAAD14",
+    "bg": "#F2F2F2", "bg-cell": "#F7F8FA", "bg-row": "#FAFAFA", "white": "#FFFFFF",
+    "radius": "2px", "sidebar": "208px",
+}
+
+
+def flatten_css(text):
+    """把 var(--x) 替换为字面值，并移除 :root 块。
+
+    用精确字符串替换（不用正则），避免误伤多字节内容。
+    """
+    # 1) 先删掉 :root{...} 块
+    i = text.find(":root{")
+    if i >= 0:
+        j = text.find("}", i)
+        if j > i:
+            text = text[:i] + text[j + 1:]
+    # 2) 逐个变量替换（长的先替，避免 --brand 吃掉 --brand-dark）
+    for name in sorted(CSS_VARS, key=len, reverse=True):
+        text = text.replace("var(--" + name + ")", CSS_VARS[name])
+    return text
+
+
 def main():
     # 样式表必须位于原型根目录；写出前把 var(--x) 展开为字面值
     src_css = os.path.join(HERE, "app.css")
     dst_css = os.path.join(ROOT, "app.css")
     if os.path.exists(src_css):
-        import flatten
-        text = io.open(src_css, encoding="utf-8").read() if False else open(
-            src_css, encoding="utf-8").read()
+        with open(src_css, encoding="utf-8") as f:
+            text = f.read()
+        # 去掉文件头那段说明注释
         text = re.sub(r"/\*.*?\*/", "", text, count=1, flags=re.S)
-        out = flatten.flatten(text)
+        out = flatten_css(text)
         header = ("/* 委托出租原型 · 样式表（颜色字面值，无 CSS 变量依赖）\n"
                   "   主色/链接 #1E98D7  深蓝按钮 #0A54BA  浅蓝底 #EBF2FB\n"
                   "   文字 #333333/#666666/#999999  金额 #E1251B  成功 #52C41A  警告 #FAAD14\n"
@@ -1447,7 +1469,7 @@ def main():
             f.write(header + out.lstrip())
         left = (header + out).count("var(")
         if left:
-            print("!! 样式表仍有 %d 处 var() 未展开" % left)
+            print("!! 样式表仍有 %d 处 var() 未展开" % left)  # noqa
     args = [a for a in sys.argv[1:]]
     if args:
         targets = [k for k in args if k in P]
