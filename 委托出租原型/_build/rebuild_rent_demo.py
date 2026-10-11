@@ -1,0 +1,994 @@
+# -*- coding: utf-8 -*-
+"""重建「委托出租功能_Demo.html」：原生页面，风格与「委托出售功能_Demo」完全一致。
+
+- 整段 <style> 直接复用出售 Demo（保证风格/组件类名一致）
+- 侧栏 9 个菜单，内容区为原生视图：统计卡 + 数据表格 + 流程条 + 弹窗
+- 复用出售 Demo 的组件类名：.stats/.stat .card/.card-head/.card-body .tag .btn
+  .steps/.flow .form-grid .modal .toast .kv .empty .toolbar .page-title
+原文件备份为 .bak。
+"""
+import io, os, re, shutil, sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+PROTO = os.path.dirname(HERE)
+ROOT = os.path.dirname(PROTO)
+SALE = os.path.join(ROOT, "委托出售功能_Demo.html")
+RENT = os.path.join(ROOT, "委托出租功能_Demo.html")
+
+sale = io.open(SALE, encoding="utf-8", errors="replace").read()
+CSS = re.search(r"<style>(.*?)</style>", sale, re.S).group(1)
+
+# 追加：出租 Demo 需要一点补充样式（沿用同一套变量）
+CSS_ADD = """
+  /* ===== 委托出租 Demo 补充 ===== */
+  .steps{display:flex;gap:10px;flex-wrap:wrap;margin:0;}
+  .steps .step{flex:1 1 180px;border:1px solid var(--border);border-left:3px solid var(--brand);
+    border-radius:5px;padding:10px 12px;background:#fff;}
+  .steps .step .idx{width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;
+    font-size:11px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;}
+  .steps .step .t{font-size:13px;font-weight:600;margin-bottom:3px;}
+  .steps .step .d{font-size:12px;color:var(--text-2);line-height:1.5;}
+  .notice{margin:0 0 16px;padding:11px 14px;border-radius:5px;background:#FFFBF0;
+    border:1px solid #FCE3AE;border-left:3px solid #FAAD14;font-size:12px;color:#8a6d3b;line-height:1.8;}
+  .notice b{color:#7a5a1e;}
+  table.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+  table.tbl th{background:#F7F8FA;color:var(--text-2);font-weight:400;text-align:left;
+    padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap;font-size:12px;}
+  table.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  table.tbl tr:hover td{background:#FAFCFF;}
+  table.tbl td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  table.tbl td.ctr{text-align:center;}
+  .mono{font-family:Consolas,Monaco,monospace;font-size:12px;}
+  .ops{white-space:nowrap;}
+  .ops .btn{margin-right:6px;}
+  .ops .btn:last-child{margin-right:0;}
+  .amt{color:#E1251B;font-weight:700;}
+  .page-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .page-head h2{margin:0;font-size:19px;}
+  .page-head .sub{font-size:12px;color:var(--text-2);}
+  .page-head .spacer{flex:1;}
+  .rec{color:#1E98D7;}
+  .muted{color:var(--text-2);font-size:12px;}
+"""
+
+# ---------------------------------------------------------------- 数据
+DATA_JS = r"""
+/* ================= 数据 ================= */
+const SHOPS = ['东南组店铺','西部组店铺','北部组店铺','系统外组店铺','华南公司店铺'];
+const CONSIGNORS = ['中铁建华东公司','中铁建西南公司','中铁建华南公司','中铁建北方公司'];
+const GOODS = [
+  {name:'钢板桩租赁 · SP-Ⅳ 拉森钢板桩', spec:'SP-Ⅳ 12m', unit:'吨', price:180, deposit:3000, minDays:30, qty:240},
+  {name:'钢便桥贝雷片 · 321型', spec:'321型 3m', unit:'片', price:95, deposit:1200, minDays:15, qty:860},
+  {name:'盘扣式脚手架 · 48系', spec:'48×3.0', unit:'套', price:60, deposit:800, minDays:30, qty:1200},
+  {name:'液压振动锤 · DZ90', spec:'DZ90', unit:'台', price:1500, deposit:20000, minDays:7, qty:6}
+];
+const ORDER_STATUS = ['待审核','待接单','待发货','待签收','租期中','待对账','待归还','押金退还中','待开票','已结束'];
+const STATUS_META = {
+  '待审核':{c:'#FAAD14',b:'#FFF8E8'}, '待接单':{c:'#1E98D7',b:'#EBF2FB'},
+  '待发货':{c:'#1E98D7',b:'#EBF2FB'}, '待签收':{c:'#1E98D7',b:'#EBF2FB'},
+  '租期中':{c:'#52C41A',b:'#F0FBEC'}, '待对账':{c:'#FAAD14',b:'#FFF8E8'},
+  '待归还':{c:'#FAAD14',b:'#FFF8E8'}, '押金退还中':{c:'#FAAD14',b:'#FFF8E8'},
+  '待开票':{c:'#1E98D7',b:'#EBF2FB'}, '已结束':{c:'#999999',b:'#F5F5F5'}
+};
+
+let seq = 7;
+function nextOrderNo(){
+  const d = new Date();
+  const ymd = '' + d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+  seq += 1;
+  return 'ZLCZ-' + ymd + '-' + String(seq).padStart(4,'0');
+}
+
+/* 委托单（委托方视角） */
+let consigns = [
+  {no:'CN20261011000023', title:'广州某项目周转材料出租委托', consignor:'广州某某再生资源有限公司',
+   ctype:'外部企业 · 外部委托资源', shop:'华南公司店铺', goods:GOODS[0], qty:90, rented:10.8,
+   start:'2026-11-01', end:'2027-01-31', status:'委托中'},
+  {no:'CN20261011000015', title:'周转钢管内部单位委托', consignor:'中铁十一局某项目部',
+   ctype:'内部单位 · 内部委托资源', shop:'东南组店铺', goods:GOODS[1], qty:200, rented:70,
+   start:'2026-10-20', end:'2026-12-31', status:'委托中'},
+  {no:'CN20261011000009', title:'废I旧模板处置委托', consignor:'河北某某建筑劳务有限公司',
+   ctype:'外部企业 · 外部委托资源', shop:'北部组店铺', goods:GOODS[2], qty:5800, rented:0,
+   start:'2026-10-25', end:'2027-02-28', status:'待审核'},
+  {no:'CN20261011000004', title:'电缆盘具委托出租', consignor:'中铁物资某仓储中心',
+   ctype:'内部单位 · 内部委托资源', shop:'北部组店铺', goods:GOODS[3], qty:60, rented:0,
+   start:'2026-09-15', end:'2026-11-15', status:'已结束'},
+  {no:'CN20261011000001', title:'安全防护网委托出租', consignor:'江苏某某安全设施有限公司',
+   ctype:'外部企业 · 外部委托资源', shop:'西部组店铺', goods:GOODS[2], qty:2000, rented:2000,
+   start:'2026-08-01', end:'2026-10-01', status:'已结束'}
+];
+
+/* 出租订单（履约） */
+let orders = [
+  {no:'ZLCZ-20260301-0007', goods:GOODS[0], qty:12, days:30, tenant:'张三 / 中铁建华南项目部',
+   consignor:'中铁建华东公司', shop:'华南公司店铺', depositPaid:true, depositRecv:true,
+   status:'待签收', created:'2026-03-01 15:42', over:0},
+  {no:'ZLCZ-20260301-0008', goods:GOODS[2], qty:60, days:30, tenant:'陈工 / 中铁建西南项目部',
+   consignor:'中铁建西南公司', shop:'西部组店铺', depositPaid:true, depositRecv:false,
+   status:'待接单', created:'2026-03-01 14:10', over:0},
+  {no:'ZLCZ-20260220-0003', goods:GOODS[2], qty:25, days:30, tenant:'李四 / 中铁建华东项目部',
+   consignor:'中铁建西南公司', shop:'西部组店铺', depositPaid:true, depositRecv:true,
+   status:'待对账', created:'2026-02-20 09:10', over:0},
+  {no:'ZLCZ-20260205-0011', goods:GOODS[1], qty:8, days:30, tenant:'王五 / 中铁建北方项目部',
+   consignor:'中铁建华东公司', shop:'东南组店铺', depositPaid:true, depositRecv:true,
+   status:'租期中', created:'2026-02-05 14:20', over:0},
+  {no:'ZLCZ-20260112-0002', goods:GOODS[3], qty:2, days:30, tenant:'赵六 / 中铁建华南项目部',
+   consignor:'中铁建华南公司', shop:'华南公司店铺', depositPaid:true, depositRecv:true,
+   status:'押金退还中', created:'2026-01-12 10:05', over:0},
+  {no:'ZLCZ-20251201-0009', goods:GOODS[0], qty:30, days:30, tenant:'孙七 / 中铁建华东项目部',
+   consignor:'中铁建华东公司', shop:'华南公司店铺', depositPaid:true, depositRecv:true,
+   status:'待开票', created:'2025-12-01 08:30', over:3}
+];
+
+/* 议价申请 */
+let negotiations = [
+  {no:'YJ-20260302-0003', order:'ZLCZ-20260301-0008', goods:GOODS[2].name, tenant:'陈工',
+   oldPrice:60, newPrice:52, days:30, reason:'长期合作，按年租量申请优惠', status:'待审核'}
+];
+
+/* 对账单 */
+let bills = [
+  {no:'DZD-20260405-0012', order:'ZLCZ-20260220-0003', tenant:'李四', period:'2026-02-20 ~ 2026-03-21',
+   days:30, rent:37500, over:0, overAmt:0, status:'待承租方确认'},
+  {no:'DZD-20260406-0015', order:'ZLCZ-20251201-0009', tenant:'孙七', period:'2025-12-05 ~ 2026-01-04',
+   days:30, rent:106200, over:3, overAmt:3420, status:'已结清'}
+];
+
+/* 归还单 */
+let returns = [
+  {no:'GHD-20260406-0005', order:'ZLCZ-20260205-0011', goods:GOODS[1].name, tenant:'王五',
+   qty:7, way:'承租方送回', time:'2026-04-07', status:'待委托方确认', damage:'1 片签收时缺失，已在对账单扣减'},
+  {no:'GHD-20260226-0002', order:'ZLCZ-20260112-0002', goods:GOODS[3].name, tenant:'赵六',
+   qty:2, way:'承租方送回', time:'2026-02-26', status:'已确认', damage:'—'}
+];
+
+/* 押金退还单 */
+let depositRefunds = [
+  {no:'YJT-20260408-0006', order:'ZLCZ-20260301-0007', tenant:'张三', deposit:36000, cut:0,
+   cutItems:'—', refund:36000, status:'待付款'},
+  {no:'YJT-20260410-0003', order:'ZLCZ-20260112-0002', tenant:'赵六', deposit:40000, cut:2000,
+   cutItems:'设备维修费 1,400 / 清洁费 600', refund:38000, status:'已付款待确认'}
+];
+
+/* 开票 */
+let invoices = [
+  {no:'FP-20260416-0008', type:'增值税专用发票', from:'华南公司', to:'中铁建华东公司',
+   item:'委托出租服务费', amount:8052, rate:'6%', tax:455.77, date:'2026-04-16', status:'待确认'},
+  {no:'FP-20260415-0006', type:'增值税专用发票', from:'中铁建华东公司', to:'张三 / 中铁建华南项目部',
+   item:'周转材料租赁费', amount:109620, rate:'13%', tax:12610.62, date:'2026-04-15', status:'已确认'}
+];
+
+/* 侧栏菜单 */
+const NAV = [
+  {group:'委托出租', items:[
+    {key:'manage',  label:'出租委托管理'},
+    {key:'publish', label:'发布出租房源'},
+    {key:'query',   label:'出租委托查询'}
+  ]},
+  {group:'履约管理', items:[
+    {key:'accept',    label:'接单管理'},
+    {key:'shipping',  label:'发货单管理'},
+    {key:'reconcile', label:'租金对账'},
+    {key:'returns',   label:'归还与押金'}
+  ]},
+  {group:'运营管理', items:[
+    {key:'audit',     label:'委托审核'},
+    {key:'negotiate', label:'议价审核'},
+    {key:'invoice',   label:'开票管理'}
+  ]},
+  {group:'商城前台', items:[
+    {key:'mall', label:'出租专区'}
+  ]}
+];
+
+const FLOW = ['提交出租委托','平台审核','承租下单','押金与发货','签收与对账','归还与结算'];
+
+/* ================= 工具 ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = n => Number(n||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const intFmt = n => Number(n||0).toLocaleString('zh-CN');
+const today = () => { const d=new Date(); return d.toISOString().slice(0,10); };
+
+function toast(msg, kind){
+  const w = $('#toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind ? ' ' + kind : '');
+  el.textContent = msg;
+  w.appendChild(el);
+  setTimeout(()=>{ el.remove(); }, 2600);
+}
+function statusTag(s){
+  const m = STATUS_META[s] || {c:'#7E8693', b:'#F0F2F5'};
+  return `<span class="tag" style="color:${m.c};background:${m.b};border:1px solid ${m.c}33">${esc(s)}</span>`;
+}
+function okTag(t){ return `<span class="tag" style="color:#52C41A;background:#F0FBEC;border:1px solid #B7EB8F">${esc(t)}</span>`; }
+function warnTag(t){ return `<span class="tag" style="color:#FAAD14;background:#FFF8E8;border:1px solid #FCE3AE">${esc(t)}</span>`; }
+function blueTag(t){ return `<span class="tag" style="color:#1E98D7;background:#EBF2FB;border:1px solid #BFDDF5">${esc(t)}</span>`; }
+function greyTag(t){ return `<span class="tag" style="color:#999;background:#F5F5F5;border:1px solid #E5E6EB">${esc(t)}</span>`; }
+
+function renderSidebar(){
+  $('#sidebar').innerHTML = NAV.map(g => `
+    <div class="nav-group">
+      <div class="nav-group-title">${esc(g.group)}</div>
+      ${g.items.map(it => `
+        <div class="nav-item ${currentView===it.key?'active':''}" onclick="switchView('${it.key}')">
+          <span class="dot"></span>${esc(it.label)}
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function flowHtml(){
+  return `<div class="steps">${FLOW.map((t,i)=>`
+    <div class="step"><div class="idx">${i+1}</div><div class="t">${esc(t)}</div></div>`).join('')}</div>`;
+}
+"""
+
+VIEWS_JS = r"""
+/* ================= 视图 ================= */
+let currentView = 'manage';
+let queryFilter = {kw:'', status:'', shop:''};
+
+/* ---- 弹窗 ---- */
+function openModal(title, bodyHtml, footHtml){
+  $('#overlay').innerHTML = `
+    <div class="mask" onclick="if(event.target===this)closeOverlay()"></div>
+    <div class="modal">
+      <div class="modal-head"><h3>${esc(title)}</h3><button class="x" onclick="closeOverlay()">×</button></div>
+      <div class="modal-body">${bodyHtml}</div>
+      <div class="modal-foot">${footHtml || '<button class="btn" onclick="closeOverlay()">关闭</button>'}</div>
+    </div>`;
+  $('#overlay').classList.add('show');
+}
+function closeOverlay(){ $('#overlay').innerHTML=''; $('#overlay').classList.remove('show'); }
+
+/* ---- 1. 出租委托管理 ---- */
+function viewManage(){
+  const total = consigns.length;
+  const pending = consigns.filter(c=>c.status==='待审核').length;
+  const running = consigns.filter(c=>c.status==='委托中').length;
+  const gmv = consigns.reduce((s,c)=> s + c.qty*c.goods.deposit, 0);
+
+  const rows = consigns.map(c=>`
+    <tr>
+      <td class="mono">${esc(c.no)}</td>
+      <td>${esc(c.title)}</td>
+      <td>${esc(c.consignor)}<br><span class="muted">${esc(c.ctype)}</span></td>
+      <td>${esc(c.shop)}</td>
+      <td>${esc(c.start)} ~ ${esc(c.end)}</td>
+      <td class="num">${intFmt(c.qty)} / <b class="rec">${intFmt(c.rented)}</b> / ${intFmt(c.qty-c.rented)}</td>
+      <td class="ctr">${c.status==='委托中'?blueTag(c.status):(c.status==='待审核'?warnTag(c.status):greyTag(c.status))}</td>
+      <td class="ops">
+        <button class="btn sm" onclick="detailConsign('${c.no}')">详情</button>
+        ${c.status==='待审核'?`<button class="btn sm primary" onclick="auditConsign('${c.no}')">审核</button>`:''}
+        ${c.status==='委托中'?`<button class="btn sm danger" onclick="cancelConsign('${c.no}')">取消委托</button>`:''}
+      </td>
+    </tr>`).join('');
+
+  return `
+    <div class="page-head">
+      <h2>出租委托管理</h2>
+      <span class="sub">委托方发起委托 → 平台/受托店铺审核 → 上架出租 → 承租成单后按「委托租赁」费率结算</span>
+      <div class="spacer"></div>
+      <button class="btn primary" onclick="openPublish()">+ 新建出租委托</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">委托单总数</div><div class="v">${total}<small>单</small></div></div>
+      <div class="stat"><div class="k">待审核</div><div class="v">${pending}<small>单</small></div></div>
+      <div class="stat"><div class="k">委托中</div><div class="v">${running}<small>单</small></div></div>
+      <div class="stat"><div class="k">押金规模（估）</div><div class="v" style="color:#E1251B">¥${fmt(gmv)}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>委托单列表</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr>
+            <th>委托单号</th><th>委托标题</th><th>委托方 / 来源</th><th>受托店铺</th>
+            <th>委托期限</th><th class="num">委托/已租/余量</th><th class="ctr">状态</th><th>操作</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><h3>业务流程</h3></div>
+      <div class="card-body">${flowHtml()}</div>
+    </div>`;
+}
+
+function detailConsign(no){
+  const c = consigns.find(x=>x.no===no);
+  if(!c) return;
+  const body = `
+    <div class="form-grid">
+      <div><div class="muted">委托单号</div><div class="mono">${esc(c.no)}</div></div>
+      <div><div class="muted">委托标题</div><div>${esc(c.title)}</div></div>
+      <div><div class="muted">状态</div><div>${statusTag(c.status)}</div></div>
+      <div><div class="muted">委托方</div><div>${esc(c.consignor)}</div></div>
+      <div><div class="muted">来源类型</div><div>${esc(c.ctype)}</div></div>
+      <div><div class="muted">受托店铺</div><div>${esc(c.shop)}</div></div>
+      <div><div class="muted">商品</div><div>${esc(c.goods.name)}</div></div>
+      <div><div class="muted">规格 / 单位</div><div>${esc(c.goods.spec)} · ${esc(c.goods.unit)}</div></div>
+      <div><div class="muted">出租单价（含税）</div><div>¥${fmt(c.goods.price)} / ${esc(c.goods.unit)} / 天</div></div>
+      <div><div class="muted">押金单价</div><div>¥${fmt(c.goods.deposit)} / ${esc(c.goods.unit)}</div></div>
+      <div><div class="muted">最少起租期</div><div>${c.goods.minDays} 天</div></div>
+      <div><div class="muted">委托期限</div><div>${esc(c.start)} ~ ${esc(c.end)}</div></div>
+    </div>`;
+  openModal('委托单详情 · ' + c.no, body,
+    `<button class="btn" onclick="closeOverlay()">关闭</button>`);
+}
+
+function auditConsign(no){
+  const c = consigns.find(x=>x.no===no);
+  if(!c) return;
+  const body = `
+    <div class="form-grid">
+      <div><div class="muted">委托单号</div><div class="mono">${esc(c.no)}</div></div>
+      <div><div class="muted">委托方</div><div>${esc(c.consignor)}</div></div>
+      <div><div class="muted">受托店铺</div><div>${esc(c.shop)}</div></div>
+      <div class="col-3"><div class="muted">商品</div><div>${esc(c.goods.name)} · ${esc(c.goods.spec)}</div></div>
+      <div><div class="muted">委托数量</div><div>${intFmt(c.qty)} ${esc(c.goods.unit)}</div></div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="muted" style="margin-bottom:6px">审核意见</div>
+      <textarea id="auditRemark" style="width:100%;height:70px;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-family:inherit"></textarea>
+    </div>
+    <div class="notice" style="margin-top:12px">
+      审核<b>通过</b> → 商品上架，承租方可在出租专区看到并承租；
+      审核<b>不通过</b> → 退回委托方修改后重新提交。
+    </div>`;
+  openModal('委托审核 · ' + c.no, body, `
+    <button class="btn" onclick="closeOverlay()">取消</button>
+    <button class="btn danger" onclick="doAudit('${c.no}',false)">不通过（退回）</button>
+    <button class="btn primary" onclick="doAudit('${c.no}',true)">通过并上架</button>`);
+}
+function doAudit(no, pass){
+  const c = consigns.find(x=>x.no===no);
+  if(c) c.status = pass ? '委托中' : '待审核';
+  closeOverlay();
+  toast(pass ? '审核通过，商品已上架' : '已退回委托方修改', pass ? 'ok' : 'err');
+  switchView('manage');
+}
+function cancelConsign(no){
+  const c = consigns.find(x=>x.no===no);
+  if(c) c.status = '已结束';
+  toast('已取消委托，不再接单', 'ok');
+  switchView('manage');
+}
+
+/* ---- 2. 发布出租房源 ---- */
+function openPublish(){
+  const body = `
+    <div class="form-grid">
+      <div class="col-2"><div class="muted">委托标题</div>
+        <input id="pTitle" placeholder="例如：广州某项目周转材料出租委托" style="width:100%"></div>
+      <div><div class="muted">委托方</div><input id="pConsignor" value="演示有限公司" style="width:100%"></div>
+      <div><div class="muted">来源类型</div>
+        <select id="pSource" style="width:100%"><option>外部企业 · 外部委托资源</option><option>内部单位 · 内部委托资源</option></select></div>
+      <div><div class="muted">受托店铺</div>
+        <select id="pShop" style="width:100%">${SHOPS.map(s=>`<option>${s}</option>`).join('')}</select></div>
+      <div><div class="muted">商品</div>
+        <select id="pGoods" style="width:100%">${GOODS.map((g,i)=>`<option value="${i}">${g.name}</option>`).join('')}</select></div>
+      <div><div class="muted">委托数量</div><input id="pQty" type="number" value="100" style="width:100%"></div>
+      <div><div class="muted">出租单价（含税，元/单位/天）</div><input id="pPrice" type="number" value="180" style="width:100%"></div>
+      <div><div class="muted">押金单价（元/单位）</div><input id="pDeposit" type="number" value="3000" style="width:100%"></div>
+      <div><div class="muted">最少起租期（天）</div><input id="pMinDays" type="number" value="30" style="width:100%"></div>
+      <div><div class="muted">委托开始</div><input id="pStart" type="date" value="${today()}" style="width:100%"></div>
+      <div><div class="muted">委托结束</div><input id="pEnd" type="date" value="2027-01-31" style="width:100%"></div>
+    </div>
+    <div class="notice" style="margin-top:14px">
+      提交后系统<b>自动委托</b>给所选受托店铺，进入<b>平台审核</b>；审核通过后上架，
+      承租方即可在<b>出租专区</b>看到并承租。
+    </div>`;
+  openModal('新建出租委托', body, `
+    <button class="btn" onclick="closeOverlay()">取消</button>
+    <button class="btn primary" onclick="savePublish()">提交并自动委托</button>`);
+}
+function savePublish(){
+  const gi = Number($('#pGoods')?.value || 0);
+  const title = ($('#pTitle')?.value || '').trim() || '未命名出租委托';
+  const c = {
+    no: 'CN' + today().replace(/-/g,'') + String(consigns.length+1).padStart(4,'0'),
+    title: title,
+    consignor: $('#pConsignor')?.value || '演示有限公司',
+    ctype: $('#pSource')?.value || '外部企业 · 外部委托资源',
+    shop: $('#pShop')?.value || SHOPS[0],
+    goods: {
+      name: GOODS[gi].name, spec: GOODS[gi].spec, unit: GOODS[gi].unit,
+      price: Number($('#pPrice')?.value || GOODS[gi].price),
+      deposit: Number($('#pDeposit')?.value || GOODS[gi].deposit),
+      minDays: Number($('#pMinDays')?.value || GOODS[gi].minDays)
+    },
+    qty: Number($('#pQty')?.value || 100),
+    rented: 0,
+    start: $('#pStart')?.value || today(),
+    end: $('#pEnd')?.value || '2027-01-31',
+    status: '待审核'
+  };
+  consigns.unshift(c);
+  closeOverlay();
+  toast('已提交，自动委托给「' + c.shop + '」，等待审核', 'ok');
+  switchView('manage');
+}
+
+/* ---- 3. 出租委托查询 ---- */
+function viewQuery(){
+  let list = consigns.slice();
+  if(queryFilter.kw){
+    const k = queryFilter.kw.toLowerCase();
+    list = list.filter(c => c.no.toLowerCase().includes(k) || c.title.toLowerCase().includes(k));
+  }
+  if(queryFilter.status) list = list.filter(c=>c.status===queryFilter.status);
+  if(queryFilter.shop)   list = list.filter(c=>c.shop===queryFilter.shop);
+
+  const rows = list.map(c=>`
+    <tr>
+      <td class="mono">${esc(c.no)}</td><td>${esc(c.title)}</td>
+      <td>${esc(c.consignor)}</td><td>${esc(c.shop)}</td>
+      <td>${esc(c.start)} ~ ${esc(c.end)}</td>
+      <td class="num">${intFmt(c.qty)} / ${intFmt(c.rented)} / ${intFmt(c.qty-c.rented)}</td>
+      <td class="ctr">${statusTag(c.status)}</td>
+      <td class="ops"><button class="btn sm" onclick="detailConsign('${c.no}')">详情</button></td>
+    </tr>`).join('') || `<tr><td colspan="8" class="empty">没有匹配的委托单</td></tr>`;
+
+  return `
+    <div class="page-head">
+      <h2>出租委托查询</h2><span class="sub">按单号/标题、状态、受托店铺检索</span>
+    </div>
+    <div class="toolbar">
+      <input id="qKw" placeholder="委托单号 / 标题" value="${esc(queryFilter.kw)}" style="width:220px">
+      <select id="qStatus">
+        <option value="">全部状态</option>
+        ${['待审核','委托中','已结束'].map(s=>`<option ${queryFilter.status===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+      <select id="qShop">
+        <option value="">全部受托店铺</option>
+        ${SHOPS.map(s=>`<option ${queryFilter.shop===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+      <button class="btn primary" onclick="doQuery()">查询</button>
+      <button class="btn" onclick="resetQuery()">重置</button>
+      <span class="muted">共 ${list.length} 条</span>
+    </div>
+    <div class="card"><div class="card-body" style="padding:0">
+      <table class="tbl">
+        <thead><tr><th>委托单号</th><th>委托标题</th><th>委托方</th><th>受托店铺</th>
+          <th>委托期限</th><th class="num">委托/已租/余量</th><th class="ctr">状态</th><th>操作</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div></div>`;
+}
+function doQuery(){
+  queryFilter = {
+    kw: ($('#qKw')?.value||'').trim(),
+    status: $('#qStatus')?.value||'',
+    shop: $('#qShop')?.value||''
+  };
+  switchView('query');
+}
+function resetQuery(){ queryFilter={kw:'',status:'',shop:''}; switchView('query'); }
+"""
+
+VIEWS2_JS = r"""
+/* ---- 4. 接单管理 ---- */
+function viewAccept(){
+  const list = orders.filter(o => o.depositPaid);
+  const rows = list.map(o=>`
+    <tr>
+      <td class="mono">${esc(o.no)}</td>
+      <td>${esc(o.goods.name)}</td>
+      <td>${esc(o.tenant)}</td>
+      <td class="num">${intFmt(o.qty)} ${esc(o.goods.unit)}</td>
+      <td>${esc(o.consignor)}</td>
+      <td class="num">¥${fmt(o.qty*o.goods.deposit)}</td>
+      <td class="ctr">${o.depositRecv?okTag('已到账'):warnTag('待到账')}</td>
+      <td class="ctr">${statusTag(o.status)}</td>
+      <td class="ops">
+        ${o.status==='待接单'
+          ? `<button class="btn sm primary" onclick="acceptOrder('${o.no}')">接单</button>`
+          : `<span class="muted">已处理</span>`}
+      </td>
+    </tr>`).join('') || `<tr><td colspan="9" class="empty">暂无待接单订单</td></tr>`;
+
+  return `
+    <div class="page-head"><h2>接单管理</h2>
+      <span class="sub">承租方已付押金且服务方确认到账后，可分配到店铺组接单</span></div>
+    <div class="notice">
+      <b>前置条件：</b>承租方【押金付款】完成 → 服务方【押金到账确认】。接单后进入【发货单管理】，
+      由服务方开单、<b>委托方（出租方）按发货单详情实际发货</b>。
+    </div>
+    <div class="card"><div class="card-head"><h3>待接单委托订单</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>出租订单号</th><th>商品名称</th><th>承租方</th><th class="num">承租数量</th>
+            <th>委托方</th><th class="num">押金</th><th class="ctr">押金到账</th><th class="ctr">订单状态</th><th>操作</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div></div>`;
+}
+function acceptOrder(no){
+  const o = orders.find(x=>x.no===no);
+  if(!o) return;
+  const body = `
+    <div class="form-grid">
+      <div><div class="muted">出租订单号</div><div class="mono">${esc(o.no)}</div></div>
+      <div><div class="muted">商品</div><div>${esc(o.goods.name)}</div></div>
+      <div><div class="muted">承租方</div><div>${esc(o.tenant)}</div></div>
+      <div><div class="muted">承租数量</div><div>${intFmt(o.qty)} ${esc(o.goods.unit)}</div></div>
+      <div class="col-2"><div class="muted">分配到店铺组</div>
+        <select id="acShop" style="width:100%">${SHOPS.map(s=>`<option ${o.shop===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div><div class="muted">接单人</div><input value="王接单" readonly style="width:100%;background:#FAFAFA"></div>
+    </div>`;
+  openModal('接单 · ' + o.no, body, `
+    <button class="btn" onclick="closeOverlay()">取消</button>
+    <button class="btn primary" onclick="doAccept('${o.no}')">确认接单</button>`);
+}
+function doAccept(no){
+  const o = orders.find(x=>x.no===no);
+  if(o){ o.status = '待发货'; o.shop = $('#acShop')?.value || o.shop; }
+  closeOverlay();
+  toast('接单成功，可前往「发货单管理」开单', 'ok');
+  switchView('accept');
+}
+
+/* ---- 5. 发货单管理 ---- */
+function viewShipping(){
+  const list = orders.filter(o => ['待发货','待签收','租期中'].includes(o.status));
+  const rows = list.map(o=>{
+    const shipped = o.status !== '待发货';
+    const signed = ['租期中'].includes(o.status);
+    return `
+    <tr>
+      <td class="mono">${shipped ? 'FHD-' + o.no.slice(-10) : '—'}</td>
+      <td class="mono">${esc(o.no)}</td>
+      <td>${esc(o.goods.name)}</td>
+      <td class="num">${intFmt(o.qty)} ${esc(o.goods.unit)}</td>
+      <td>${esc(o.shop)}</td>
+      <td>${esc(o.consignor)}</td>
+      <td class="ctr">${shipped?(signed?greyTag('已签收'):blueTag('已发货')):warnTag('待开单')}</td>
+      <td class="ops">
+        ${!shipped?`<button class="btn sm primary" onclick="openShipping('${o.no}')">新增发货单</button>`:''}
+        ${shipped&&!signed?`<button class="btn sm" onclick="signOrder('${o.no}')">承租方签收</button>`:''}
+        ${signed?`<span class="muted">租期中</span>`:''}
+      </td>
+    </tr>`;}).join('') || `<tr><td colspan="8" class="empty">暂无待发货订单</td></tr>`;
+
+  return `
+    <div class="page-head"><h2>发货单管理</h2>
+      <span class="sub">服务方开单并提交，委托方按发货单详情实际发货</span></div>
+    <div class="notice">
+      <b>流程说明：</b>发货单由<b>服务方</b>新增并提交，但<b>实际发货由委托方（出租方）</b>
+      按发货单详情进行（流程图中虚线部分）。承租方签收后租期开始计算。
+    </div>
+    <div class="card"><div class="card-head"><h3>发货单列表</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>发货单号</th><th>出租订单号</th><th>商品名称</th><th class="num">发货数量</th>
+            <th>接单店铺组</th><th>委托方（实际发货）</th><th class="ctr">状态</th><th>操作</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div></div>`;
+}
+function openShipping(no){
+  const o = orders.find(x=>x.no===no);
+  if(!o) return;
+  const body = `
+    <div class="form-grid">
+      <div><div class="muted">关联出租订单号</div><div class="mono">${esc(o.no)}</div></div>
+      <div><div class="muted">承租方</div><div>${esc(o.tenant)}</div></div>
+      <div><div class="muted">委托方（实际发货方）</div><div>${esc(o.consignor)}</div></div>
+      <div><div class="muted">接单店铺组</div><div>${esc(o.shop)}</div></div>
+      <div class="col-2"><div class="muted">收货地址</div><input value="广东省广州市南沙区项目部料场" style="width:100%"></div>
+      <div><div class="muted">承运人 / 车牌</div><input value="张师傅 / 粤A·8F236" style="width:100%"></div>
+      <div><div class="muted">预计到达</div><input type="date" value="${today()}" style="width:100%"></div>
+    </div>
+    <div style="margin-top:14px">
+      <table class="tbl">
+        <thead><tr><th>商品名称</th><th>规格</th><th class="num">承租数量</th><th class="num">本次发货数量</th><th>单位</th></tr></thead>
+        <tbody><tr>
+          <td>${esc(o.goods.name)}</td><td>${esc(o.goods.spec)}</td>
+          <td class="num">${intFmt(o.qty)}</td><td class="num">${intFmt(o.qty)}</td><td>${esc(o.goods.unit)}</td>
+        </tr></tbody>
+      </table>
+    </div>`;
+  openModal('新增发货单 · ' + o.no, body, `
+    <button class="btn" onclick="closeOverlay()">取消</button>
+    <button class="btn primary" onclick="doShip('${o.no}')">提交发货单</button>`);
+}
+function doShip(no){
+  const o = orders.find(x=>x.no===no);
+  if(o) o.status = '待签收';
+  closeOverlay();
+  toast('发货单已提交，已同步给委托方发货', 'ok');
+  switchView('shipping');
+}
+function signOrder(no){
+  const o = orders.find(x=>x.no===no);
+  if(o) o.status = '租期中';
+  toast('承租方已签收，租期开始计算', 'ok');
+  switchView('shipping');
+}
+"""
+
+VIEWS3_JS = r"""
+/* ---- 6. 租金对账 ---- */
+function viewReconcile(){
+  const rows = bills.map(b=>`
+    <tr>
+      <td class="mono">${esc(b.no)}</td>
+      <td class="mono">${esc(b.order)}</td>
+      <td>${esc(b.tenant)}</td>
+      <td>${esc(b.period)}</td>
+      <td class="num">${b.days}</td>
+      <td class="num">¥${fmt(b.rent)}</td>
+      <td class="num">${b.over} 天 / ¥${fmt(b.overAmt)}</td>
+      <td class="ctr">${b.status==='已结清'?okTag(b.status):warnTag(b.status)}</td>
+      <td class="ops">
+        <button class="btn sm" onclick="detailBill('${b.no}')">查看</button>
+        ${b.status!=='已结清'?`<button class="btn sm primary" onclick="settleBill('${b.no}')">确认到账</button>`:''}
+      </td>
+    </tr>`).join('') || `<tr><td colspan="9" class="empty">暂无对账单</td></tr>`;
+
+  return `
+    <div class="page-head"><h2>租金对账</h2>
+      <span class="sub">依据已出租的商品数量及租期；需租期结束后才可发起对账</span></div>
+    <div class="notice">
+      <b>对账链路：</b>服务方【创建对账单并确认】→ 承租方【复核对账单】→ 承租方【租金付款】
+      → 服务方【到账确认】。委托方侧同步生成<b>销售对账单</b>，用于后续<b>委托结算</b>。
+    </div>
+    <div class="card"><div class="card-head"><h3>对账单列表</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>对账单号</th><th>出租订单号</th><th>承租方</th><th>对账周期</th>
+            <th class="num">天数</th><th class="num">租金</th><th class="num">超期</th><th class="ctr">状态</th><th>操作</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div></div>`;
+}
+function detailBill(no){
+  const b = bills.find(x=>x.no===no);
+  if(!b) return;
+  const body = `
+    <div class="form-grid">
+      <div><div class="muted">对账单号</div><div class="mono">${esc(b.no)}</div></div>
+      <div><div class="muted">出租订单号</div><div class="mono">${esc(b.order)}</div></div>
+      <div><div class="muted">承租方</div><div>${esc(b.tenant)}</div></div>
+      <div><div class="muted">对账周期</div><div>${esc(b.period)}</div></div>
+      <div><div class="muted">已租天数</div><div>${b.days} 天</div></div>
+      <div><div class="muted">超期</div><div>${b.over} 天 / ¥${fmt(b.overAmt)}</div></div>
+      <div><div class="muted">租金合计</div><div class="amt">¥${fmt(b.rent)}</div></div>
+      <div><div class="muted">状态</div><div>${statusTag(b.status)}</div></div>
+    </div>
+    <div class="notice" style="margin-top:12px">
+      <b>委托结算口径：</b>应付委托方 = 租金 − 服务费（按费率设置中「委托租赁」费率）。
+      本单租金 ¥${fmt(b.rent)}，按 3% 计服务费 ¥${fmt(b.rent*0.03)}，
+      应付委托方 <b>¥${fmt(b.rent*0.97)}</b>。
+    </div>`;
+  openModal('对账单 · ' + b.no, body);
+}
+function settleBill(no){
+  const b = bills.find(x=>x.no===no);
+  if(b) b.status = '已结清';
+  toast('已确认到账，对账单结清', 'ok');
+  switchView('reconcile');
+}
+
+/* ---- 7. 归还与押金 ---- */
+function viewReturns(){
+  const rRows = returns.map(r=>`
+    <tr>
+      <td class="mono">${esc(r.no)}</td><td class="mono">${esc(r.order)}</td>
+      <td>${esc(r.goods)}</td><td>${esc(r.tenant)}</td>
+      <td class="num">${intFmt(r.qty)}</td><td>${esc(r.way)}</td><td>${esc(r.time)}</td>
+      <td class="ctr">${r.status==='已确认'?okTag(r.status):warnTag(r.status)}</td>
+      <td class="ops">${r.status!=='已确认'
+        ? `<button class="btn sm primary" onclick="confirmReturn('${r.no}')">确认归还</button>`
+        : `<span class="muted">已处理</span>`}</td>
+    </tr>`).join('') || `<tr><td colspan="9" class="empty">暂无归还单</td></tr>`;
+
+  const dRows = depositRefunds.map(d=>`
+    <tr>
+      <td class="mono">${esc(d.no)}</td><td class="mono">${esc(d.order)}</td>
+      <td>${esc(d.tenant)}</td>
+      <td class="num">¥${fmt(d.deposit)}</td>
+      <td class="num">¥${fmt(d.cut)}</td>
+      <td class="muted">${esc(d.cutItems)}</td>
+      <td class="num amt">¥${fmt(d.refund)}</td>
+      <td class="ctr">${d.status==='待付款'?warnTag(d.status):blueTag(d.status)}</td>
+      <td class="ops">${d.status==='待付款'
+        ? `<button class="btn sm primary" onclick="payRefund('${d.no}')">押金退还付款</button>`
+        : `<button class="btn sm" onclick="toast('已提交承租方确认','ok')">催确认</button>`}</td>
+    </tr>`).join('') || `<tr><td colspan="9" class="empty">暂无押金退还单</td></tr>`;
+
+  return `
+    <div class="page-head"><h2>归还与押金</h2>
+      <span class="sub">商品归还 → 委托方确认 → 状态同步服务方 → 押金结算退还</span></div>
+    <div class="notice">
+      <b>关键链路：</b>承租方【新增商品归还】→ 委托方【商品归还确认】→
+      系统把<b>「商品已归还」状态同步给服务方</b> → 服务方【押金结算 / 新增押金退还单】→
+      【押金退还付款】→ 承租方【确认押金退还】→【押金到账确认】。
+    </div>
+    <div class="card"><div class="card-head"><h3>归还单</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>归还单号</th><th>出租订单号</th><th>商品名称</th><th>承租方</th>
+            <th class="num">归还数量</th><th>归还方式</th><th>归还时间</th><th class="ctr">状态</th><th>操作</th></tr></thead>
+          <tbody>${rRows}</tbody>
+        </table>
+      </div></div>
+    <div class="card" style="margin-top:16px"><div class="card-head"><h3>押金退还单</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>押金退还单号</th><th>出租订单号</th><th>承租方</th>
+            <th class="num">应收押金</th><th class="num">扣减</th><th>扣减明细</th>
+            <th class="num">应退金额</th><th class="ctr">状态</th><th>操作</th></tr></thead>
+          <tbody>${dRows}</tbody>
+        </table>
+      </div></div>`;
+}
+function confirmReturn(no){
+  const r = returns.find(x=>x.no===no);
+  if(r) r.status = '已确认';
+  toast('已确认归还，状态已同步给服务方', 'ok');
+  switchView('returns');
+}
+function payRefund(no){
+  const d = depositRefunds.find(x=>x.no===no);
+  if(d) d.status = '已付款待确认';
+  toast('押金已退还，等待承租方确认', 'ok');
+  switchView('returns');
+}
+
+/* ---- 8. 委托审核（待审核委托单） ---- */
+function viewAudit(){
+  const list = consigns.filter(c=>c.status==='待审核');
+  const rows = list.map(c=>`
+    <tr>
+      <td class="mono">${esc(c.no)}</td><td>${esc(c.title)}</td>
+      <td>${esc(c.consignor)}<br><span class="muted">${esc(c.ctype)}</span></td>
+      <td>${esc(c.shop)}</td>
+      <td>${esc(c.goods.name)}</td>
+      <td class="num">${intFmt(c.qty)} ${esc(c.goods.unit)}</td>
+      <td class="num">¥${fmt(c.goods.price)}</td>
+      <td class="ops">
+        <button class="btn sm primary" onclick="auditConsign('${c.no}')">审核</button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="8" class="empty">没有待审核的委托单</td></tr>`;
+
+  return `
+    <div class="page-head"><h2>委托审核</h2>
+      <span class="sub">审核委托方的出租商品资料，通过后上架、不通过退回修改</span></div>
+    <div class="card"><div class="card-head"><h3>待审核列表</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>委托单号</th><th>委托标题</th><th>委托方 / 来源</th><th>受托店铺</th>
+            <th>商品</th><th class="num">数量</th><th class="num">单价</th><th>操作</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div></div>`;
+}
+
+/* ---- 9. 议价审核 ---- */
+function viewNegotiate(){
+  const rows = negotiations.map(n=>`
+    <tr>
+      <td class="mono">${esc(n.no)}</td><td class="mono">${esc(n.order)}</td>
+      <td>${esc(n.goods)}</td><td>${esc(n.tenant)}</td>
+      <td class="num">¥${fmt(n.oldPrice)}</td>
+      <td class="num amt">¥${fmt(n.newPrice)}</td>
+      <td class="num">${n.days} 天</td>
+      <td>${esc(n.reason)}</td>
+      <td class="ctr">${statusTag(n.status)}</td>
+      <td class="ops">
+        <button class="btn sm primary" onclick="approveNego('${n.no}')">通过</button>
+        <button class="btn sm danger" onclick="rejectNego('${n.no}')">驳回</button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="10" class="empty">暂无议价申请</td></tr>`;
+
+  return `
+    <div class="page-head"><h2>议价审核</h2>
+      <span class="sub">承租方下单时选择「需要议价」会进入此环节</span></div>
+    <div class="notice">
+      流程图中「是否需要议价」选<b>是</b> → 进入议价；服务方<b>驳回收回 / 通过</b>；
+      通过后再进入正常审核与押金付款。
+    </div>
+    <div class="card"><div class="card-head"><h3>议价申请列表</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>议价单号</th><th>出租订单号</th><th>商品</th><th>承租方</th>
+            <th class="num">原单价</th><th class="num">申请单价</th><th class="num">租期</th>
+            <th>议价说明</th><th class="ctr">状态</th><th>操作</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div></div>`;
+}
+function approveNego(no){
+  const n = negotiations.find(x=>x.no===no);
+  if(n) n.status = '已通过';
+  toast('议价已通过，订单进入审核', 'ok');
+  switchView('negotiate');
+}
+function rejectNego(no){
+  const n = negotiations.find(x=>x.no===no);
+  if(n) n.status = '已驳回';
+  toast('议价已驳回，退回承租方', 'err');
+  switchView('negotiate');
+}
+
+/* ---- 10. 开票管理 ---- */
+function viewInvoice(){
+  const rows = invoices.map(v=>`
+    <tr>
+      <td class="mono">${esc(v.no)}</td><td>${esc(v.type)}</td>
+      <td>${esc(v.from)}</td><td>${esc(v.to)}</td>
+      <td>${esc(v.item)}</td>
+      <td class="num">¥${fmt(v.amount)}</td>
+      <td class="ctr">${esc(v.rate)}</td>
+      <td class="num">¥${fmt(v.tax)}</td>
+      <td>${esc(v.date)}</td>
+      <td class="ctr">${v.status==='已确认'?okTag(v.status):warnTag(v.status)}</td>
+    </tr>`).join('');
+  return `
+    <div class="page-head"><h2>开票管理</h2>
+      <span class="sub">服务方就委托费用开票；委托方按委托价格向承租方开票</span></div>
+    <div class="notice">
+      流程图中两条开票链路：<b>委托方</b>「根据已出租的商品，按委托费用进行开票」、
+      「租期已结束的商品按委托价格进行开票」；两条链路的发票最终都由对方<b>确认发票</b>后归档。
+    </div>
+    <div class="card"><div class="card-head"><h3>发票列表</h3></div>
+      <div class="card-body" style="padding:0">
+        <table class="tbl">
+          <thead><tr><th>发票单号</th><th>发票类型</th><th>开票方</th><th>受票方</th><th>开票项目</th>
+            <th class="num">金额</th><th class="ctr">税率</th><th class="num">税额</th><th>开票日期</th><th class="ctr">状态</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div></div>`;
+}
+
+/* ---- 11. 出租专区（承租方入口） ---- */
+function viewMall(){
+  const cards = GOODS.map((g,i)=>`
+    <div class="prod" style="cursor:pointer" onclick="placeOrder(${i})">
+      <div class="thumb"><span class="tag consign">出租</span></div>
+      <div class="info">
+        <div class="name">${esc(g.name)}</div>
+        <div class="price">¥${fmt(g.price)}<small> /${esc(g.unit)}/天</small></div>
+        <div class="shop">押金 ¥${fmt(g.deposit)}/${esc(g.unit)} · 起租 ${g.minDays} 天 · 可租 ${intFmt(g.qty)} ${esc(g.unit)}</div>
+      </div>
+    </div>`).join('');
+  return `
+    <div class="page-head"><h2>出租专区</h2>
+      <span class="sub">承租方在此浏览委托出租商品并下单（下单时可选择是否需要议价）</span></div>
+    <div class="prod-grid">${cards}</div>`;
+}
+function placeOrder(gi){
+  const g = GOODS[gi];
+  const body = `
+    <div class="form-grid">
+      <div class="col-2"><div class="muted">商品</div><div>${esc(g.name)} · ${esc(g.spec)}</div></div>
+      <div><div class="muted">出租单价（含税）</div><div>¥${fmt(g.price)} / ${esc(g.unit)} / 天</div></div>
+      <div><div class="muted">押金单价</div><div>¥${fmt(g.deposit)} / ${esc(g.unit)}</div></div>
+      <div><div class="muted">承租数量（${esc(g.unit)}）</div><input id="oQty" type="number" value="12" style="width:100%"></div>
+      <div><div class="muted">承租天数</div><input id="oDays" type="number" value="${g.minDays}" style="width:100%"></div>
+      <div><div class="muted">是否需要议价</div>
+        <select id="oNego" style="width:100%"><option value="0">否 · 直接提交审核</option><option value="1">是 · 提交议价申请</option></select></div>
+    </div>
+    <div class="notice" style="margin-top:14px">
+      选「否」→ 订单直接进入服务方【审核】；选「是」→ 先进入【议价】，由服务方驳回或通过。
+    </div>`;
+  openModal('承租下单 · ' + g.name, body, `
+    <button class="btn" onclick="closeOverlay()">取消</button>
+    <button class="btn primary" onclick="doPlaceOrder(${gi})">提交订单</button>`);
+}
+function doPlaceOrder(gi){
+  const g = GOODS[gi];
+  const qty = Number($('#oQty')?.value || 1);
+  const days = Number($('#oDays')?.value || g.minDays);
+  const nego = $('#oNego')?.value === '1';
+  if(nego){
+    negotiations.unshift({
+      no:'YJ-'+today().replace(/-/g,'')+'-'+(negotiations.length+1).toString().padStart(4,'0'),
+      order:'（新单）', goods:g.name, tenant:'演示用户', oldPrice:g.price,
+      newPrice:Math.round(g.price*0.9), days:days, reason:'承租方申请议价', status:'待审核'
+    });
+    closeOverlay();
+    toast('已提交议价申请，等待服务方审核', 'ok');
+    switchView('negotiate');
+    return;
+  }
+  orders.unshift({
+    no: nextOrderNo(), goods:g, qty:qty, days:days, tenant:'演示用户 / 中铁建华南项目部',
+    consignor: CONSIGNORS[0], shop: SHOPS[4], depositPaid:false, depositRecv:false,
+    status:'待审核', created: today() + ' ' + new Date().toTimeString().slice(0,5), over:0
+  });
+  closeOverlay();
+  toast('订单已提交，等待服务方审核', 'ok');
+  switchView('accept');
+}
+
+/* ================= 启动 ================= */
+function switchView(key){
+  currentView = key;
+  renderSidebar();
+  const map = {
+    manage: viewManage, publish: openPublish, query: viewQuery,
+    accept: viewAccept, shipping: viewShipping, reconcile: viewReconcile,
+    returns: viewReturns, audit: viewAudit, negotiate: viewNegotiate,
+    invoice: viewInvoice, mall: viewMall
+  };
+  if(key === 'publish'){ switchView('manage'); openPublish(); return; }
+  document.getElementById('main').innerHTML = (map[key] || viewManage)();
+  document.getElementById('main').scrollTop = 0;
+}
+(function init(){
+  const h = (location.hash||'').replace('#','');
+  switchView(['manage','publish','query','accept','shipping','reconcile','returns',
+              'audit','negotiate','invoice','mall'].includes(h) ? h : 'manage');
+})();
+"""
+
+PAGE = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>委托出租 · 前端 Demo | 盘古循环资源平台</title>
+<style>%s
+%s</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">铁建云链 <small>· 循环物资 · 租售店铺</small></div>
+  <div class="badge">委托出租 · 前端 Demo</div>
+  <div class="spacer"></div>
+  <div class="user">当前用户：<b>演示用户</b>（平台运营 / 商家后台）</div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main" id="main"></main>
+</div>
+
+<div id="overlay"></div>
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+%s
+%s
+%s
+%s
+</script>
+</body>
+</html>
+""" % (CSS, CSS_ADD, DATA_JS, VIEWS_JS, VIEWS2_JS, VIEWS3_JS)
+
+out = []
+if not os.path.exists(RENT + ".bak"):
+    shutil.copyfile(RENT, RENT + ".bak")
+    out.append("已备份原文件 -> 委托出租功能_Demo.html.bak")
+old = os.path.getsize(RENT)
+io.open(RENT, "w", encoding="utf-8", newline="\n").write(PAGE)
+out.append("已写入：%d -> %d 字节" % (old, os.path.getsize(RENT)))
+
+s = io.open(RENT, encoding="utf-8").read()
+out.append("")
+out.append("=== 校验 ===")
+for name, cond in [
+    ("复用出售 Demo 样式", "linear-gradient" in s and "--brand" in s),
+    ("深蓝渐变顶栏", 'class="topbar"' in s and "铁建云链" in s),
+    ("分组侧栏 4 组", all(g in s for g in ("委托出租","履约管理","运营管理","商城前台"))),
+    ("11 个菜单项", all(k in s for k in ("manage","publish","query","accept","shipping",
+                                          "reconcile","returns","audit","negotiate","invoice","mall"))),
+    ("统计卡组件 .stats/.stat", ".stat" in CSS_ADD or "stats" in PAGE),
+    ("数据表格 table.tbl", "table.tbl" in CSS_ADD),
+    ("流程条 .steps", ".steps" in CSS_ADD),
+    ("弹窗 .modal", "modal" in CSS),
+    ("toast 提示", "toast" in CSS),
+    ("原生视图函数 ≥9 个", len(re.findall(r"function view\w+", s)) >= 9),
+    ("无 iframe（原生渲染）", "<iframe" not in s),
+    ("无「待开发」占位", "待开发" not in s),
+]:
+    out.append("  [%s] %s" % ("OK" if cond else "!!", name))
+out.append("  视图函数: %d 个" % len(re.findall(r"function view\w+", s)))
+
+sys.stdout.buffer.write("\n".join(out).encode("utf-8", "replace") + b"\n")
