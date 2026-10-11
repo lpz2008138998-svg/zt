@@ -631,14 +631,6 @@
         </div>
       </div>
 
-      <!-- 委托出租 (矩形·新增页签，点击进入委托出租原型) -->
-      <div id="u9001" class="ax_default _文本段落 transition notrs" data-label="委托出租" title="点击进入委托出租原型">
-        <div id="u9001_div"></div>
-        <div id="u9001_text" class="text ">
-          <p><span>委托出租</span></p>
-        </div>
-      </div>
-
       <!-- 业务模块 (Dynamic panel) -->
       <div id="u1201" class="ax_default" data-label="业务模块">
         <div id="u1201_state0" class="panel_state" data-label="销售业务" style="">
@@ -8741,28 +8733,5 @@
     </div>
     <script src="resources/scripts/axure/ios.js"></script>
   
-<script type="text/javascript">
-/* 新增：委托出租 页签点击跳转（不改动原有交互） */
-(function () {
-  function bind() {
-    var el = document.getElementById('u9001');
-    if (!el || el.getAttribute('data-bound') === '1') { return; }
-    el.setAttribute('data-bound', '1');
-    el.style.cursor = 'pointer';
-    el.addEventListener('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.open('委托出租原型/index.html', '_blank');
-    });
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bind);
-  } else {
-    bind();
-  }
-  // Axure 可能在初始化后重建节点，兜底再绑一次
-  window.setTimeout(bind, 1500);
-})();
-</script>
 </body>
 </html>
