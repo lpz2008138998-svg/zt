@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>租赁订单管理 · 租售店铺管理后台</title>
+<meta name="description" content="租售店铺管理后台 · 租赁业务 · 订单管理：状态流转、流程进度可视化与按环节办理。"/>
+<link rel="stylesheet" href="assets/admin.css"/>
+</head>
+<body>
+<div class="console">
+
+  <!-- ===================== 顶栏 ===================== -->
+  <header class="topbar">
+    <div class="brand-col">
+      <div class="brand">
+        <span class="brand-mark">TEST</span>
+        <span class="brand-name">租售店铺</span>
+      </div>
+      <label class="menu-search">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-search"/></svg>
+        <input type="text" placeholder="菜单查询" aria-label="菜单查询"/>
+      </label>
+    </div>
+
+    <nav class="topnav" id="topnav" aria-label="业务模块">
+      <button type="button" class="nav-item" data-module="sale">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-tag"/></svg></span>销售业务
+      </button>
+      <button type="button" class="nav-item is-active" data-module="rent">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-rent"/></svg></span>租赁业务
+      </button>
+      <button type="button" class="nav-item" data-module="info">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-info"/></svg></span>信息中心
+      </button>
+      <button type="button" class="nav-item" data-module="shop">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-shop"/></svg></span>店铺管理
+      </button>
+      <button type="button" class="nav-item" data-module="fee">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-fee"/></svg></span>佣金管理
+      </button>
+      <button type="button" class="nav-item" data-module="sys">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-gear"/></svg></span>系统管理
+      </button>
+    </nav>
+  </header>
+
+  <div class="body">
+
+    <!-- ===================== 左侧菜单 ===================== -->
+    <aside class="sidebar">
+      <div class="side-parent">
+        <span>出租订单</span>
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-caret"/></svg>
+      </div>
+      <nav class="side-list">
+        <a class="side-item is-active" href="index.html">订单管理</a>
+        <a class="side-item" href="#" data-todo>发货单管理</a>
+        <a class="side-item" href="#" data-todo>收货单管理</a>
+        <a class="side-item" href="#" data-todo>退货/租单管理</a>
+        <a class="side-item" href="flow.html">业务流程</a>
+        <a class="side-item" href="#" data-todo>订单信息查询</a>
+      </nav>
+    </aside>
+
+    <!-- ===================== 主区 ===================== -->
+    <main class="main">
+
+      <div class="tabbar">
+        <span class="tab-back" title="返回"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-left"/></svg></span>
+        <a class="tab" href="#" data-todo>首页</a>
+        <a class="tab is-active" href="index.html">订单管理<i class="x">×</i></a>
+        <a class="tab" href="flow.html">业务流程<i class="x">×</i></a>
+      </div>
+
+      <div class="content">
+
+        <!-- ==================== 列表视图 ==================== -->
+        <div id="viewList">
+
+          <div class="filters" id="statusFilter"></div>
+
+          <section class="card search-card">
+            <div class="form-row">
+              <label class="field"><span class="lb">订单编号</span>
+                <input type="text" id="q-no" placeholder="订单编号"/></label>
+              <label class="field"><span class="lb">承租单位</span>
+                <input type="text" id="q-tenant" placeholder="承租单位"/></label>
+              <label class="field"><span class="lb">店铺名称</span>
+                <input type="text" id="q-shop" placeholder="店铺名称"/></label>
+              <label class="field"><span class="lb">订单类型</span>
+                <select id="q-type">
+                  <option value="">全部</option>
+                  <option value="自主">自主</option>
+                  <option value="委托">委托</option>
+                </select></label>
+              <label class="field"><span class="lb">下单人</span>
+                <input type="text" id="q-creator" placeholder="下单人"/></label>
+              <label class="field"><span class="lb">创建时间</span>
+                <span class="date-range">
+                  <input type="date" id="q-from"/><i>—</i><input type="date" id="q-to"/>
+                </span></label>
+              <div class="field field-actions">
+                <button type="button" class="btn btn-cyan" id="btn-query">查 询</button>
+                <button type="button" class="btn btn-ghost" id="btn-reset">重 置</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-toolbar">
+              <h2 class="card-title">租赁订单列表</h2>
+              <div class="tool-group">
+                <button type="button" class="btn btn-cyan" id="btn-export">
+                  <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-export"/></svg>导出
+                </button>
+              </div>
+              <div class="legend"><span id="listCount">—</span></div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>序号</th><th>订单类型</th><th>订单状态</th><th>订单编号</th><th>店铺</th>
+                    <th>承租单位</th><th>订单总额(元)</th><th>已对账金额(元)</th><th>当前待办</th><th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="orderBody"></tbody>
+              </table>
+            </div>
+            <div class="pager" id="pager"></div>
+          </section>
+        </div>
+
+        <!-- ==================== 详情视图 ==================== -->
+        <div id="viewDetail" hidden>
+
+          <div class="detail-bar">
+            <button type="button" class="btn btn-ghost btn-sm" id="btnBack">← 返回订单列表</button>
+            <span class="detail-title" id="dtTitle">租赁订单</span>
+            <span class="chip t-gray" id="dtStatus">—</span>
+            <span class="head-extra" id="dtTodo"></span>
+            <span class="right">
+              <a class="btn btn-cyan btn-sm" href="flow.html">查看业务流程</a>
+            </span>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-col">
+
+              <section class="card">
+                <div class="card-head"><h3>订单信息</h3></div>
+                <div class="card-body"><div class="info-grid" id="dtInfo"></div></div>
+              </section>
+
+              <section class="card">
+                <div class="card-head"><h3>流程进度</h3><span class="head-extra" id="dtPercent">—</span></div>
+                <div class="card-body">
+                  <div class="progress"><i id="dtProgress" style="width:0"></i></div>
+                  <div class="stepper" id="dtStepper"></div>
+                </div>
+              </section>
+
+              <section class="card">
+                <div class="card-head">
+                  <h3>流程轨迹</h3>
+                  <span class="head-extra">依据《商品租赁业务流程》② 租赁阶段；点击当前环节的按钮即可办理并流转</span>
+                </div>
+                <div class="card-body"><ul class="tl" id="dtTimeline"></ul></div>
+              </section>
+
+            </div>
+            <div class="detail-col">
+
+              <section class="card">
+                <div class="card-head"><h3>金额与单据</h3></div>
+                <div class="card-body"><div class="amt-list" id="dtAmounts"></div></div>
+              </section>
+
+              <section class="card">
+                <div class="card-head"><h3>流转日志</h3></div>
+                <div class="card-body"><ul class="log-list" id="dtLog"></ul></div>
+              </section>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ===================== 图标库 ===================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="ic-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></g></symbol>
+  <symbol id="ic-tag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3H4v7l10 10 7-7L11 3Z"/><circle cx="7.5" cy="6.5" r="1.3"/></g></symbol>
+  <symbol id="ic-rent" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5z"/><path d="M4 8.5 12 13l8-4.5M12 13v7"/></g></symbol>
+  <symbol id="ic-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v6M12 7.6v.6"/></g></symbol>
+  <symbol id="ic-shop" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v9h16v-9"/><path d="M3.5 10 5 4.5h14L20.5 10"/><path d="M3.5 10a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0"/><path d="M10 19v-5h4v5"/></g></symbol>
+  <symbol id="ic-fee" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9 9l3 3.2L15 9M12 12.2V17M9.5 13.6h5M9.5 15.6h5"/></g></symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></g></symbol>
+  <symbol id="ic-caret" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-export" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8 10.5l4 4 4-4"/><path d="M5 18.5h14"/></g></symbol>
+</svg>
+
+<script src="assets/shell.js"></script>
+<script src="assets/orders.js"></script>
+<script src="assets/biz-bar.js"></script>
+</body>
+</html>

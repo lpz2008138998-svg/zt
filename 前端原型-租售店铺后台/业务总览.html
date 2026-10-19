@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>业务总览 · 租售店铺管理后台（单文件版）</title>
+<meta name="description" content="租售店铺管理后台：租赁 / 商品销售 / 委托出售 / 委托出租 四条业务线统一入口。"/>
+<style>
+/* ==========================================================================
+   租售店铺 · 管理后台样式
+   视觉规范取自参考截图：顶栏蓝色渐变 + 左侧菜单 + 粉色内容区 + 青蓝强调色
+   ========================================================================== */
+
+:root{
+  /* 主色 */
+  --blue-1:#4654B2;          /* 顶栏渐变起点 */
+  --blue-2:#7A86DA;          /* 顶栏渐变终点 */
+  --blue-3:#4C5ABC;          /* 左侧菜单底色 */
+  --blue-dark:#1B2A85;       /* 顶栏选中项 */
+  --blue-hover:#7C87D0;      /* 菜单选中项 */
+  --cyan:#29A5DB;            /* 强调青蓝（选中按钮 / 链接） */
+  --cyan-dark:#1E9FD4;
+  --cyan-light:#E8F7FD;      /* 浅青按钮底 */
+  --cyan-border:#79CFEC;     /* 浅青按钮边 */
+  --pink:#FCE9F1;            /* 内容区背景 */
+  --pink-2:#FBE3EE;          /* 页签栏背景 */
+  --pink-line:#F3D3E2;
+  --red:#C0392B;             /* Logo 红 */
+  /* 中性色 */
+  --text:#333333;
+  --text-2:#666666;
+  --text-3:#B9B9B9;
+  --line:#DCDCDC;
+  --line-2:#E5E5E5;
+  --head:#F5F5F5;
+  /* 流程图 */
+  --ink:#2F3B52;
+  --ink-2:#8B96AC;
+  --node-line:#C6D0E4;
+  --wire:#8B98B8;
+  --wire-back:#E0922A;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Helvetica Neue",Arial,sans-serif;
+  font-size:14px;color:var(--text);background:var(--pink);
+  -webkit-font-smoothing:antialiased;
+}
+[hidden]{display:none !important;}
+.console{min-width:1180px;}
+
+/* ============================== 顶栏 ============================== */
+.topbar{
+  height:100px;display:flex;
+  background:linear-gradient(90deg,var(--blue-1) 0%,#5A67C8 46%,var(--blue-2) 100%);
+}
+.brand-col{flex:0 0 228px;width:228px;padding:9px 14px 0;}
+.brand{display:flex;align-items:center;gap:10px;height:48px;}
+.brand-mark{
+  display:grid;place-items:center;width:46px;height:46px;border-radius:3px;
+  background:var(--red);color:#fff;font:700 14px/1 Arial,Helvetica,sans-serif;letter-spacing:.4px;
+}
+.brand-name{color:#fff;font-size:21px;letter-spacing:3px;font-weight:500;}
+.menu-search{
+  display:flex;align-items:center;gap:8px;height:30px;margin-top:6px;padding:0 12px;
+  border:1px solid rgba(255,255,255,.5);border-radius:15px;background:rgba(255,255,255,.14);
+}
+.menu-search .ic{width:15px;height:15px;flex:0 0 15px;color:rgba(255,255,255,.9);}
+.menu-search input{
+  flex:1;min-width:0;border:0;background:transparent;outline:none;
+  color:#fff;font-size:13px;font-family:inherit;
+}
+.menu-search input::placeholder{color:rgba(255,255,255,.8);}
+
+.topnav{display:flex;flex:1;align-items:stretch;}
+.nav-item{
+  width:126px;padding:0;border:0;background:transparent;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+  color:#fff;font-size:14px;font-family:inherit;
+}
+.nav-item:hover{background:rgba(255,255,255,.08);}
+.nav-item.is-active{background:var(--blue-dark);}
+.nav-tile{
+  display:grid;place-items:center;width:48px;height:48px;border-radius:3px;
+  background:rgba(255,255,255,.18);color:#fff;
+}
+.nav-tile .ic{width:26px;height:26px;}
+
+/* ============================== 主体框架 ============================== */
+.body{display:flex;align-items:stretch;min-height:calc(100vh - 100px);}
+
+/* 左侧菜单 */
+.sidebar{flex:0 0 228px;width:228px;background:var(--blue-3);padding-bottom:24px;}
+.side-parent{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px 10px;color:#fff;font-size:14px;
+}
+.side-parent .ic{width:14px;height:14px;color:rgba(255,255,255,.85);}
+.side-list{list-style:none;margin:0;padding:0;}
+.side-item{
+  position:relative;padding:9px 18px 9px 34px;cursor:pointer;
+  color:rgba(255,255,255,.86);font-size:13.5px;
+}
+.side-item:hover{background:rgba(255,255,255,.1);color:#fff;}
+.side-item.is-active{background:var(--blue-hover);color:#fff;font-weight:600;}
+.side-item.is-active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#fff;}
+
+/* 右侧主区 */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--pink);}
+
+/* 页签栏 */
+.tabbar{
+  display:flex;align-items:center;gap:8px;height:46px;padding:0 14px;
+  background:var(--pink-2);border-bottom:1px solid var(--pink-line);
+}
+.tab-back{
+  display:grid;place-items:center;width:26px;height:26px;border-radius:3px;cursor:pointer;
+  background:#fff;border:1px solid #EDD3E0;color:#8A7C86;
+}
+.tab-back .ic{width:14px;height:14px;}
+.tab{
+  display:flex;align-items:center;gap:8px;height:30px;padding:0 14px;border-radius:3px;
+  font-size:14px;color:#5B5560;cursor:pointer;user-select:none;
+}
+.tab:hover{background:rgba(255,255,255,.55);}
+.tab.is-active{background:#fff;color:var(--cyan-dark);font-weight:600;}
+.tab .x{font-size:12px;color:#BFAAB6;font-style:normal;}
+.tab.is-active .x{color:#9FD9EF;}
+
+/* 内容区 */
+.content{flex:1;padding:16px 20px 26px;}
+
+/* ============================== 阶段筛选（大按钮） ============================== */
+.filters{display:flex;gap:26px;padding:4px 0 18px;overflow-x:auto;}
+.filter{
+  flex:0 0 auto;min-width:150px;height:62px;padding:0 26px;cursor:pointer;
+  background:#fff;border:1px solid var(--line);border-radius:3px;
+  font-size:17px;color:var(--text);font-family:inherit;
+}
+.filter:hover{border-color:#BFD9E6;}
+.filter.is-active{background:var(--cyan);border-color:var(--cyan);color:#fff;}
+.filter em{margin-left:8px;font-style:normal;font-size:13px;color:#98A2B4;}
+.filter.is-active em{color:rgba(255,255,255,.85);}
+
+/* ============================== 卡片 ============================== */
+.card{
+  background:#fff;border-radius:3px;margin-bottom:16px;
+  box-shadow:0 1px 3px rgba(120,80,100,.08);
+}
+.card:last-child{margin-bottom:0;}
+
+/* 查询表单 */
+.search-card{padding:18px 20px 6px;}
+.form-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px 28px;}
+.field{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.field .lb{flex:0 0 auto;font-size:15px;color:var(--text);}
+.field input[type="text"],.field select{
+  width:300px;height:34px;padding:0 10px;border:1px solid var(--line);border-radius:3px;
+  font-size:14px;color:var(--text);font-family:inherit;background:#fff;outline:none;
+}
+.field input[type="text"]::placeholder{color:var(--text-3);}
+.field input[type="date"]{
+  width:158px;height:34px;padding:0 8px;border:1px solid var(--line);border-radius:3px;
+  font-size:13px;color:var(--text);font-family:inherit;background:#fff;outline:none;
+}
+.date-range{display:flex;align-items:center;gap:8px;}
+.date-range i{font-style:normal;color:var(--text-3);}
+.field input[type="text"]:focus,.field select:focus,.field input[type="date"]:focus{
+  border-color:var(--cyan-border);box-shadow:0 0 0 2px rgba(41,165,219,.12);
+}
+.field-actions{gap:10px;}
+
+/* 按钮 */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  height:32px;padding:0 16px;border-radius:3px;cursor:pointer;
+  font-size:14px;font-family:inherit;
+}
+.btn-cyan{background:var(--cyan-light);border:1px solid var(--cyan-border);color:var(--cyan-dark);}
+.btn-cyan:hover{background:#D8F1FB;}
+.btn-ghost{background:#fff;border:1px solid var(--line);color:#555;}
+.btn-ghost:hover{border-color:var(--cyan-border);color:var(--cyan-dark);}
+.btn .ic{width:14px;height:14px;}
+.btn-sm{height:28px;padding:0 12px;font-size:13px;}
+
+/* 卡片工具条 */
+.flow-card{position:relative;}
+.card-toolbar{
+  display:flex;align-items:center;flex-wrap:wrap;gap:12px 14px;
+  padding:12px 18px;border-bottom:1px solid #F2E6EC;
+}
+.card-title{margin:0;font-size:16px;font-weight:600;color:#2C3446;letter-spacing:.5px;}
+.card-title::before{
+  content:"";display:inline-block;width:3px;height:14px;margin-right:8px;
+  background:var(--cyan);border-radius:2px;vertical-align:-1px;
+}
+.tool-group{display:flex;gap:10px;}
+.zoom-group{display:flex;align-items:center;gap:6px;}
+.zoom-val{min-width:46px;text-align:center;font-size:13px;color:var(--text-2);}
+.legend{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:12.5px;color:#7B8496;}
+.legend i{display:inline-block;width:14px;height:14px;margin-right:5px;vertical-align:-2px;border:1px solid var(--node-line);border-radius:2px;background:#fff;}
+.legend .lg-dec{border-color:var(--cyan-border);background:#F3FBFE;transform:rotate(45deg) scale(.86);}
+.legend .lg-new{border-color:#EFA9A9;background:#FFF7F7;}
+.legend .lg-term{border-radius:999px;border-color:#E3C64C;background:#FBF2CE;}
+.legend .lg-back{border:0;background:none;width:16px;}
+.legend .lg-back::before{content:"";display:block;height:0;margin-top:6px;border-top:2px dashed var(--wire-back);}
+
+/* ============================== 流程画布 ============================== */
+.stage{
+  position:relative;overflow:auto;background:#fff;border-radius:0 0 3px 3px;
+  max-height:calc(100vh - 424px);min-height:320px;
+}
+.stage::-webkit-scrollbar{width:10px;height:10px;}
+.stage::-webkit-scrollbar-track{background:#FBEAF2;}
+.stage::-webkit-scrollbar-thumb{background:#E2B6CB;border-radius:6px;}
+.stage::-webkit-scrollbar-thumb:hover{background:#D69FBB;}
+#stageInner{position:relative;width:max-content;padding:16px 18px 24px;}
+
+.band{position:relative;margin-bottom:18px;}
+.band:last-child{margin-bottom:0;}
+.band-scale{position:absolute;top:0;left:0;width:1180px;transform-origin:top left;}
+.band-svg{position:absolute;top:0;left:0;overflow:visible;}
+
+/* 泳道表头 */
+.lh-cell{fill:#F4F7FF;stroke:#DCE3F5;stroke-width:1;}
+.lh-text{fill:#455174;font-size:13.5px;font-weight:600;text-anchor:middle;letter-spacing:1px;}
+.lane-sep{stroke:#E7ECF8;stroke-width:1;stroke-dasharray:5 5;}
+.band-chip{
+  position:absolute;z-index:3;display:inline-flex;align-items:center;height:24px;padding:0 12px;
+  border-radius:12px;background:var(--cyan-light);border:1px solid var(--cyan-border);
+  color:var(--cyan-dark);font-size:12.5px;font-weight:600;white-space:nowrap;
+}
+.grp{fill:rgba(233,92,92,.06);stroke:rgba(233,92,92,.38);stroke-width:1;stroke-dasharray:5 4;}
+.grp-label{fill:#D98080;font-size:11px;}
+
+/* 连线 */
+.wire-halo{fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;}
+.wire-halo.is-dim{opacity:.15;}
+.wire{fill:none;stroke:var(--wire);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.wire.is-back{stroke:var(--wire-back);stroke-dasharray:6 4;}
+.wire.is-dim{opacity:.15;}
+.wire-label{
+  font-size:11.5px;fill:#5D6A85;text-anchor:middle;
+  paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round;
+}
+.wire-label.is-back{fill:#B8760F;}
+.wire-label.is-start{text-anchor:start;}
+.wire-label.is-dim{opacity:.15;}
+
+/* 判断节点（菱形） */
+.dia{fill:#F3FBFE;stroke:var(--cyan-border);stroke-width:1.4;cursor:pointer;transition:stroke .15s;}
+.dia:hover{stroke:var(--cyan);}
+.dia-text{font-size:13px;fill:var(--ink);text-anchor:middle;cursor:pointer;pointer-events:none;}
+.node-svg.is-dim{opacity:.2;}
+.node-svg.is-hit{filter:drop-shadow(0 0 4px rgba(233,185,60,.95));}
+
+/* 操作 / 起止节点 */
+.node{
+  position:absolute;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;padding:2px 8px;text-align:center;cursor:pointer;
+  background:#fff;border:1px solid var(--node-line);border-radius:4px;
+  box-shadow:0 1px 2px rgba(80,100,150,.08);
+  transition:border-color .15s,box-shadow .15s;
+}
+.node:hover{border-color:var(--cyan);box-shadow:0 2px 8px rgba(41,165,219,.3);}
+.node .n-main{font-size:13px;line-height:1.2;color:var(--ink);}
+.node .n-sub{font-size:11px;line-height:1.2;color:var(--ink-2);}
+.node .n-flag{
+  position:absolute;top:-9px;right:-5px;height:15px;padding:0 6px;border-radius:8px;
+  background:#E95C5C;color:#fff;font-size:10px;line-height:15px;font-weight:400;font-style:normal;
+}
+.node.t-terminator{border-radius:999px;border-color:#B9C4E4;background:#F6F8FF;}
+.node.t-terminator.t-end{background:#FBF2CE;border-color:#E3C64C;}
+.node.t-terminator.t-end .n-main{color:#8A6D12;font-weight:600;}
+.node.is-new{border-color:#EFA9A9;background:#FFF7F7;}
+.node.is-new .n-main{color:#C0392B;}
+.node.is-sel{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(41,165,219,.35);}
+.node.is-hit{box-shadow:0 0 0 3px rgba(233,185,60,.6);border-color:#E9B93C;}
+.node.is-dim{opacity:.2;}
+.node.t-decision{border:0;background:none;box-shadow:none;}
+
+/* 节点详情面板 */
+.node-detail{
+  position:absolute;top:66px;right:18px;z-index:8;width:306px;
+  background:#fff;border:1px solid #E9DCE4;border-radius:3px;
+  box-shadow:0 6px 20px rgba(70,50,70,.16);
+}
+.nd-head{position:relative;padding:12px 40px 10px 14px;border-bottom:1px solid #F2E6EC;}
+.nd-head h4{margin:6px 0 0;font-size:15px;font-weight:600;color:#2C3446;}
+.nd-lane{
+  display:inline-block;height:20px;padding:0 8px;border-radius:10px;
+  font-size:11.5px;line-height:20px;
+}
+.nd-lane.lane-a{background:#EDF0FF;color:#4B57B8;}
+.nd-lane.lane-b{background:#E8F7FD;color:#1E88B5;}
+.nd-lane.lane-c{background:#FDF0E6;color:#B8760F;}
+.nd-close{
+  position:absolute;top:8px;right:8px;width:24px;height:24px;border:0;border-radius:3px;
+  background:transparent;color:#A99AA4;font-size:18px;line-height:1;cursor:pointer;
+}
+.nd-close:hover{background:#F7EDF2;color:#6B5C66;}
+.nd-body{padding:12px 14px 14px;max-height:340px;overflow:auto;}
+.nd-note{margin:0 0 12px;font-size:13px;line-height:1.75;color:#4A5464;}
+.nd-meta{margin:0;display:grid;gap:8px;}
+.nd-meta>div{display:flex;gap:10px;font-size:12.5px;line-height:1.6;}
+.nd-meta dt{flex:0 0 58px;color:#98A2B4;}
+.nd-meta dd{margin:0;flex:1;color:#3E4859;}
+.nd-meta dd span{display:inline-block;margin:0 4px 4px 0;padding:0 7px;border-radius:3px;background:#F3F5FA;color:#4E5A70;}
+
+/* 轻提示 */
+.toast{
+  position:fixed;left:50%;top:118px;transform:translateX(-50%);z-index:99;
+  padding:8px 18px;border-radius:4px;background:rgba(30,34,52,.88);color:#fff;font-size:13px;
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.toast.is-on{opacity:1;}
+
+/* ==========================================================================
+   业务页面：订单管理（列表 / 详情 / 状态流转可视化）
+   ========================================================================== */
+
+/* ---------- 侧栏 / 页签改为链接 ---------- */
+.side-item{display:block;text-decoration:none;}
+.tab{text-decoration:none;}
+.detail-bar .right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.detail-bar .head-extra{font-size:13px;color:#7B8496;}
+
+/* ---------- 状态标签 ---------- */
+.chip{
+  display:inline-block;height:23px;padding:0 9px;border-radius:3px;
+  font-size:12.5px;line-height:21px;border:1px solid transparent;white-space:nowrap;
+}
+.chip.t-orange{background:#FFF5E8;border-color:#F3D3A6;color:#C07A12;}
+.chip.t-cyan{background:#E8F7FD;border-color:#A9DDF2;color:#1E88B5;}
+.chip.t-blue{background:#EDF0FF;border-color:#C6CDF5;color:#4B57B8;}
+.chip.t-green{background:#EAF7EE;border-color:#B4E0C5;color:#2E8B57;}
+.chip.t-gray{background:#F3F4F7;border-color:#E1E3EA;color:#828A99;}
+.chip.t-red{background:#FDEDED;border-color:#F3C3C3;color:#C0392B;}
+
+/* ---------- 数据表格 ---------- */
+.table-wrap{overflow-x:auto;}
+.data-table{width:100%;border-collapse:collapse;font-size:14px;}
+.data-table th,.data-table td{
+  border:1px solid var(--line-2);padding:0 12px;height:52px;text-align:center;color:var(--text);
+  white-space:nowrap;
+}
+.data-table thead th{background:var(--head);height:54px;font-size:15px;font-weight:600;}
+.data-table tbody tr:hover{background:#FBF7F9;}
+.data-table td.num{text-align:right;font-variant-numeric:tabular-nums;}
+.data-table .link{color:var(--cyan-dark);cursor:pointer;}
+.data-table .link:hover{text-decoration:underline;}
+.data-table .todo{color:#C07A12;}
+.data-table .empty{color:#98A2B4;padding:44px 0;font-size:14px;}
+
+/* ---------- 分页 ---------- */
+.pager{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:12px 18px;font-size:13px;color:var(--text-2);}
+.pager .total{margin-right:auto;color:#7B8496;}
+.pager button{
+  min-width:30px;height:30px;padding:0 9px;border:1px solid var(--line);border-radius:3px;
+  background:#fff;color:#555;font-size:13px;font-family:inherit;cursor:pointer;
+}
+.pager button:hover:not(:disabled){border-color:var(--cyan-border);color:var(--cyan-dark);}
+.pager button.is-on{background:var(--cyan);border-color:var(--cyan);color:#fff;}
+.pager button:disabled{color:#C7C7C7;cursor:not-allowed;}
+
+/* ---------- 详情页 ---------- */
+.detail-bar{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:0 0 16px;}
+.detail-title{font-size:17px;font-weight:600;color:#2C3446;letter-spacing:.5px;}
+.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 376px;gap:16px;align-items:start;}
+@media (max-width:1380px){.detail-grid{grid-template-columns:minmax(0,1fr);}}
+.detail-col{display:grid;gap:16px;align-content:start;}
+
+.card-head{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid #F2E6EC;}
+.card-head h3{margin:0;font-size:15px;font-weight:600;color:#2C3446;}
+.card-head .head-extra{margin-left:auto;font-size:12.5px;color:#7B8496;}
+.card-body{padding:16px 18px;}
+
+/* 订单信息 */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:12px 24px;}
+.info-grid .it{display:flex;gap:10px;font-size:13.5px;line-height:1.6;}
+.info-grid .k{flex:0 0 80px;color:#98A2B4;}
+.info-grid .v{flex:1;min-width:0;color:var(--text);word-break:break-all;}
+
+/* 阶段进度条 */
+.progress{height:8px;border-radius:4px;background:#EEF1F7;overflow:hidden;}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,#7FD3EE,#29A5DB);transition:width .25s;}
+.stepper{display:flex;padding:18px 0 4px;overflow-x:auto;}
+.step-node{position:relative;flex:1 0 104px;min-width:104px;text-align:center;padding-top:2px;}
+.step-node::before,.step-node::after{content:"";position:absolute;top:15px;height:2px;background:#EAEDF5;}
+.step-node::before{left:0;right:50%;}
+.step-node::after{left:50%;right:0;}
+.step-node:first-child::before,.step-node:last-child::after{display:none;}
+.step-node.is-done::before,.step-node.is-done::after{background:#9FD9EF;}
+.step-node.is-current::before{background:#9FD9EF;}
+.step-node .dot{
+  position:relative;z-index:1;display:grid;place-items:center;width:28px;height:28px;margin:0 auto 8px;
+  border-radius:50%;background:#F1F3F8;border:1px solid #E1E5EF;color:#9AA3B5;font-size:12px;font-weight:600;
+}
+.step-node.is-done .dot{background:var(--cyan);border-color:var(--cyan);color:#fff;}
+.step-node.is-current .dot{background:#fff;border-color:var(--cyan);color:var(--cyan-dark);box-shadow:0 0 0 3px rgba(41,165,219,.2);}
+.step-node .nm{font-size:12.5px;color:#8A93A6;line-height:1.3;}
+.step-node.is-done .nm{color:#5C6A85;}
+.step-node.is-current .nm{color:var(--cyan-dark);font-weight:600;}
+
+/* 流程轨迹 */
+.tl{list-style:none;margin:0;padding:0;}
+.tl-item{position:relative;padding:0 0 16px 34px;}
+.tl-item::before{content:"";position:absolute;left:11px;top:22px;bottom:0;width:2px;background:#E9ECF4;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item:last-child::before{display:none;}
+.tl-dot{
+  position:absolute;left:2px;top:2px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;
+  background:#F1F3F8;border:1px solid #E1E5EF;color:#9AA3B5;font-size:11px;line-height:1;
+}
+.tl-item.is-done .tl-dot{background:var(--cyan);border-color:var(--cyan);color:#fff;}
+.tl-item.is-current .tl-dot{background:#fff;border-color:var(--cyan);color:var(--cyan-dark);box-shadow:0 0 0 3px rgba(41,165,219,.2);}
+.tl-item.is-skip .tl-dot{background:#F1F3F8;border-style:dashed;color:#B4BCCB;}
+.tl-main{display:flex;align-items:center;flex-wrap:wrap;gap:8px;}
+.tl-name{font-size:14px;font-weight:600;color:#2F3B52;}
+.tl-item.is-pending .tl-name{font-weight:400;color:#9AA3B5;}
+.tl-item.is-skip .tl-name{font-weight:400;color:#B4BCCB;text-decoration:line-through;}
+.tl-desc{font-size:12.5px;color:#98A2B4;margin-top:3px;line-height:1.6;}
+.tl-actions{
+  display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:10px;padding:10px 12px;
+  background:#F7FBFE;border:1px dashed #BFE4F5;border-radius:4px;
+}
+.tl-actions .hint{font-size:12.5px;color:#7B8496;}
+.tl-actions input[type="text"]{
+  width:132px;height:30px;padding:0 8px;border:1px solid var(--line);border-radius:3px;
+  font-size:13px;font-family:inherit;color:var(--text);outline:none;
+}
+.tl-actions input[type="text"]:focus{border-color:var(--cyan-border);}
+
+/* 办理方标签 */
+.role{display:inline-block;height:20px;padding:0 8px;border-radius:10px;font-size:11.5px;line-height:20px;}
+.role.a{background:#EDF0FF;color:#4B57B8;}
+.role.b{background:#E8F7FD;color:#1E88B5;}
+.role.c{background:#FDF0E6;color:#B8760F;}
+.role.n{background:#F3F4F7;color:#828A99;}
+
+/* 金额 */
+.amt-list{display:grid;gap:10px;}
+.amt-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:9px;border-bottom:1px dashed #F0E4EA;font-size:13.5px;color:#4A5464;}
+.amt-row:last-child{border-bottom:0;padding-bottom:0;}
+.amt-row b{font-weight:600;color:#2C3446;font-variant-numeric:tabular-nums;}
+.amt-row.is-total b{color:#C0392B;font-size:15px;}
+
+/* 流转日志 */
+.log-list{list-style:none;margin:0;padding:0;max-height:300px;overflow:auto;}
+.log-item{position:relative;padding:0 0 12px 16px;border-left:1px solid #EEF1F7;}
+.log-item:last-child{border-color:transparent;padding-bottom:0;}
+.log-item::before{content:"";position:absolute;left:-4px;top:4px;width:7px;height:7px;border-radius:50%;background:#CFD6E4;}
+.log-item .lt{font-size:12px;color:#98A2B4;}
+.log-item .lc{font-size:12.5px;color:#3E4859;line-height:1.65;margin-top:2px;}
+
+/* 操作按钮补充 */
+.btn-warn{background:#FFF7EC;border:1px solid #F0C88A;color:#C07A12;}
+.btn-warn:hover{background:#FDEFDC;}
+.btn-danger{background:#FDEDED;border:1px solid #F0BDBD;color:#C0392B;}
+.btn-danger:hover{background:#FBE2E2;}
+
+/* ==========================================================================
+   业务总览 & 全局业务切换条
+   ========================================================================== */
+.bizbar{
+  position:fixed;right:16px;top:8px;z-index:60;display:flex;align-items:center;gap:4px;
+  padding:4px;border-radius:19px;background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(4px);
+}
+.bizbar .bb-lab{font-size:12px;color:rgba(255,255,255,.82);padding:0 8px;}
+.bizbar a{
+  display:inline-flex;align-items:center;height:26px;padding:0 12px;border-radius:13px;
+  font-size:12.5px;color:#fff;text-decoration:none;white-space:nowrap;
+}
+.bizbar a:hover{background:rgba(255,255,255,.2);}
+.bizbar a.is-on{background:#fff;color:var(--cyan-dark);font-weight:600;}
+
+.ov-intro{margin:0 0 18px;font-size:14px;color:#6B5C66;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;}
+.ov-card{
+  display:block;text-decoration:none;background:#fff;border-radius:3px;padding:18px 20px;
+  box-shadow:0 1px 3px rgba(120,80,100,.08);border-top:3px solid var(--cyan);
+  transition:box-shadow .15s,transform .15s;
+}
+.ov-card:hover{box-shadow:0 6px 20px rgba(120,80,100,.18);transform:translateY(-2px);}
+.ov-card:nth-child(2){border-top-color:#4B57B8;}
+.ov-card:nth-child(3){border-top-color:#E0922A;}
+.ov-card:nth-child(4){border-top-color:#2E8B57;}
+.ov-card h3{margin:0 0 6px;font-size:17px;color:#2C3446;}
+.ov-card .sub{font-size:12.5px;color:#98A2B4;line-height:1.6;margin-bottom:14px;}
+.ov-stats{display:flex;gap:22px;margin-bottom:14px;}
+.ov-stats b{display:block;font-size:22px;color:var(--cyan-dark);line-height:1.1;}
+.ov-stats span{font-size:12px;color:#98A2B4;}
+.ov-acts{display:flex;gap:10px;padding-top:12px;border-top:1px dashed #F0E4EA;}
+.legend .lg-dash{border:0;background:none;width:16px;}
+.legend .lg-dash::before{content:"";display:block;height:0;margin-top:6px;border-top:2px dashed #4C8DE0;}
+.wire.is-dash{stroke:#4C8DE0;stroke-dasharray:6 4;}
+.wire-label.is-dash{fill:#2C6FC4;}
+.node.k-yellow{background:#FDF6D8;border-color:#D9C05A;}
+.node.k-yellow .n-main{color:#7A6410;}
+.node.k-orange{background:#FCE8D6;border-color:#E0A870;}
+.node.k-orange .n-main{color:#9A5518;}
+.node.t-note{background:#FDF9E4;border:1px dashed #DCCB6E;align-items:flex-start;text-align:left;}
+.node.t-note .n-main{font-size:12px;line-height:1.5;color:#7A6410;}
+
+
+</style>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand-col">
+      <div class="brand"><span class="brand-mark">TEST</span><span class="brand-name">租售店铺</span></div>
+      <label class="menu-search">
+        <svg class="ic" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></g></svg>
+        <input type="text" placeholder="菜单查询"/>
+      </label>
+    </div>
+    <nav class="topnav">
+      <button type="button" class="nav-item" data-todo><span class="nav-tile">销</span>销售业务</button>
+      <button type="button" class="nav-item is-active"><span class="nav-tile">租</span>租赁业务</button>
+      <button type="button" class="nav-item" data-todo><span class="nav-tile">信</span>信息中心</button>
+      <button type="button" class="nav-item" data-todo><span class="nav-tile">店</span>店铺管理</button>
+      <button type="button" class="nav-item" data-todo><span class="nav-tile">佣</span>佣金管理</button>
+      <button type="button" class="nav-item" data-todo><span class="nav-tile">系</span>系统管理</button>
+    </nav>
+  </header>
+  <div class="body">
+    <aside class="sidebar">
+      <div class="side-parent"><span>业务线</span></div>
+      <nav class="side-list">
+        <a class="side-item is-active" href="租售店铺后台/overview.html">业务总览</a>
+        <a class="side-item" href="租售店铺后台/index.html">租赁订单管理</a>
+        <a class="side-item" href="租售店铺后台/orders-sale.html">销售订单管理</a>
+        <a class="side-item" href="租售店铺后台/orders-entrust-sale.html">委托出售订单</a>
+        <a class="side-item" href="租售店铺后台/orders-entrust-rent.html">委托出租订单</a>
+      </nav>
+      <div class="side-parent"><span>业务流程</span></div>
+      <nav class="side-list">
+        <a class="side-item" href="租售店铺后台/flow.html">租赁业务流程</a>
+        <a class="side-item" href="租售店铺后台/flow-sale.html">商品销售流程</a>
+        <a class="side-item" href="租售店铺后台/flow-entrust-sale.html">委托出售流程</a>
+        <a class="side-item" href="租售店铺后台/flow-entrust-rent.html">委托出租流程</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <div class="tabbar">
+        <a class="tab is-active" href="租售店铺后台/overview.html">业务总览<i class="x">×</i></a>
+        <a class="tab" href="租售店铺后台/index.html">租赁订单<i class="x">×</i></a>
+        <a class="tab" href="租售店铺后台/orders-sale.html">销售订单<i class="x">×</i></a>
+      </div>
+      <div class="content">
+        <p class="ov-intro">四条业务线共用一套后台：每条线都有「订单管理」与「业务流程」两个页面，右上角可随时切换业务。</p>
+        <div class="ov-grid" id="ovGrid"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* orders-sale.js —— 商品销售订单（卖家 / 买家 / 平台力）状态机数据 */
+window.ORDERS_FLOW = {
+  key: 'sale',
+  title: '销售订单列表',
+  roles: { a: '卖家', b: '买家', c: '平台力', n: '—' },
+  operators: { a: '张伟（卖家）', b: '李娜（买家）', c: '平台审核员', n: '系统' },
+  cols: ['序号', '订单类型', '订单状态', '订单编号', '卖家店铺', '买家单位'],
+  types: ['自主', '委托'],
+  amt: { total: '订单总额（元）', deposit: '保证金（元）', paidDeposit: '已缴保证金（元）',
+         checked: '已对账金额（元）', paid: '已付货款（元）', damage: '退货/扣款（元）', refunded: '已退保证金（元）' },
+  steps: [
+    { id:'order', role:'b', name:'采购下单', desc:'买家选择商品并提交采购订单', status:{ key:'draft', label:'待提交', tone:'gray' } },
+    { id:'accept', role:'a', name:'接单（确认接单）', desc:'卖家确认接单，订单进入已接单', status:{ key:'to_accept', label:'待接单', tone:'orange' } },
+    { id:'contract', role:'b', name:'合同', desc:'签订合同（可与后续环节并行）', opt:true, status:{ key:'to_contract', label:'待签合同', tone:'orange' } },
+    { id:'invoice0', role:'a', name:'允许先开票', desc:'卖家可允许先开票', opt:true, status:{ key:'to_inv0', label:'待开票确认', tone:'cyan' } },
+    { id:'ship', role:'a', name:'发货（分多批次发货）', desc:'卖家按批次发货', status:{ key:'to_ship', label:'待发货', tone:'orange' } },
+    { id:'ship2', role:'a', name:'新增发货单（提交发货单）', desc:'新增发货单并提交', status:{ key:'to_ship2', label:'待提交发货单', tone:'orange' } },
+    { id:'sign', role:'b', name:'签收（提交签收 / 复核对账单）', desc:'买家签收并复核对账单', status:{ key:'to_sign', label:'待签收', tone:'orange' } },
+    { id:'ret', role:'b', name:'新增退货单', desc:'买家发起退货（新增环节）', opt:true, kind:'new', status:{ key:'to_ret', label:'待退货', tone:'red' } },
+    { id:'bill', role:'a', name:'创建对账单（允许多次对账）', desc:'卖家创建对账单并确认', status:{ key:'to_bill', label:'待对账', tone:'orange' } },
+    { id:'rent', role:'b', name:'商品付款（付款）', desc:'买家支付货款', status:{ key:'to_pay', label:'待付款', tone:'orange' } },
+    { id:'receipt', role:'a', name:'到账确认（确认）', desc:'卖家确认货款到账', status:{ key:'to_receipt', label:'到账待确认', tone:'orange' } },
+    { id:'inv', role:'a', name:'新增开票（确认发票）', desc:'卖家新增发票', status:{ key:'to_inv', label:'待开票', tone:'orange' } },
+    { id:'cinv', role:'b', name:'确认发票（同意）', desc:'买家确认发票', status:{ key:'to_cinv', label:'发票待确认', tone:'orange' } },
+    { id:'end', role:'n', name:'结束订单', desc:'订单流程终态', status:{ key:'done', label:'已完成', tone:'green' } }
+  ],
+  actions: {
+    order:    [{ label:'提交订单', next:'accept' }],
+    accept:   [{ label:'确认接单', next:'contract' }],
+    contract: [{ label:'签订合同', next:'invoice0' }, { label:'暂不签，继续', next:'invoice0', ghost:true }],
+    invoice0: [{ label:'允许先开票', next:'ship' }, { label:'暂不开票', next:'ship', ghost:true }],
+    ship:     [{ label:'提交发货', next:'ship2' }],
+    ship2:    [{ label:'提交发货单', next:'sign' }],
+    sign:     [{ label:'确认签收', next:'ret' }],
+    ret:      [{ label:'发起退货', next:'bill', warn:true }, { label:'无退货，继续', next:'bill', ghost:true }],
+    bill:     [{ label:'创建对账单', next:'rent' }],
+    rent:     [{ label:'确认付款', next:'receipt' }],
+    receipt:  [{ label:'确认到账', next:'inv' }],
+    inv:      [{ label:'新增开票', next:'cinv' }],
+    cinv:     [{ label:'确认发票', next:'end' }],
+    end:      []
+  },
+  phases: [
+    { name:'下单', steps:['order'] },
+    { name:'接单签合同', steps:['accept','contract'] },
+    { name:'发货', steps:['invoice0','ship','ship2'] },
+    { name:'签收退货', steps:['sign','ret'] },
+    { name:'对账收款', steps:['bill','rent','receipt'] },
+    { name:'开票结束', steps:['inv','cinv','end'] }
+  ],
+  filters: [
+    { key:'all', label:'全部' },
+    { key:'to_accept', label:'待接单', has:['draft','to_accept'] },
+    { key:'accepted', label:'待发货', has:['to_contract','to_inv0','to_ship','to_ship2'] },
+    { key:'sign', label:'待签收', has:['to_sign'] },
+    { key:'ret', label:'退货', has:['to_ret'] },
+    { key:'bill', label:'待对账', has:['to_bill'] },
+    { key:'pay', label:'待付款', has:['to_pay','to_receipt'] },
+    { key:'invoice', label:'待开票', has:['to_inv','to_cinv'] },
+    { key:'done', label:'已完成', has:['done'] }
+  ],
+  raw: [
+    { no:'XS2601001', type:'自主', status:'to_accept', days:1, amount:28600, shop:'江苏藤源自营店铺', tenant:'总部公司', creator:'王小明', goods:'YJV 电缆 4×25', qty:'120 米' },
+    { no:'XS2601002', type:'自主', status:'to_ship', days:3, amount:43200, shop:'河南八荒', tenant:'第二工程公司', creator:'李文博', goods:'扣件式钢管脚手架', qty:'800 套' },
+    { no:'XS2601003', type:'委托', status:'to_sign', days:5, amount:56800, shop:'华商公司·华南店铺组', tenant:'西南分公司', creator:'赵倩', goods:'H 型钢 HW200×200', qty:'60 吨' },
+    { no:'XS2601004', type:'自主', status:'to_pay', days:9, amount:18600, shop:'江苏藤源自营店铺', tenant:'总部公司', creator:'孙鹏', goods:'铝模板 标准板', qty:'300 张' },
+    { no:'XS2601005', type:'委托', status:'to_ret', days:12, amount:32900, shop:'华商公司·东部店铺组', tenant:'河南八荒', creator:'王小明', goods:'配电箱 XL-21', qty:'45 台' },
+    { no:'XS2601006', type:'自主', status:'to_cinv', days:15, amount:25000, shop:'河南八荒', tenant:'第二工程公司', creator:'李文博', goods:'KVV 控制电缆', qty:'200 米' },
+    { no:'XS2601007', type:'自主', status:'done', days:21, amount:78400, shop:'江苏藤源自营店铺', tenant:'总部公司', creator:'赵倩', goods:'YJV 电缆 4×70', qty:'260 米' },
+    { no:'XS2601008', type:'委托', status:'to_bill', days:25, amount:25000, shop:'华商公司·华南店铺组', tenant:'西南分公司', creator:'孙鹏', goods:'扣件式钢管脚手架', qty:'520 套' }
+  ]
+};
+
+</script>
+<script>window.__F = []; window.__F.push(window.ORDERS_FLOW);</script>
+<script>
+/* orders-entrust-sale.js —— 委托出售订单（委托方 / 服务方·华商公司 / 买方）状态机数据 */
+window.ORDERS_FLOW = {
+  key: 'esale',
+  title: '委托出售订单列表',
+  roles: { a: '委托方', b: '服务方', c: '买方', n: '—' },
+  operators: { a: '陈立（委托方）', b: '周敏（华商公司）', c: '李娜（买方）', n: '系统' },
+  cols: ['序号', '订单类型', '订单状态', '订单编号', '受理店铺 / 委托方', '买方单位'],
+  types: ['单店委托', '多店委托'],
+  amt: { total: '订单总额（元）', deposit: '委托保证金（元）', paidDeposit: '已缴委托保证金（元）',
+         checked: '已对账金额（元）', paid: '已付货款（元）', damage: '退货/扣款（元）', refunded: '已退委托保证金（元）' },
+  steps: [
+    { id:'order', role:'c', name:'采购下单', desc:'买方在受理委托的店铺下单', status:{ key:'draft', label:'待提交', tone:'gray' } },
+    { id:'audit', role:'b', name:'议价审核', desc:'服务方审核买方议价：不通过退回重新确认', status:{ key:'to_audit', label:'待审核', tone:'orange' } },
+    { id:'take', role:'b', name:'接单（店铺组）', desc:'华南公司下各店铺组 / 其他公司店铺接单', kind:'new', status:{ key:'to_take', label:'待接单', tone:'orange' } },
+    { id:'inv0', role:'b', name:'允许先开票', desc:'服务方允许先开票', opt:true, status:{ key:'to_inv0', label:'待开票确认', tone:'cyan' } },
+    { id:'submit', role:'c', name:'提交审核', desc:'买方提交审核（已接单后进入）', status:{ key:'to_submit', label:'待提交审核', tone:'orange' } },
+    { id:'advance', role:'b', name:'服务方垫资', desc:'服务方为委托方垫资', status:{ key:'to_advance', label:'待垫资', tone:'orange' } },
+    { id:'deliver', role:'a', name:'发货单（卖方发货）', desc:'同步发货单后，委托方按发货单详情实际发货', status:{ key:'to_deliver', label:'待发货', tone:'orange' } },
+    { id:'sign', role:'c', name:'签收（复核对账单）', desc:'买方签收并复核对账单', status:{ key:'to_sign', label:'待签收', tone:'orange' } },
+    { id:'ret', role:'c', name:'新增退货单', desc:'买方发起退货（新增环节）', opt:true, kind:'new', status:{ key:'to_ret', label:'待退货', tone:'red' } },
+    { id:'sync', role:'b', name:'新增发货单 / 创建销售对账单', desc:'执行中锁定库存，创建销售对账单', status:{ key:'to_sync', label:'待对账', tone:'orange' } },
+    { id:'bill', role:'a', name:'创建委托服务的对账单', desc:'委托方创建委托对账单并确认', status:{ key:'to_bill', label:'待委托对账', tone:'orange' } },
+    { id:'rent', role:'c', name:'商品付款（付款）', desc:'买方支付货款', status:{ key:'to_pay', label:'待付款', tone:'orange' } },
+    { id:'receipt', role:'a', name:'到账确认', desc:'委托方确认货款到账', status:{ key:'to_receipt', label:'到账待确认', tone:'orange' } },
+    { id:'cinv', role:'c', name:'确认发票（同意）', desc:'买方确认发票', status:{ key:'to_cinv', label:'发票待确认', tone:'orange' } },
+    { id:'end', role:'n', name:'结束订单', desc:'订单流程终态', status:{ key:'done', label:'已完成', tone:'green' } }
+  ],
+  actions: {
+    order:   [{ label:'提交订单', next:'audit' }],
+    audit:   [{ label:'审核通过', next:'take' }, { label:'审核不通过', next:'order', warn:true, log:'议价审核不通过，退回买方重新确认' }],
+    take:    [{ label:'确认接单', next:'inv0' }],
+    inv0:    [{ label:'允许先开票', next:'submit' }, { label:'暂不开票', next:'submit', ghost:true }],
+    submit:  [{ label:'提交审核', next:'advance' }],
+    advance: [{ label:'确认垫资', next:'deliver' }],
+    deliver: [{ label:'提交发货单', next:'sign' }],
+    sign:    [{ label:'确认签收', next:'ret' }],
+    ret:     [{ label:'发起退货', next:'sync', warn:true }, { label:'无退货，继续', next:'sync', ghost:true }],
+    sync:    [{ label:'创建销售对账单', next:'bill' }],
+    bill:    [{ label:'创建委托对账单', next:'rent' }],
+    rent:    [{ label:'确认付款', next:'receipt' }],
+    receipt: [{ label:'确认到账', next:'cinv' }],
+    cinv:    [{ label:'确认发票', next:'end' }],
+    end:     []
+  },
+  phases: [
+    { name:'下单', steps:['order'] },
+    { name:'审核接单', steps:['audit','take','inv0','submit'] },
+    { name:'垫资发货', steps:['advance','deliver'] },
+    { name:'签收退货', steps:['sign','ret'] },
+    { name:'对账收款', steps:['sync','bill','rent','receipt'] },
+    { name:'开票结束', steps:['cinv','end'] }
+  ],
+  filters: [
+    { key:'all', label:'全部' },
+    { key:'audit', label:'待审核', has:['draft','to_audit'] },
+    { key:'take', label:'待接单', has:['to_take'] },
+    { key:'submit', label:'待提交审核', has:['to_inv0','to_submit'] },
+    { key:'advance', label:'待垫资', has:['to_advance'] },
+    { key:'deliver', label:'待发货', has:['to_deliver'] },
+    { key:'sign', label:'待签收', has:['to_sign'] },
+    { key:'ret', label:'退货', has:['to_ret'] },
+    { key:'bill', label:'待对账', has:['to_sync','to_bill'] },
+    { key:'pay', label:'待付款', has:['to_pay','to_receipt'] },
+    { key:'invoice', label:'待开票', has:['to_cinv'] },
+    { key:'done', label:'已完成', has:['done'] }
+  ],
+  raw: [
+    { no:'WT2601001', type:'多店委托', status:'to_take', days:1, amount:52000, shop:'华商公司·华南店铺组', tenant:'总部公司', creator:'王小明', goods:'YJV 电缆 4×25', qty:'200 米' },
+    { no:'WT2601002', type:'单店委托', status:'to_deliver', days:4, amount:38800, shop:'华商公司·东部店铺组', tenant:'第二工程公司', creator:'李文博', goods:'扣件式钢管脚手架', qty:'600 套' },
+    { no:'WT2601003', type:'多店委托', status:'to_sign', days:7, amount:96500, shop:'华商公司·华南店铺组', tenant:'西南分公司', creator:'赵倩', goods:'H 型钢 HW200×200', qty:'120 吨' },
+    { no:'WT2601004', type:'单店委托', status:'to_sync', days:11, amount:27400, shop:'其他公司店铺', tenant:'河南八荒', creator:'孙鹏', goods:'铝模板 标准板', qty:'400 张' },
+    { no:'WT2601005', type:'多店委托', status:'to_pay', days:16, amount:63200, shop:'华商公司·华南店铺组', tenant:'总部公司', creator:'王小明', goods:'配电箱 XL-21', qty:'80 台' },
+    { no:'WT2601006', type:'单店委托', status:'done', days:23, amount:44800, shop:'华商公司·北部组店铺', tenant:'第二工程公司', creator:'李文博', goods:'KVV 控制电缆', qty:'260 米' }
+  ]
+};
+
+</script>
+<script>window.__F.push(window.ORDERS_FLOW);</script>
+<script>
+/* orders-entrust-rent.js —— 委托出租订单（委托方 / 服务方·华商公司 / 承租方）状态机数据 */
+window.ORDERS_FLOW = {
+  key: 'erent',
+  title: '委托出租订单列表',
+  roles: { a: '委托方', b: '服务方', c: '承租方', n: '—' },
+  operators: { a: '陈立（委托方）', b: '周敏（华商公司）', c: '李娜（承租方）', n: '系统' },
+  cols: ['序号', '订单类型', '订单状态', '订单编号', '受理店铺 / 委托方', '承租单位'],
+  types: ['单店委托', '多店委托'],
+  amt: { total: '订单总额（元）', deposit: '押金（元）', paidDeposit: '已缴押金（元）',
+         checked: '已对账金额（元）', paid: '已付租金（元）', damage: '违约金/扣款（元）', refunded: '已退押金（元）' },
+  steps: [
+    { id:'order', role:'c', name:'采购下单', desc:'承租方在受理委托的店铺下单', status:{ key:'draft', label:'待提交', tone:'gray' } },
+    { id:'audit', role:'b', name:'议价审核', desc:'服务方审核议价：不通过退回重新确认', status:{ key:'to_audit', label:'待审核', tone:'orange' } },
+    { id:'take', role:'b', name:'接单（店铺组）', desc:'华南公司各店铺组 / 其他公司店铺接单', kind:'new', status:{ key:'to_take', label:'待接单', tone:'orange' } },
+    { id:'inv0', role:'b', name:'允许先开票', desc:'服务方允许先开票', opt:true, status:{ key:'to_inv0', label:'待开票确认', tone:'cyan' } },
+    { id:'submit', role:'c', name:'提交审核', desc:'承租方提交审核', status:{ key:'to_submit', label:'待提交审核', tone:'orange' } },
+    { id:'pay', role:'c', name:'押金付款', desc:'承租方缴纳押金', status:{ key:'to_pay_deposit', label:'待缴押金', tone:'orange' } },
+    { id:'dpaid', role:'b', name:'押金到账确认', desc:'服务方确认押金到账', status:{ key:'to_dpaid', label:'押金待确认', tone:'cyan' } },
+    { id:'ship', role:'b', name:'新增发货单（提交发货单）', desc:'服务方新增发货单；委托方按详情实际发货', status:{ key:'to_ship', label:'待发货', tone:'orange' } },
+    { id:'sign', role:'c', name:'签收（提交签收）', desc:'承租方签收，租期开始', status:{ key:'to_sign', label:'待签收', tone:'orange' } },
+    { id:'ret', role:'c', name:'新增退货单', desc:'承租方发起退货（新增环节）', opt:true, kind:'new', status:{ key:'to_ret', label:'待退货', tone:'red' } },
+    { id:'bill', role:'b', name:'创建对账单（确认）', desc:'服务方创建对账单并确认', status:{ key:'to_bill', label:'待对账', tone:'orange' } },
+    { id:'check', role:'c', name:'复核对账单（确认）', desc:'承租方复核对账单', status:{ key:'to_check', label:'对账待复核', tone:'orange' } },
+    { id:'rent', role:'c', name:'租金付款（付款）', desc:'承租方支付租金', status:{ key:'to_pay', label:'待付款', tone:'orange' } },
+    { id:'receipt', role:'a', name:'到账确认', desc:'委托方确认租金到账', status:{ key:'to_receipt', label:'到账待确认', tone:'orange' } },
+    { id:'back', role:'c', name:'新增商品归还', desc:'承租方发起商品归还', status:{ key:'to_giveback', label:'待归还', tone:'orange' } },
+    { id:'cback', role:'a', name:'商品归还确认', desc:'委托方确认商品归还', status:{ key:'to_cback', label:'归还待确认', tone:'orange' } },
+    { id:'penalty', role:'a', name:'违约金确认', desc:'如有违约，确认违约金', opt:true, status:{ key:'to_penalty', label:'待确认违约金', tone:'orange' } },
+    { id:'refund1', role:'a', name:'押金退还确认', desc:'委托方确认押金退还', status:{ key:'to_refund', label:'押金待退还', tone:'orange' } },
+    { id:'drefund', role:'c', name:'押金退款到账确认', desc:'承租方确认押金退款到账', status:{ key:'to_drefund', label:'押金退款待确认', tone:'orange' } },
+    { id:'inv', role:'a', name:'新增开票', desc:'委托方新增发票', status:{ key:'to_inv', label:'待开票', tone:'orange' } },
+    { id:'cinv', role:'c', name:'确认发票', desc:'承租方确认发票', status:{ key:'to_cinv', label:'发票待确认', tone:'orange' } },
+    { id:'end', role:'n', name:'结束订单', desc:'订单流程终态', status:{ key:'done', label:'已完成', tone:'green' } }
+  ],
+  actions: {
+    order:   [{ label:'提交订单', next:'audit' }],
+    audit:   [{ label:'审核通过', next:'take' }, { label:'审核不通过', next:'order', warn:true, log:'议价审核不通过，退回承租方重新确认' }],
+    take:    [{ label:'确认接单', next:'inv0' }],
+    inv0:    [{ label:'允许先开票', next:'submit' }, { label:'暂不开票', next:'submit', ghost:true }],
+    submit:  [{ label:'提交审核', next:'pay' }],
+    pay:     [{ label:'确认缴纳押金', next:'dpaid' }],
+    dpaid:   [{ label:'确认押金到账', next:'ship' }],
+    ship:    [{ label:'提交发货单', next:'sign' }],
+    sign:    [{ label:'确认签收', next:'ret' }],
+    ret:     [{ label:'发起退货', next:'bill', warn:true }, { label:'无退货，继续', next:'bill', ghost:true }],
+    bill:    [{ label:'创建对账单', next:'check' }],
+    check:   [{ label:'复核对账单', next:'rent' }],
+    rent:    [{ label:'确认付款', next:'receipt' }],
+    receipt: [{ label:'确认到账', next:'back' }],
+    back:    [{ label:'提交商品归还', next:'cback' }],
+    cback:   [{ label:'确认商品归还', next:'penalty' }],
+    penalty: [{ label:'确认违约金', next:'refund1', input:{ key:'damage', label:'违约金金额（元）', def:'zero' } },
+              { label:'无违约金', next:'refund1', ghost:true }],
+    refund1: [{ label:'确认押金退还', next:'drefund' }],
+    drefund: [{ label:'确认到账', next:'inv' }],
+    inv:     [{ label:'新增开票', next:'cinv' }],
+    cinv:    [{ label:'确认发票', next:'end' }],
+    end:     []
+  },
+  phases: [
+    { name:'下单', steps:['order'] },
+    { name:'审核接单', steps:['audit','take','inv0','submit'] },
+    { name:'押金', steps:['pay','dpaid'] },
+    { name:'发货签收', steps:['ship','sign','ret'] },
+    { name:'对账收款', steps:['bill','check','rent','receipt'] },
+    { name:'归还定损', steps:['back','cback','penalty'] },
+    { name:'押金退还', steps:['refund1','drefund'] },
+    { name:'开票结束', steps:['inv','cinv','end'] }
+  ],
+  filters: [
+    { key:'all', label:'全部' },
+    { key:'audit', label:'待审核', has:['draft','to_audit'] },
+    { key:'take', label:'待接单', has:['to_take','to_inv0','to_submit'] },
+    { key:'deposit', label:'押金结算', has:['to_pay_deposit','to_dpaid'] },
+    { key:'ship', label:'待发货', has:['to_ship'] },
+    { key:'sign', label:'待签收 / 租期', has:['to_sign'] },
+    { key:'ret', label:'退货', has:['to_ret'] },
+    { key:'bill', label:'待对账', has:['to_bill','to_check'] },
+    { key:'pay', label:'待付款', has:['to_pay','to_receipt'] },
+    { key:'giveback', label:'待归还', has:['to_giveback','to_cback','to_penalty'] },
+    { key:'refund', label:'押金退还', has:['to_refund','to_drefund'] },
+    { key:'invoice', label:'待开票', has:['to_inv','to_cinv'] },
+    { key:'done', label:'已完成', has:['done'] }
+  ],
+  raw: [
+    { no:'ZR2601001', type:'多店委托', status:'to_take', days:1, amount:18600, shop:'华商公司·华南店铺组', tenant:'总部公司', creator:'王小明', goods:'YJV 电缆 4×25', qty:'90 米' },
+    { no:'ZR2601002', type:'单店委托', status:'to_pay_deposit', days:3, amount:25000, shop:'其他公司店铺', tenant:'第二工程公司', creator:'李文博', goods:'扣件式钢管脚手架', qty:'300 套' },
+    { no:'ZR2601003', type:'多店委托', status:'to_ship', days:5, amount:43200, shop:'华商公司·华南店铺组', tenant:'西南分公司', creator:'赵倩', goods:'H 型钢 HW200×200', qty:'45 吨' },
+    { no:'ZR2601004', type:'单店委托', status:'to_bill', days:18, amount:32900, shop:'华商公司·西部组店铺', tenant:'河南八荒', creator:'孙鹏', goods:'铝模板 标准板', qty:'260 张' },
+    { no:'ZR2601005', type:'多店委托', status:'to_giveback', days:30, amount:56800, shop:'华商公司·华南店铺组', tenant:'总部公司', creator:'王小明', goods:'配电箱 XL-21', qty:'36 台' },
+    { no:'ZR2601006', type:'单店委托', status:'to_inv', days:42, amount:25000, shop:'华商公司·北部组店铺', tenant:'第二工程公司', creator:'李文博', goods:'KVV 控制电缆', qty:'180 米' },
+    { no:'ZR2601007', type:'多店委托', status:'done', days:56, amount:78400, shop:'华商公司·华南店铺组', tenant:'西南分公司', creator:'赵倩', goods:'YJV 电缆 4×70', qty:'240 米' }
+  ]
+};
+
+</script>
+<script>window.__F.push(window.ORDERS_FLOW);</script>
+
+<script>
+(function () {
+  'use strict';
+  var F = window.__F;
+  var RENT = { title: '租赁业务', sub: '出租订单：议价 → 接单 → 押金 → 发货 → 租期 → 退租对账 → 归还 → 押金退还 → 开票', steps: 26, orders: 18, todo: '5', admin: 'index.html', flow: 'flow.html' };
+  var cards = [RENT].concat(F.map(function (f) {
+    var pend = f.raw.filter(function (r) { return r.status !== 'done'; }).length;
+    return {
+      title: f.title.replace('列表', '').replace('订单', '') + '业务',
+      sub: f.steps.slice(0, 6).map(function (s) { return s.name; }).join(' → ') + ' …',
+      steps: f.steps.length, orders: f.raw.length, todo: String(pend),
+      admin: 'orders-' + (f.key === 'sale' ? 'sale' : (f.key === 'esale' ? 'entrust-sale' : 'entrust-rent')) + '.html',
+      flow: 'flow-' + (f.key === 'sale' ? 'sale' : (f.key === 'esale' ? 'entrust-sale' : 'entrust-rent')) + '.html'
+    };
+  }));
+
+  document.getElementById('ovGrid').innerHTML = cards.map(function (c) {
+    return '<div class="ov-card"><h3>' + c.title + '</h3>' +
+      '<div class="sub">' + c.sub + '</div>' +
+      '<div class="ov-stats">' +
+        '<div><b>' + c.steps + '</b><span>流程环节</span></div>' +
+        '<div><b>' + c.orders + '</b><span>订单数量</span></div>' +
+        '<div><b>' + c.todo + '</b><span>进行中</span></div>' +
+      '</div>' +
+      '<div class="ov-acts">' +
+        '<a class="btn btn-cyan btn-sm" href="租售店铺后台/' + c.admin + '">进入订单管理</a>' +
+        '<a class="btn btn-ghost btn-sm" href="租售店铺后台/' + c.flow + '">查看业务流程</a>' +
+      '</div></div>';
+  }).join('');
+
+  document.addEventListener('click', function (ev) {
+    var t = ev.target.closest ? ev.target.closest('[data-todo]') : null;
+    if (t) {
+      ev.preventDefault();
+      var el = document.getElementById('toast');
+      el.textContent = '演示原型：' + t.textContent.trim() + ' 模块未实现';
+      el.classList.add('is-on');
+      setTimeout(function () { el.classList.remove('is-on'); }, 1800);
+    }
+  });
+})();
+</script>
+</body>
+</html>

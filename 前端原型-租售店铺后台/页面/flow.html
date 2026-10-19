@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>业务流程 · 租售店铺管理后台</title>
+<meta name="description" content="租售店铺管理后台 · 租赁业务 · 商品租赁业务流程泳道图（出租方 / 承租方 / 平台方）。"/>
+<link rel="stylesheet" href="assets/admin.css"/>
+</head>
+<body>
+<div class="console">
+
+  <!-- ===================== 顶栏 ===================== -->
+  <header class="topbar">
+    <div class="brand-col">
+      <div class="brand">
+        <span class="brand-mark">TEST</span>
+        <span class="brand-name">租售店铺</span>
+      </div>
+      <label class="menu-search">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-search"/></svg>
+        <input type="text" placeholder="菜单查询" aria-label="菜单查询"/>
+      </label>
+    </div>
+
+    <nav class="topnav" id="topnav" aria-label="业务模块">
+      <button type="button" class="nav-item" data-module="sale">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-tag"/></svg></span>销售业务
+      </button>
+      <button type="button" class="nav-item is-active" data-module="rent">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-rent"/></svg></span>租赁业务
+      </button>
+      <button type="button" class="nav-item" data-module="info">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-info"/></svg></span>信息中心
+      </button>
+      <button type="button" class="nav-item" data-module="shop">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-shop"/></svg></span>店铺管理
+      </button>
+      <button type="button" class="nav-item" data-module="fee">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-fee"/></svg></span>佣金管理
+      </button>
+      <button type="button" class="nav-item" data-module="sys">
+        <span class="nav-tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-gear"/></svg></span>系统管理
+      </button>
+    </nav>
+  </header>
+
+  <div class="body">
+
+    <!-- ===================== 左侧菜单 ===================== -->
+    <aside class="sidebar">
+      <div class="side-parent">
+        <span>出租订单</span>
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-caret"/></svg>
+      </div>
+      <nav class="side-list">
+        <a class="side-item" href="index.html">订单管理</a>
+        <a class="side-item" href="#" data-todo>发货单管理</a>
+        <a class="side-item" href="#" data-todo>收货单管理</a>
+        <a class="side-item" href="#" data-todo>退货/租单管理</a>
+        <a class="side-item is-active" href="flow.html">业务流程</a>
+        <a class="side-item" href="#" data-todo>订单信息查询</a>
+      </nav>
+    </aside>
+
+    <!-- ===================== 主区 ===================== -->
+    <main class="main">
+
+      <div class="tabbar">
+        <span class="tab-back" title="返回"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-left"/></svg></span>
+        <a class="tab" href="#" data-todo>首页</a>
+        <a class="tab" href="index.html">订单管理<i class="x">×</i></a>
+        <a class="tab is-active" href="flow.html">业务流程<i class="x">×</i></a>
+      </div>
+
+      <div class="content">
+
+        <!-- 阶段筛选 -->
+        <div class="filters" id="phaseFilter">
+          <button type="button" class="filter is-active" data-phase="all">全部</button>
+          <button type="button" class="filter" data-phase="p1">① 开店及商品上架</button>
+          <button type="button" class="filter" data-phase="p2">② 租赁阶段</button>
+        </div>
+
+        <!-- 流程检索 -->
+        <section class="card search-card">
+          <div class="form-row">
+            <label class="field">
+              <span class="lb">节点名称</span>
+              <input type="text" id="q-name" placeholder="请输入节点名称，如：押金"/>
+            </label>
+            <label class="field">
+              <span class="lb">办理方</span>
+              <select id="q-lane">
+                <option value="">全部</option>
+                <option value="a">出租方</option>
+                <option value="b">承租方</option>
+                <option value="c">平台方</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="lb">节点类型</span>
+              <select id="q-type">
+                <option value="">全部</option>
+                <option value="task">操作节点</option>
+                <option value="decision">判断节点</option>
+                <option value="terminator">开始 / 结束</option>
+                <option value="new">新增节点</option>
+              </select>
+            </label>
+            <div class="field field-actions">
+              <button type="button" class="btn btn-cyan" id="btn-query">查 询</button>
+              <button type="button" class="btn btn-ghost" id="btn-reset">重 置</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 流程图 -->
+        <section class="card flow-card">
+          <div class="card-toolbar">
+            <h2 class="card-title">商品租赁业务流程</h2>
+            <div class="tool-group">
+              <button type="button" class="btn btn-cyan" id="btn-export">
+                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-export"/></svg>导出
+              </button>
+              <button type="button" class="btn btn-ghost" id="btn-print">
+                <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-print"/></svg>打印
+              </button>
+            </div>
+            <div class="zoom-group">
+              <button type="button" class="btn btn-ghost btn-sm" data-zoom="out">－</button>
+              <span class="zoom-val" id="zoomVal">100%</span>
+              <button type="button" class="btn btn-ghost btn-sm" data-zoom="in">＋</button>
+              <button type="button" class="btn btn-ghost btn-sm" data-zoom="fit">适应宽度</button>
+              <button type="button" class="btn btn-ghost btn-sm" data-zoom="reset">100%</button>
+            </div>
+            <div class="legend">
+              <span><i></i>操作节点</span>
+              <span><i class="lg-dec"></i>判断节点</span>
+              <span><i class="lg-new"></i>新增节点</span>
+              <span><i class="lg-term"></i>开始 / 结束</span>
+              <span><i class="lg-back"></i>驳回 / 回退</span>
+            </div>
+          </div>
+
+          <div class="stage" id="stage">
+            <div id="stageInner"></div>
+          </div>
+
+          <!-- 节点详情 -->
+          <aside class="node-detail" id="nodeDetail" hidden>
+            <div class="nd-head">
+              <span class="nd-lane lane-a">出租方</span>
+              <h4>节点名称</h4>
+              <button type="button" class="nd-close" aria-label="关闭">×</button>
+            </div>
+            <div class="nd-body">
+              <p class="nd-note"></p>
+              <dl class="nd-meta">
+                <div><dt>节点类型</dt><dd data-meta="type">—</dd></div>
+                <div><dt>办理方</dt><dd data-meta="lane">—</dd></div>
+                <div><dt>上游节点</dt><dd data-meta="up">—</dd></div>
+                <div><dt>下游节点</dt><dd data-meta="down">—</dd></div>
+              </dl>
+            </div>
+          </aside>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ===================== 箭头 marker ===================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0.6 L10,5 L0,9.4 z" fill="#8B98B8"/>
+    </marker>
+    <marker id="arrBack" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0.6 L10,5 L0,9.4 z" fill="#E0922A"/>
+    </marker>
+  </defs>
+</svg>
+
+<!-- ===================== 图标库 ===================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="ic-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></g></symbol>
+  <symbol id="ic-tag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3H4v7l10 10 7-7L11 3Z"/><circle cx="7.5" cy="6.5" r="1.3"/></g></symbol>
+  <symbol id="ic-rent" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5z"/><path d="M4 8.5 12 13l8-4.5M12 13v7"/></g></symbol>
+  <symbol id="ic-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v6M12 7.6v.6"/></g></symbol>
+  <symbol id="ic-shop" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v9h16v-9"/><path d="M3.5 10 5 4.5h14L20.5 10"/><path d="M3.5 10a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0"/><path d="M10 19v-5h4v5"/></g></symbol>
+  <symbol id="ic-fee" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9 9l3 3.2L15 9M12 12.2V17M9.5 13.6h5M9.5 15.6h5"/></g></symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></g></symbol>
+  <symbol id="ic-caret" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-export" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8 10.5l4 4 4-4"/><path d="M5 18.5h14"/></g></symbol>
+  <symbol id="ic-print" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="1.5"/><path d="M7 14h10v6H7z"/></g></symbol>
+</svg>
+
+<script src="assets/shell.js"></script>
+<script src="assets/flow.js"></script>
+<script src="assets/biz-bar.js"></script>
+</body>
+</html>

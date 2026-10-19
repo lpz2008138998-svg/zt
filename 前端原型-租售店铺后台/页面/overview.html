@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>业务总览 · 租售店铺管理后台</title>
+<meta name="description" content="租售店铺管理后台：租赁 / 商品销售 / 委托出售 / 委托出租 四条业务线统一入口。"/>
+<link rel="stylesheet" href="assets/admin.css"/>
+</head>
+<body>
+<div class="console">
+  <header class="topbar">
+    <div class="brand-col">
+      <div class="brand"><span class="brand-mark">TEST</span><span class="brand-name">租售店铺</span></div>
+      <label class="menu-search">
+        <svg class="ic" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></g></svg>
+        <input type="text" placeholder="菜单查询"/>
+      </label>
+    </div>
+    <nav class="topnav">
+      <button type="button" class="nav-item" data-todo><span class="nav-tile">销</span>销售业务</button>
+      <button type="button" class="nav-item is-active"><span class="nav-tile">租</span>租赁业务</button>
+      <button type="button" class="nav-item" data-todo><span class="nav-tile">信</span>信息中心</button>
+      <button type="button" class="nav-item" data-todo><span class="nav-tile">店</span>店铺管理</button>
+      <button type="button" class="nav-item" data-todo><span class="nav-tile">佣</span>佣金管理</button>
+      <button type="button" class="nav-item" data-todo><span class="nav-tile">系</span>系统管理</button>
+    </nav>
+  </header>
+  <div class="body">
+    <aside class="sidebar">
+      <div class="side-parent"><span>业务线</span></div>
+      <nav class="side-list">
+        <a class="side-item is-active" href="overview.html">业务总览</a>
+        <a class="side-item" href="index.html">租赁订单管理</a>
+        <a class="side-item" href="orders-sale.html">销售订单管理</a>
+        <a class="side-item" href="orders-entrust-sale.html">委托出售订单</a>
+        <a class="side-item" href="orders-entrust-rent.html">委托出租订单</a>
+      </nav>
+      <div class="side-parent"><span>业务流程</span></div>
+      <nav class="side-list">
+        <a class="side-item" href="flow.html">租赁业务流程</a>
+        <a class="side-item" href="flow-sale.html">商品销售流程</a>
+        <a class="side-item" href="flow-entrust-sale.html">委托出售流程</a>
+        <a class="side-item" href="flow-entrust-rent.html">委托出租流程</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <div class="tabbar">
+        <a class="tab is-active" href="overview.html">业务总览<i class="x">×</i></a>
+        <a class="tab" href="index.html">租赁订单<i class="x">×</i></a>
+        <a class="tab" href="orders-sale.html">销售订单<i class="x">×</i></a>
+      </div>
+      <div class="content">
+        <p class="ov-intro">四条业务线共用一套后台：每条线都有「订单管理」与「业务流程」两个页面，右上角可随时切换业务。</p>
+        <div class="ov-grid" id="ovGrid"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="assets/orders-sale.js"></script>
+<script>window.__F = []; window.__F.push(window.ORDERS_FLOW);</script>
+<script src="assets/orders-entrust-sale.js"></script>
+<script>window.__F.push(window.ORDERS_FLOW);</script>
+<script src="assets/orders-entrust-rent.js"></script>
+<script>window.__F.push(window.ORDERS_FLOW);</script>
+<script src="assets/biz-bar.js"></script>
+<script>
+(function () {
+  'use strict';
+  var F = window.__F;
+  var RENT = { title: '租赁业务', sub: '出租订单：议价 → 接单 → 押金 → 发货 → 租期 → 退租对账 → 归还 → 押金退还 → 开票', steps: 26, orders: 18, todo: '5', admin: 'index.html', flow: 'flow.html' };
+  var cards = [RENT].concat(F.map(function (f) {
+    var pend = f.raw.filter(function (r) { return r.status !== 'done'; }).length;
+    return {
+      title: f.title.replace('列表', '').replace('订单', '') + '业务',
+      sub: f.steps.slice(0, 6).map(function (s) { return s.name; }).join(' → ') + ' …',
+      steps: f.steps.length, orders: f.raw.length, todo: String(pend),
+      admin: 'orders-' + (f.key === 'sale' ? 'sale' : (f.key === 'esale' ? 'entrust-sale' : 'entrust-rent')) + '.html',
+      flow: 'flow-' + (f.key === 'sale' ? 'sale' : (f.key === 'esale' ? 'entrust-sale' : 'entrust-rent')) + '.html'
+    };
+  }));
+
+  document.getElementById('ovGrid').innerHTML = cards.map(function (c) {
+    return '<div class="ov-card"><h3>' + c.title + '</h3>' +
+      '<div class="sub">' + c.sub + '</div>' +
+      '<div class="ov-stats">' +
+        '<div><b>' + c.steps + '</b><span>流程环节</span></div>' +
+        '<div><b>' + c.orders + '</b><span>订单数量</span></div>' +
+        '<div><b>' + c.todo + '</b><span>进行中</span></div>' +
+      '</div>' +
+      '<div class="ov-acts">' +
+        '<a class="btn btn-cyan btn-sm" href="' + c.admin + '">进入订单管理</a>' +
+        '<a class="btn btn-ghost btn-sm" href="' + c.flow + '">查看业务流程</a>' +
+      '</div></div>';
+  }).join('');
+
+  document.addEventListener('click', function (ev) {
+    var t = ev.target.closest ? ev.target.closest('[data-todo]') : null;
+    if (t) {
+      ev.preventDefault();
+      var el = document.getElementById('toast');
+      el.textContent = '演示原型：' + t.textContent.trim() + ' 模块未实现';
+      el.classList.add('is-on');
+      setTimeout(function () { el.classList.remove('is-on'); }, 1800);
+    }
+  });
+})();
+</script>
+</body>
+</html>

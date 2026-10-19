@@ -1,0 +1,75 @@
+/* orders-entrust-sale.js —— 委托出售订单（委托方 / 服务方·华商公司 / 买方）状态机数据 */
+window.ORDERS_FLOW = {
+  key: 'esale',
+  title: '委托出售订单列表',
+  roles: { a: '委托方', b: '服务方', c: '买方', n: '—' },
+  operators: { a: '陈立（委托方）', b: '周敏（华商公司）', c: '李娜（买方）', n: '系统' },
+  cols: ['序号', '订单类型', '订单状态', '订单编号', '受理店铺 / 委托方', '买方单位'],
+  types: ['单店委托', '多店委托'],
+  amt: { total: '订单总额（元）', deposit: '委托保证金（元）', paidDeposit: '已缴委托保证金（元）',
+         checked: '已对账金额（元）', paid: '已付货款（元）', damage: '退货/扣款（元）', refunded: '已退委托保证金（元）' },
+  steps: [
+    { id:'order', role:'c', name:'采购下单', desc:'买方在受理委托的店铺下单', status:{ key:'draft', label:'待提交', tone:'gray' } },
+    { id:'audit', role:'b', name:'议价审核', desc:'服务方审核买方议价：不通过退回重新确认', status:{ key:'to_audit', label:'待审核', tone:'orange' } },
+    { id:'take', role:'b', name:'接单（店铺组）', desc:'华南公司下各店铺组 / 其他公司店铺接单', kind:'new', status:{ key:'to_take', label:'待接单', tone:'orange' } },
+    { id:'inv0', role:'b', name:'允许先开票', desc:'服务方允许先开票', opt:true, status:{ key:'to_inv0', label:'待开票确认', tone:'cyan' } },
+    { id:'submit', role:'c', name:'提交审核', desc:'买方提交审核（已接单后进入）', status:{ key:'to_submit', label:'待提交审核', tone:'orange' } },
+    { id:'advance', role:'b', name:'服务方垫资', desc:'服务方为委托方垫资', status:{ key:'to_advance', label:'待垫资', tone:'orange' } },
+    { id:'deliver', role:'a', name:'发货单（卖方发货）', desc:'同步发货单后，委托方按发货单详情实际发货', status:{ key:'to_deliver', label:'待发货', tone:'orange' } },
+    { id:'sign', role:'c', name:'签收（复核对账单）', desc:'买方签收并复核对账单', status:{ key:'to_sign', label:'待签收', tone:'orange' } },
+    { id:'ret', role:'c', name:'新增退货单', desc:'买方发起退货（新增环节）', opt:true, kind:'new', status:{ key:'to_ret', label:'待退货', tone:'red' } },
+    { id:'sync', role:'b', name:'新增发货单 / 创建销售对账单', desc:'执行中锁定库存，创建销售对账单', status:{ key:'to_sync', label:'待对账', tone:'orange' } },
+    { id:'bill', role:'a', name:'创建委托服务的对账单', desc:'委托方创建委托对账单并确认', status:{ key:'to_bill', label:'待委托对账', tone:'orange' } },
+    { id:'rent', role:'c', name:'商品付款（付款）', desc:'买方支付货款', status:{ key:'to_pay', label:'待付款', tone:'orange' } },
+    { id:'receipt', role:'a', name:'到账确认', desc:'委托方确认货款到账', status:{ key:'to_receipt', label:'到账待确认', tone:'orange' } },
+    { id:'cinv', role:'c', name:'确认发票（同意）', desc:'买方确认发票', status:{ key:'to_cinv', label:'发票待确认', tone:'orange' } },
+    { id:'end', role:'n', name:'结束订单', desc:'订单流程终态', status:{ key:'done', label:'已完成', tone:'green' } }
+  ],
+  actions: {
+    order:   [{ label:'提交订单', next:'audit' }],
+    audit:   [{ label:'审核通过', next:'take' }, { label:'审核不通过', next:'order', warn:true, log:'议价审核不通过，退回买方重新确认' }],
+    take:    [{ label:'确认接单', next:'inv0' }],
+    inv0:    [{ label:'允许先开票', next:'submit' }, { label:'暂不开票', next:'submit', ghost:true }],
+    submit:  [{ label:'提交审核', next:'advance' }],
+    advance: [{ label:'确认垫资', next:'deliver' }],
+    deliver: [{ label:'提交发货单', next:'sign' }],
+    sign:    [{ label:'确认签收', next:'ret' }],
+    ret:     [{ label:'发起退货', next:'sync', warn:true }, { label:'无退货，继续', next:'sync', ghost:true }],
+    sync:    [{ label:'创建销售对账单', next:'bill' }],
+    bill:    [{ label:'创建委托对账单', next:'rent' }],
+    rent:    [{ label:'确认付款', next:'receipt' }],
+    receipt: [{ label:'确认到账', next:'cinv' }],
+    cinv:    [{ label:'确认发票', next:'end' }],
+    end:     []
+  },
+  phases: [
+    { name:'下单', steps:['order'] },
+    { name:'审核接单', steps:['audit','take','inv0','submit'] },
+    { name:'垫资发货', steps:['advance','deliver'] },
+    { name:'签收退货', steps:['sign','ret'] },
+    { name:'对账收款', steps:['sync','bill','rent','receipt'] },
+    { name:'开票结束', steps:['cinv','end'] }
+  ],
+  filters: [
+    { key:'all', label:'全部' },
+    { key:'audit', label:'待审核', has:['draft','to_audit'] },
+    { key:'take', label:'待接单', has:['to_take'] },
+    { key:'submit', label:'待提交审核', has:['to_inv0','to_submit'] },
+    { key:'advance', label:'待垫资', has:['to_advance'] },
+    { key:'deliver', label:'待发货', has:['to_deliver'] },
+    { key:'sign', label:'待签收', has:['to_sign'] },
+    { key:'ret', label:'退货', has:['to_ret'] },
+    { key:'bill', label:'待对账', has:['to_sync','to_bill'] },
+    { key:'pay', label:'待付款', has:['to_pay','to_receipt'] },
+    { key:'invoice', label:'待开票', has:['to_cinv'] },
+    { key:'done', label:'已完成', has:['done'] }
+  ],
+  raw: [
+    { no:'WT2601001', type:'多店委托', status:'to_take', days:1, amount:52000, shop:'华商公司·华南店铺组', tenant:'总部公司', creator:'王小明', goods:'YJV 电缆 4×25', qty:'200 米' },
+    { no:'WT2601002', type:'单店委托', status:'to_deliver', days:4, amount:38800, shop:'华商公司·东部店铺组', tenant:'第二工程公司', creator:'李文博', goods:'扣件式钢管脚手架', qty:'600 套' },
+    { no:'WT2601003', type:'多店委托', status:'to_sign', days:7, amount:96500, shop:'华商公司·华南店铺组', tenant:'西南分公司', creator:'赵倩', goods:'H 型钢 HW200×200', qty:'120 吨' },
+    { no:'WT2601004', type:'单店委托', status:'to_sync', days:11, amount:27400, shop:'其他公司店铺', tenant:'河南八荒', creator:'孙鹏', goods:'铝模板 标准板', qty:'400 张' },
+    { no:'WT2601005', type:'多店委托', status:'to_pay', days:16, amount:63200, shop:'华商公司·华南店铺组', tenant:'总部公司', creator:'王小明', goods:'配电箱 XL-21', qty:'80 台' },
+    { no:'WT2601006', type:'单店委托', status:'done', days:23, amount:44800, shop:'华商公司·北部组店铺', tenant:'第二工程公司', creator:'李文博', goods:'KVV 控制电缆', qty:'260 米' }
+  ]
+};
